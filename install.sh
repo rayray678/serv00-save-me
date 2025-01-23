@@ -1,11 +1,11 @@
 #!/bin/bash
 U1=$(whoami)
+U1=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
 if [[ -z "$U1" ]]; then
     echo "未能获取当前用户名，退出。"
     exit 1
 fi
 echo ""
-U1=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
 D1="$U1.serv00.net"
 P1=3000
 R1="/home/$U1/domains"
