@@ -5,6 +5,7 @@ if [[ -z "$U1" ]]; then
     exit 1
 fi
 echo ""
+U1=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
 D1="$U1.serv00.net"
 P1=3000
 R1="/home/$U1/domains"
