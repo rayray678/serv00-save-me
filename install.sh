@@ -18,7 +18,7 @@ devil www del "$D1" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     echo " [OK] 默认域名 删除成功 "
 else
-    echo " [NO] 默认域名 不存在 或 删除失败 "
+    echo " [NO] 默认域名 删除失败 或 不存在 "
 fi
 
 if [[ -d "$D2" ]]; then
