@@ -9,8 +9,11 @@ print_status() {
         printf "\r[%s] %s" "${animation[$((i % 4))]}" "$message"
         sleep 0.25
     done
-    
-    # 显示最终状态，避免重新打印
+
+    # 清除动画部分
+    printf "\r                       \r"
+
+    # 显示最终状态
     if [[ $success -eq 0 ]]; then
         echo "[\033[0;32mOK\033[0m] $message"
     else
