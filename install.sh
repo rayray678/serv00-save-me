@@ -35,7 +35,7 @@ if [[ $? -eq 0 ]]; then
 else
     print_status "默认域名 删除失败 或 不存在" 1
 fi
-sleep 1
+sleep 0.5
 devil www add "$D1" nodejs /usr/local/bin/node22 > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     print_status "正在创建 类型域名" 0
@@ -43,7 +43,7 @@ else
     print_status "类型域名 创建失败，请检查环境设置" 1
     exit 1
 fi
-sleep 1
+sleep 0.5
 cd "$D2" && npm init -y > /dev/null 2>&1 && npm install dotenv basic-auth express > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     print_status "正在安装 环境依赖" 0
@@ -51,7 +51,7 @@ else
     print_status "环境依赖 安装失败" 1
     exit 1
 fi
-sleep 1
+sleep 0.5
 curl -s -o "$F1" "$L1" && chmod 755 "$F1" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     print_status "正在下载 配置文件" 0
