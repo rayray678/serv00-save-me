@@ -14,6 +14,7 @@ print_status() {
     else
         printf "\r[\033[0;31mNO\033[0m] %s\n" "$message" # 红色NO
     fi
+    sleep 3
 }
 
 U1=$(whoami)
