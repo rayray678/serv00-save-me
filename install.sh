@@ -6,15 +6,16 @@ print_status() {
 
     # 动画字符定义
     animation=("▖" "▘" "▝" "▗")
-    for i in {1..8}; do
+    for i in {1..16}; do  # 循环16次，约4秒
         printf "\r[%s] %s" "${animation[$((i % 4))]}" "$message"
-        sleep 0.1
+        sleep 0.25
     done
 
+    printf "\r\033[K" # 清除当前行
     if [[ $success -eq 0 ]]; then
-        printf "\r[\033[0;32mOK\033[0m] %s\n" "$message" # 成功绿色OK
+        printf "[\033[0;32mOK\033[0m] %s\n" "$message" # 成功绿色OK
     else
-        printf "\r[\033[0;31mNO\033[0m] %s\n" "$message" # 失败红色NO
+        printf "[\033[0;31mNO\033[0m] %s\n" "$message" # 失败红色NO
     fi
 }
 
