@@ -1,4 +1,5 @@
 #!/bin/bash
+cd /
 U1=$(whoami)
 U1_DOMAIN=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
 if [[ -z "$U1" ]]; then
@@ -12,7 +13,7 @@ D2="/home/$U1/domains/$D1"
 F1="$D2/public_nodejs/app.js"
 L1="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/app.js"
 echo " ———————————————————————————————————————————————————————————— "
-cd && devil www del "$D1" > /dev/null 2>&1 &
+devil www del "$D1" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     echo " [OK] 默认域名 删除成功 "
 else
@@ -34,6 +35,8 @@ if [[ ! -d "$D2" ]]; then
     mkdir -p "$D2"
 fi
 
+cd "$D2"
+npm init -y > /dev/null 2>&1
 if npm install dotenv basic-auth express > /dev/null 2>&1; then
     echo " [OK] 环境依赖 安装成功 "
 else
@@ -42,6 +45,7 @@ else
 fi
 
 if curl -s -o "$F1" "$L1"; then
+    chmod 755 "$F1"
     echo " [OK] 配置文件 下载成功 "
 else
     echo " [NO] 配置文件 下载失败 "
