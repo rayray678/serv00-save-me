@@ -15,9 +15,9 @@ print_status() {
 
     # 显示最终状态
     if [[ $success -eq 0 ]]; then
-        echo "[\033[0;32mOK\033[0m] $message"
+        printf "[\033[0;32mOK\033[0m] %s\n" "$message"
     else
-        echo "[\033[0;31mNO\033[0m] $message"
+        printf "[\033[0;31mNO\033[0m] %s\n" "$message"
     fi
 }
 
