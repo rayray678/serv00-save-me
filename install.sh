@@ -2,25 +2,23 @@
 print_status() {
     local message=$1
     local success=$2
+    local start_time=$(date +%s) 
     animation=("◐" "◓" "◑" "◒")
-    
-    # 显示动画
-    for i in {1..16}; do
-        printf "\r[%s] %s" "${animation[$((i % 4))]}" "$message"
+    while true; do
+        local elapsed_time=$(( $(date +%s) - start_time ))
+        printf "\r[%s] %s" "${animation[$((elapsed_time % 4))]}" "$message"
+        if [[ $elapsed_time -ge 4 ]]; then
+            break
+        fi
         sleep 0.25
     done
-
-    # 清除动画部分
     printf "\r                       \r"
-
-    # 显示最终状态
     if [[ $success -eq 0 ]]; then
         printf "[\033[0;32mOK\033[0m] %s\n" "$message"
     else
         printf "[\033[0;31mNO\033[0m] %s\n" "$message"
     fi
 }
-
 U1=$(whoami)
 U1_DOMAIN=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
 D1="$U1_DOMAIN.serv00.net"
