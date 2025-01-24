@@ -3,7 +3,7 @@ print_status() {
     local message=$1
     local success=$2
     local start_time=$(date +%s) 
-    animation=("◐" "◓" "◑" "◒")
+    animation=("◜" "◝" "◞" "◟")
     while true; do
         local elapsed_time=$(( $(date +%s) - start_time ))
         printf "\r[%s] %s" "${animation[$((elapsed_time % 4))]}" "$message"
