@@ -12,8 +12,7 @@ D2="/home/$U1/domains/$D1"
 F1="$D2/public_nodejs/app.js"
 L1="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/app.js"
 echo " ———————————————————————————————————————————————————————————— "
-cd
-devil www del "$D1" > /dev/null 2>&1
+cd && devil www del "$D1" > /dev/null 2>&1 &
 if [[ $? -eq 0 ]]; then
     echo " [OK] 默认域名 删除成功 "
 else
