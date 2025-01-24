@@ -1,16 +1,11 @@
 #!/bin/bash
 U1=$(whoami)
 U1_DOMAIN=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
-if [[ -z "$U1" ]]; then
-    echo "未能获取当前用户名，退出。"
-    exit 1
-fi
-echo ""
 D1="$U1_DOMAIN.serv00.net"
-P1=3000
 D2="/home/$U1/domains/$D1"
 F1="$D2/public_nodejs/app.js"
 L1="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/app.js"
+echo ""
 echo " ———————————————————————————————————————————————————————————— "
 cd && devil www del "$D1" > /dev/null 2>&1 || echo " [NO] 默认域名 删除失败 或 不存在 " && echo " [OK] 默认域名 删除成功 "
 [[ -d "$D2" ]] && rm -rf "$D2"
