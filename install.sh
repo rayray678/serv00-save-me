@@ -3,11 +3,11 @@ print_status() {
     local message=$1
     local success=$2
     local start_time=$(date +%s)
-    local min_time=3
-    local animation=("-" "/" "|" "\\")
+    local min_time=2
+    local animation=("+")
     while true; do
         local elapsed_time=$(( $(date +%s) - start_time ))
-        printf "\r[%s] %s" "${animation[$((elapsed_time % 4))]}" "$message"
+        printf "\r[%s] %s" "${animation[$((elapsed_time % 1))]}" "$message"
         if [[ $elapsed_time -ge 1 ]]; then
             break
         fi
