@@ -8,10 +8,8 @@ fi
 echo ""
 D1="$U1_DOMAIN.serv00.net"
 P1=3000
-R1="/home/$U1/domains"
-D2="$R1/$D1"
-N1="$D2/public_nodejs"
-F1="$N1/app.js"
+D2="/home/$U1/domains/$D1"
+F1="$D2/public_nodejs/app.js"
 L1="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/app.js"
 echo " ———————————————————————————————————————————————————————————— "
 devil www del "$D1" > /dev/null 2>&1
@@ -32,8 +30,8 @@ else
     exit 1
 fi
 
-if [[ ! -d "$N1" ]]; then
-    mkdir -p "$N1"
+if [[ ! -d "$D2" ]]; then
+    mkdir -p "$D2"
 fi
 
 if npm install dotenv basic-auth express > /dev/null 2>&1; then
