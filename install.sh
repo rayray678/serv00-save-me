@@ -19,6 +19,7 @@ print_status() {
     done
 
     # 清除行并结束动画
+    printf "\r                       \r"
     printf "\r[\033[0;32mOK\033[0m] %s\n" "$message"
 }
 
