@@ -80,9 +80,10 @@ app.get("/info", (req, res) => {
                     }
                     .text-container span {
                         display: inline-block;
-                        animation: roll 1.5s infinite;
-                        letter-spacing: 6px; /* 增加字间距 */
+                        animation: roll 1.5s infinite, spacing 3s infinite; /* 添加字间距动画 */
                     }
+
+                    /* 字体大小滚动效果 */
                     @keyframes roll {
                         0%, 100% {
                             transform: scale(1);
@@ -91,6 +92,17 @@ app.get("/info", (req, res) => {
                             transform: scale(1.5);
                         }
                     }
+
+                    /* 字间距自动变化效果 */
+                    @keyframes spacing {
+                        0%, 100% {
+                            letter-spacing: 2px; /* 初始字间距 */
+                        }
+                        50% {
+                            letter-spacing: 10px; /* 中间字间距增加 */
+                        }
+                    }
+
                     .text-container span:nth-child(1) { animation-delay: 0s; }
                     .text-container span:nth-child(2) { animation-delay: 0.1s; }
                     .text-container span:nth-child(3) { animation-delay: 0.2s; }
