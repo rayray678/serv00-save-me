@@ -73,22 +73,50 @@ app.get("/node_info", (req, res) => {
     });
 });
 
-// /keepalive：显示最近一条日志和实时进程信息中的最后一条
+// /keepalive：显示最近一条日志和所有的实时进程信息，进程部分为可滑动窗口
 app.get("/keepalive", (req, res) => {
-    const command = "ps aux"; // 获取实时进程信息
-    executeCommand(command, "实时进程信息", false, (processOutput) => {
+    const command = "ps aux"; // 执行 ps aux 命令获取所有的实时进程信息
+    exec(command, (err, stdout, stderr) => {
+        if (err) {
+            return res.type("html").send(`
+                <pre><b>最近日志:</b>\n${logs[logs.length - 1] || "暂无日志"}</pre>
+                <pre><b>实时进程信息:</b>\n执行错误: ${err.message}</pre>
+            `);
+        }
+
+        // 获取所有进程信息
+        const processOutput = stdout.trim(); // 去除空白行
+
+        // 获取最近日志
         const latestLog = logs[logs.length - 1] || "暂无日志";
 
-        // 提取实时进程信息的最后一行
-        const processLines = processOutput.trim().split("\n");
-        const lastProcessLine = processLines[processLines.length - 1] || "暂无实时进程信息";
-
+        // 输出结果到网页，并添加可滑动窗口样式
         res.type("html").send(`
-            <pre><b>最近日志:</b>\n${latestLog}</pre>
-            <pre><b>最后一个进程信息:</b>\n${lastProcessLine}</pre>
+            <html>
+                <head>
+                    <style>
+                        /* 可滑动窗口样式 */
+                        .scrollable {
+                            max-height: 400px;  /* 设置最大高度 */
+                            overflow-y: auto;   /* 设置垂直滚动 */
+                            border: 1px solid #ccc;
+                            padding: 10px;
+                            margin-top: 20px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <pre><b>最近日志:</b>\n${latestLog}</pre>
+                    
+                    <div class="scrollable">
+                        <pre><b>实时进程信息:</b>\n${processOutput}</pre>
+                    </div>
+                </body>
+            </html>
         `);
     });
 });
+
 
 
 // 404 页面处理
