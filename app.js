@@ -72,25 +72,42 @@ app.get("/info", (req, res) => {
                         font-family: Arial, sans-serif;
                         background-color: #f4f4f4;
                     }
-                    pre {
-                        font-size: 18px;
-                        font-weight: bold;
+                    .text-container {
                         text-align: center;
+                        font-weight: bold;
+                        font-size: 18px;
                         color: #333;
-                        animation: pulse 2s infinite;
                     }
-                    @keyframes pulse {
+                    .text-container span {
+                        display: inline-block;
+                        animation: roll 1.5s infinite;
+                    }
+                    @keyframes roll {
                         0%, 100% {
-                            font-size: 18px;
+                            transform: scale(1);
                         }
                         50% {
-                            font-size: 24px;
+                            transform: scale(1.5);
                         }
                     }
+                    .text-container span:nth-child(1) { animation-delay: 0s; }
+                    .text-container span:nth-child(2) { animation-delay: 0.1s; }
+                    .text-container span:nth-child(3) { animation-delay: 0.2s; }
+                    .text-container span:nth-child(4) { animation-delay: 0.3s; }
+                    .text-container span:nth-child(5) { animation-delay: 0.4s; }
+                    .text-container span:nth-child(6) { animation-delay: 0.5s; }
+                    .text-container span:nth-child(7) { animation-delay: 0.6s; }
                 </style>
             </head>
             <body>
-                <pre>SingBox 已复活\nKeepAlive 进程守护中</pre>
+                <div class="text-container">
+                    <div>
+                        ${"SingBox 已复活".split("").map((char, i) => `<span>${char}</span>`).join("")}
+                    </div>
+                    <div>
+                        ${"KeepAlive 进程守护中".split("").map((char, i) => `<span>${char}</span>`).join("")}
+                    </div>
+                </div>
             </body>
         </html>
     `);
