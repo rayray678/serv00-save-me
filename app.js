@@ -81,6 +81,7 @@ app.get("/info", (req, res) => {
                     .text-container span {
                         display: inline-block;
                         animation: roll 1.5s infinite;
+                        letter-spacing: 3px; /* 增加字间距 */
                     }
                     @keyframes roll {
                         0%, 100% {
@@ -102,10 +103,10 @@ app.get("/info", (req, res) => {
             <body>
                 <div class="text-container">
                     <div>
-                        ${"S i n g B o x   已 复 活".split("").map((char, i) => `<span>${char}</span>`).join("")}
+                        ${"SingBox 已复活".split("").map((char, i) => `<span>${char}</span>`).join("")}
                     </div>
                     <div>
-                        ${"K e e p A l i v e  进 程 守 护 中".split("").map((char, i) => `<span>${char}</span>`).join("")}
+                        ${"KeepAlive 进程守护中".split("").map((char, i) => `<span>${char}</span>`).join("")}
                     </div>
                 </div>
             </body>
