@@ -97,17 +97,20 @@ app.get("/keepalive", (req, res) => {
                     <style>
                         /* 可滑动窗口样式 */
                         .scrollable {
-                            max-height: 400px;  /* 设置最大高度 */
+                            max-height: 300px;  /* 设置最大高度 */
                             overflow-y: auto;   /* 设置垂直滚动 */
                             border: 1px solid #ccc;
                             padding: 10px;
                             margin-top: 20px;
+                            background-color: #f9f9f9;
                         }
                     </style>
                 </head>
                 <body>
+                    <!-- 显示最近日志 -->
                     <pre><b>最近日志:</b>\n${latestLog}</pre>
                     
+                    <!-- 可滑动的进程信息区域 -->
                     <div class="scrollable">
                         <pre><b>实时进程信息:</b>\n${processOutput}</pre>
                     </div>
@@ -116,8 +119,6 @@ app.get("/keepalive", (req, res) => {
         `);
     });
 });
-
-
 
 // 404 页面处理
 app.use((req, res, next) => {
