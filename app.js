@@ -73,17 +73,23 @@ app.get("/node_info", (req, res) => {
     });
 });
 
-// /keepalive：显示最近一条日志，并实时显示进程信息
+// /keepalive：显示最近一条日志和实时进程信息中的最后一条
 app.get("/keepalive", (req, res) => {
-    const command = "ps aux"; // 示例：获取实时进程信息
+    const command = "ps aux"; // 获取实时进程信息
     executeCommand(command, "实时进程信息", false, (processOutput) => {
         const latestLog = logs[logs.length - 1] || "暂无日志";
+
+        // 提取实时进程信息的最后一行
+        const processLines = processOutput.trim().split("\n");
+        const lastProcessLine = processLines[processLines.length - 1] || "暂无实时进程信息";
+
         res.type("html").send(`
-            <pre>最近日志:\n${latestLog}</pre>
-            <pre>实时进程信息:\n${processOutput}</pre>
+            <pre><b>最近日志:</b>\n${latestLog}</pre>
+            <pre><b>最后一个进程信息:</b>\n${lastProcessLine}</pre>
         `);
     });
 });
+
 
 // 404 页面处理
 app.use((req, res, next) => {
