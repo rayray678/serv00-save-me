@@ -34,6 +34,21 @@ function executeCommand(command, actionName, isStartLog = false, callback) {
         if (callback) callback(stdout);
     });
 }
+// 执行 start.sh 的 shell 命令
+function runShellCommand() {
+    const commandToRun = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
+    executeCommand(commandToRun, "start.sh", true);
+}
+
+// KeepAlive 函数
+function KeepAlive() {
+    const commandToRun = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
+    executeCommand(commandToRun, "keepalive.sh", true);
+}
+
+// 每隔20秒自动执行 keepalive.sh
+setInterval(KeepAlive, 20000);
+
 app.get("/node_info", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
     fs.readFile(filePath, "utf8", (err, data) => {
