@@ -102,10 +102,10 @@ app.get("/info", (req, res) => {
             <body>
                 <div class="text-container">
                     <div>
-                        ${"SingBox 已复活".split("").map((char, i) => `<span>${char}</span>`).join("")}
+                        ${"S i n g B o x   已 复 活".split("").map((char, i) => `<span>${char}</span>`).join("")}
                     </div>
                     <div>
-                        ${"KeepAlive 进程守护中".split("").map((char, i) => `<span>${char}</span>`).join("")}
+                        ${"K e e p A l i v e  进 程 守 护 中".split("").map((char, i) => `<span>${char}</span>`).join("")}
                     </div>
                 </div>
             </body>
