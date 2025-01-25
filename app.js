@@ -4,18 +4,12 @@ const { exec } = require('child_process');
 const path = require('path');
 const app = express();
 app.use(express.json());
-
-// 存储最多5条日志
 let logs = [];
 let latestStartLog = "";
-
-// 日志记录函数
 function logMessage(message) {
     logs.push(message);
     if (logs.length > 5) logs.shift();
 }
-
-// 执行通用的 shell 命令
 function executeCommand(commandToRun, actionName, isStartLog = false) {
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
@@ -39,23 +33,15 @@ function executeCommand(commandToRun, actionName, isStartLog = false) {
         if (isStartLog) latestStartLog = successMsg;
     });
 }
-
-// 执行 start.sh 的 shell 命令
 function runShellCommand() {
     const commandToRun = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
     executeCommand(commandToRun, "start.sh", true);
 }
-
-// KeepAlive 函数
 function KeepAlive() {
     const commandToRun = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
     executeCommand(commandToRun, "keepalive.sh", true);
 }
-
-// 每隔20秒自动执行 keepalive.sh
 setInterval(KeepAlive, 20000);
-
-// /info 执行 start.sh 和 keepalive.sh
 app.get("/info", (req, res) => {
     runShellCommand();
     KeepAlive();
@@ -82,8 +68,6 @@ app.get("/info", (req, res) => {
                         display: inline-block;
                         animation: roll 1.5s infinite, spacing 3s infinite; /* 添加字间距动画 */
                     }
-
-                    /* 字体大小滚动效果 */
                     @keyframes roll {
                         0%, 100% {
                             transform: scale(1);
@@ -92,14 +76,12 @@ app.get("/info", (req, res) => {
                             transform: scale(1.5);
                         }
                     }
-
-                    /* 字间距自动变化效果 */
                     @keyframes spacing {
                         0%, 100% {
-                            letter-spacing: 2px; /* 初始字间距 */
+                            letter-spacing: 2px; 
                         }
                         50% {
-                            letter-spacing: 10px; /* 中间字间距增加 */
+                            letter-spacing: 10px; 
                         }
                     }
 
@@ -126,17 +108,14 @@ app.get("/info", (req, res) => {
     `);
 });
 
-// /node_info 显示 start.sh 日志
 app.get("/node_info", (req, res) => {
     res.type("html").send("<pre>" + (latestStartLog || "暂无日志") + "</pre>");
 });
 
-// /keepalive 显示所有日志
 app.get("/keepalive", (req, res) => {
     res.type("html").send("<pre>" + logs.join("\n") + "</pre>");
 });
 
-// 404 页面处理
 app.use((req, res, next) => {
     if (req.path === '/info' || req.path === '/node_info' || req.path === '/keepalive') {
         return next();
@@ -144,7 +123,6 @@ app.use((req, res, next) => {
     res.status(404).send("页面未找到");
 });
 
-// 启动服务器
 app.listen(3000, () => {
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
