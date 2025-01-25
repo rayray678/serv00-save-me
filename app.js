@@ -77,11 +77,20 @@ app.get("/info", (req, res) => {
                         font-weight: bold;
                         text-align: center;
                         color: #333;
+                        animation: pulse 2s infinite;
+                    }
+                    @keyframes pulse {
+                        0%, 100% {
+                            font-size: 18px;
+                        }
+                        50% {
+                            font-size: 24px;
+                        }
                     }
                 </style>
             </head>
             <body>
-                <pre>SingBox 己成功复活\nKeepAlive 进程守护中</pre>
+                <pre>SingBox 已复活\nKeepAlive 进程守护中</pre>
             </body>
         </html>
     `);
