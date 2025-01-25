@@ -34,6 +34,90 @@ function executeCommand(command, actionName, isStartLog = false, callback) {
         if (callback) callback(stdout);
     });
 }
+app.get("/node_info", (req, res) => {
+    const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
+    fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+            res.type("html").send(`<pre>无法读取文件: ${err.message}</pre>`);
+            return;
+        }
+
+        // 提取 vmess, hysteria2 和 proxyip 配置
+        const vmessPattern = /vmess:\/\/[^\n]+/g;
+        const hysteriaPattern = /hysteria2:\/\/[^\n]+/g;
+        const proxyipPattern = /proxyip:\/\/[^\n]+/g;
+
+        const vmessConfigs = data.match(vmessPattern) || [];
+        const hysteriaConfigs = data.match(hysteriaPattern) || [];
+        const proxyipConfigs = data.match(proxyipPattern) || [];
+
+        // 合并所有配置
+        const allConfigs = [...vmessConfigs, ...hysteriaConfigs, ...proxyipConfigs];
+
+        // 生成 HTML
+        let htmlContent = `
+            <html>
+            <head>
+                <style>
+                    /* 局部可滑动窗口样式 */
+                    .config-box {
+                        max-height: 400px;  /* 设置最大高度 */
+                        overflow-y: auto;   /* 设置垂直滚动 */
+                        border: 1px solid #ccc;
+                        padding: 10px;
+                        background-color: #f4f4f4;
+                    }
+                    .copy-btn {
+                        padding: 5px 10px;
+                        cursor: pointer;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                    }
+                    .copy-btn:hover {
+                        background-color: #0056b3;
+                    }
+                </style>
+            </head>
+            <body>
+                <div>
+                    <h3>配置内容</h3>
+                    <!-- 可滑动的配置内容区域 -->
+                    <div class="config-box" id="configBox">
+                        <pre id="configContent">
+        `;
+
+        // 将所有配置内容放入一个 `pre` 标签中
+        allConfigs.forEach((config) => {
+            htmlContent += `${config}\n`;
+        });
+
+        htmlContent += `
+                        </pre>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('#configContent')">复制所有配置</button>
+                </div>
+
+                <script>
+                    function copyToClipboard(id) {
+                        var text = document.querySelector(id).textContent;
+                        var textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('所有配置已复制到剪贴板！');
+                    }
+                </script>
+            </body>
+            </html>
+        `;
+
+        res.type("html").send(htmlContent);
+    });
+});
 
 // 执行 start.sh 的 shell 命令
 function runShellCommand() {
