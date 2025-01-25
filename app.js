@@ -75,7 +75,7 @@ app.get("/node_info", (req, res) => {
 
 // /keepalive：显示最近一条日志和所有的实时进程信息，进程部分为可滑动窗口
 app.get("/keepalive", (req, res) => {
-    const command = "ps aux"; // 执行 ps aux 命令获取所有的实时进程信息
+    const command = "ps -A"; // 执行 ps aux 命令获取所有的实时进程信息
     exec(command, (err, stdout, stderr) => {
         if (err) {
             return res.type("html").send(`
