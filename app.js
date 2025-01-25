@@ -72,37 +72,36 @@ app.get("/info", (req, res) => {
 
                 /* 动态文字特效 */
                 .dynamic-text {
-                    font-size: 36px; /* 增大字体 */
+                    font-size: 24px; /* 初始字体大小 */
                     font-weight: bold;
                     color: #4CAF50;
                     margin: 20px 0;
-                    animation: typing 4s steps(30) 1s infinite normal both,
-                               blink 0.75s step-end infinite;
+                    white-space: nowrap;
+                    animation: growText 3s steps(5) infinite; /* 动画：字符逐渐变大 */
                 }
 
-                /* 打字机效果 */
-                @keyframes typing {
-                    from {
-                        width: 0;
+                /* 字符逐渐增大的效果 */
+                @keyframes growText {
+                    0% {
+                        font-size: 24px;
                     }
-                    to {
-                        width: 100%;
+                    25% {
+                        font-size: 28px;
                     }
-                }
-
-                /* 闪烁效果 */
-                @keyframes blink {
                     50% {
-                        opacity: 0;
+                        font-size: 32px;
+                    }
+                    75% {
+                        font-size: 36px;
+                    }
+                    100% {
+                        font-size: 40px;
                     }
                 }
 
                 /* 固定按钮样式 */
-                .fixed-buttons {
-                    position: fixed;
-                    bottom: 20px;
-                    left: 20px;
-                    z-index: 9999;
+                .button-container {
+                    margin-top: 30px; /* 将按钮放在特效文字下方 */
                 }
 
                 .copy-btn {
@@ -127,7 +126,7 @@ app.get("/info", (req, res) => {
                 <pre class="dynamic-text">HtmlOnLive 守护中...</pre>
             </div>
 
-            <div class="fixed-buttons">
+            <div class="button-container">
                 <button onclick="window.location.href='/node_info'" class="copy-btn">查看节点信息</button>
                 <button onclick="window.location.href='/keepalive'" class="copy-btn">查看实时日志</button>
             </div>
@@ -135,7 +134,6 @@ app.get("/info", (req, res) => {
         </html>
     `);
 });
-
 
 app.get("/node_info", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
