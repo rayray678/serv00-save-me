@@ -57,78 +57,112 @@ app.get("/info", (req, res) => {
         <html>
         <head>
             <style>
-                /* 整体居中布局 */
+                /* 居中对齐页面内容 */
                 body {
                     display: flex;
-                    flex-direction: column;
-                    align-items: center;
                     justify-content: center;
+                    align-items: center;
                     height: 100vh;
                     margin: 0;
                     font-family: Arial, sans-serif;
-                    background-color: #f0f0f0;
                     text-align: center;
                 }
 
-                /* 动态文字特效 */
-                .dynamic-text {
-                    font-size: 24px; /* 初始字体大小 */
-                    font-weight: bold;
-                    color: #4CAF50;
-                    margin: 20px 0;
-                    white-space: nowrap;
-                    animation: growText 3s steps(5) infinite; /* 动画：字符逐渐变大 */
+                /* 包裹内容的容器 */
+                .content-container {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    max-width: 600px;
                 }
 
-                /* 字符逐渐增大的效果 */
-                @keyframes growText {
+                /* 设置字体大小和渐变动画 */
+                .dynamic-text {
+                    font-size: 30px;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    display: inline-block;
+                }
+
+                /* 动画效果：逐字放大 */
+                @keyframes growShrink {
                     0% {
-                        font-size: 24px;
+                        transform: scale(1);
                     }
                     25% {
-                        font-size: 28px;
+                        transform: scale(1.5);
                     }
                     50% {
-                        font-size: 32px;
-                    }
-                    75% {
-                        font-size: 36px;
-                    }
-                    100% {
-                        font-size: 40px;
+                        transform: scale(1);
                     }
                 }
 
-                /* 固定按钮样式 */
+                .dynamic-text span {
+                    display: inline-block;
+                    animation: growShrink 1s infinite;
+                    animation-delay: calc(0.1s * var(--char-index));
+                }
+
+                /* 按钮样式 */
                 .button-container {
-                    margin-top: 30px; /* 将按钮放在特效文字下方 */
+                    margin-top: 20px;
                 }
 
-                .copy-btn {
+                button {
                     padding: 10px 20px;
+                    font-size: 16px;
                     cursor: pointer;
                     background-color: #007bff;
                     color: white;
                     border: none;
                     border-radius: 5px;
-                    margin-bottom: 10px;
-                    font-size: 16px;
+                    margin: 10px 20px;
                 }
 
-                .copy-btn:hover {
+                button:hover {
                     background-color: #0056b3;
                 }
             </style>
         </head>
         <body>
-            <div>
-                <pre class="dynamic-text">SingBox 已复活</pre>
-                <pre class="dynamic-text">HtmlOnLive 守护中...</pre>
-            </div>
-
-            <div class="button-container">
-                <button onclick="window.location.href='/node_info'" class="copy-btn">查看节点信息</button>
-                <button onclick="window.location.href='/keepalive'" class="copy-btn">查看实时日志</button>
+            <div class="content-container">
+                <div class="dynamic-text">
+                    <span style="--char-index: 0;">S</span>
+                    <span style="--char-index: 1;">i</span>
+                    <span style="--char-index: 2;">n</span>
+                    <span style="--char-index: 3;">g</span>
+                    <span style="--char-index: 4;">B</span>
+                    <span style="--char-index: 5;">o</span>
+                    <span style="--char-index: 6;">x</span>
+                    <span style="--char-index: 7;"> </span>
+                    <span style="--char-index: 8;">已</span>
+                    <span style="--char-index: 9;">复</span>
+                    <span style="--char-index: 10;">活</span>
+                </div>
+                <div class="dynamic-text" style="margin-top: 20px;">
+                    <span style="--char-index: 11;">H</span>
+                    <span style="--char-index: 12;">t</span>
+                    <span style="--char-index: 13;">m</span>
+                    <span style="--char-index: 14;">l</span>
+                    <span style="--char-index: 15;">O</span>
+                    <span style="--char-index: 16;">n</span>
+                    <span style="--char-index: 17;">L</span>
+                    <span style="--char-index: 18;">i</span>
+                    <span style="--char-index: 19;">v</span>
+                    <span style="--char-index: 20;">e</span>
+                    <span style="--char-index: 21;"> </span>
+                    <span style="--char-index: 22;">守</span>
+                    <span style="--char-index: 23;">护</span>
+                    <span style="--char-index: 24;">中</span>
+                    <span style="--char-index: 25;">...</span>
+                </div>
+                <!-- 按钮区域 -->
+                <div class="button-container">
+                    <button onclick="window.location.href='/node_info'">查看节点信息</button>
+                    <button onclick="window.location.href='/keepalive'">查看实时日志</button>
+                </div>
             </div>
         </body>
         </html>
