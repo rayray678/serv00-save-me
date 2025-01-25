@@ -81,7 +81,7 @@ app.get("/info", (req, res) => {
                     .text-container span {
                         display: inline-block;
                         animation: roll 1.5s infinite;
-                        letter-spacing: 3px; /* 增加字间距 */
+                        letter-spacing: 6px; /* 增加字间距 */
                     }
                     @keyframes roll {
                         0%, 100% {
