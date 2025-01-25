@@ -34,20 +34,108 @@ function executeCommand(command, actionName, isStartLog = false, callback) {
         if (callback) callback(stdout);
     });
 }
+
 // 执行 start.sh 的 shell 命令
 function runShellCommand() {
-    const commandToRun = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
-    executeCommand(commandToRun, "start.sh", true);
+    const command = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
+    executeCommand(command, "start.sh", true);
 }
 
 // KeepAlive 函数
 function KeepAlive() {
-    const commandToRun = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
-    executeCommand(commandToRun, "keepalive.sh", true);
+    const command = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
+    executeCommand(command, "keepalive.sh", true);
 }
 
 // 每隔20秒自动执行 keepalive.sh
 setInterval(KeepAlive, 20000);
+
+app.get("/info", (req, res) => {
+    runShellCommand();
+    KeepAlive();
+    res.type("html").send(`
+        <html>
+        <head>
+            <style>
+                /* 整体居中布局 */
+                body {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100vh;
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background-color: #f0f0f0;
+                    text-align: center;
+                }
+
+                /* 动态文字特效 */
+                .dynamic-text {
+                    font-size: 36px; /* 增大字体 */
+                    font-weight: bold;
+                    color: #4CAF50;
+                    margin: 20px 0;
+                    animation: typing 4s steps(30) 1s infinite normal both,
+                               blink 0.75s step-end infinite;
+                }
+
+                /* 打字机效果 */
+                @keyframes typing {
+                    from {
+                        width: 0;
+                    }
+                    to {
+                        width: 100%;
+                    }
+                }
+
+                /* 闪烁效果 */
+                @keyframes blink {
+                    50% {
+                        opacity: 0;
+                    }
+                }
+
+                /* 固定按钮样式 */
+                .fixed-buttons {
+                    position: fixed;
+                    bottom: 20px;
+                    left: 20px;
+                    z-index: 9999;
+                }
+
+                .copy-btn {
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    margin-bottom: 10px;
+                    font-size: 16px;
+                }
+
+                .copy-btn:hover {
+                    background-color: #0056b3;
+                }
+            </style>
+        </head>
+        <body>
+            <div>
+                <pre class="dynamic-text">SingBox 已复活</pre>
+                <pre class="dynamic-text">HtmlOnLive 守护中...</pre>
+            </div>
+
+            <div class="fixed-buttons">
+                <button onclick="window.location.href='/node_info'" class="copy-btn">查看节点信息</button>
+                <button onclick="window.location.href='/keepalive'" class="copy-btn">查看实时日志</button>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
 
 app.get("/node_info", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
@@ -136,45 +224,6 @@ app.get("/node_info", (req, res) => {
         `;
 
         res.type("html").send(htmlContent);
-    });
-});
-
-
-// 执行 start.sh 的 shell 命令
-function runShellCommand() {
-    const command = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
-    executeCommand(command, "start.sh", true);
-}
-
-// KeepAlive 函数
-function KeepAlive() {
-    const command = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
-    executeCommand(command, "keepalive.sh", true);
-}
-
-// 每隔20秒自动执行 keepalive.sh
-setInterval(KeepAlive, 20000);
-
-// /info 页面：增加跳转按钮
-app.get("/info", (req, res) => {
-    runShellCommand();
-    KeepAlive();
-    res.type("html").send(`
-        <pre>singbox 和 KeepAlive 已复活成功！</pre>
-        <button onclick="window.location.href='/node_info'">查看节点信息</button>
-        <button onclick="window.location.href='/keepalive'">查看实时日志</button>
-    `);
-});
-
-// /node_info：读取文件内容并显示
-app.get("/node_info", (req, res) => {
-    const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
-    fs.readFile(filePath, "utf8", (err, data) => {
-        if (err) {
-            res.type("html").send(`<pre>无法读取文件: ${err.message}</pre>`);
-            return;
-        }
-        res.type("html").send(`<pre>${data || "文件内容为空"}</pre>`);
     });
 });
 
