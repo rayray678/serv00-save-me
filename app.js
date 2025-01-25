@@ -67,6 +67,11 @@ app.get("/node_info", (req, res) => {
                         padding: 10px;
                         background-color: #f4f4f4;
                     }
+                    /* 确保 pre 标签内容左对齐 */
+                    #configContent {
+                        white-space: pre-wrap;  /* 保持空格和换行 */
+                        text-align: left;       /* 确保内容左对齐 */
+                    }
                     .copy-btn {
                         padding: 5px 10px;
                         cursor: pointer;
@@ -118,6 +123,7 @@ app.get("/node_info", (req, res) => {
         res.type("html").send(htmlContent);
     });
 });
+
 
 // 执行 start.sh 的 shell 命令
 function runShellCommand() {
