@@ -81,7 +81,7 @@ app.get("/info", (req, res) => {
                 </style>
             </head>
             <body>
-                <pre>SingBox 已复活\nKeepAlive 进程守护中</pre>
+                <pre>SingBox 己成功复活\nKeepAlive 进程守护中</pre>
             </body>
         </html>
     `);
