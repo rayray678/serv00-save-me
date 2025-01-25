@@ -59,7 +59,32 @@ setInterval(KeepAlive, 20000);
 app.get("/info", (req, res) => {
     runShellCommand();
     KeepAlive();
-    res.type("html").send("<pre> singbox 和 KeepAlive 已复活成功！</pre>");
+    res.type("html").send(`
+        <html>
+            <head>
+                <style>
+                    body {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                    }
+                    pre {
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-align: center;
+                        color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                <pre>SingBox 已复活\nKeepAlive 进程守护中</pre>
+            </body>
+        </html>
+    `);
 });
 
 // /node_info 显示 start.sh 日志
