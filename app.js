@@ -170,21 +170,8 @@ app.get("/hy2ip", (req, res) => {
                 logMessages.push(`stderr: ${stderr}`);
             }
 
-            // 打印 stdout 用于调试
-            console.log("stdout:", stdout);
-            console.log("stderr:", stderr);
-
-            // 过滤掉不需要的部分
-            let filteredOutput = stdout.split("\n").filter(line => {
-                // 排除不需要的日志行
-                return !line.includes("Received request") && 
-                       !line.includes("Executing command") &&
-                       !line.includes("Command to be executed") &&
-                       !line.includes("\u001b[0m");
-            }).join("\n");
-
             // 处理标准输出中的信息
-            let outputMessages = filteredOutput.split("\n");
+            let outputMessages = stdout.split("\n");
 
             // 获取成功更新的 IP（从输出中提取）
             let updatedIp = "";
@@ -212,30 +199,13 @@ app.get("/hy2ip", (req, res) => {
                     <html>
                         <head>
                             <title>hy2ip.sh 执行结果</title>
-                            <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                }
-                                .log-container {
-                                    width: 100%;
-                                    height: 300px;
-                                    overflow-y: auto;
-                                    border: 1px solid #ccc;
-                                    padding: 10px;
-                                    margin-top: 20px;
-                                    background-color: #f9f9f9;
-                                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                                }
-                            </style>
                         </head>
                         <body>
                             <h1>hy2ip.sh 执行结果</h1>
                             <p><strong>成功：</strong> ${updatedIp}</p>
                             <div>
                                 <h2>日志:</h2>
-                                <div class="log-container">
-                                    ${htmlLogs}
-                                </div>
+                                ${htmlLogs}
                             </div>
                             <h2>输出:</h2>
                             <p>SingBox 配置文件成功更新IP为 ${updatedIp}</p>
@@ -261,7 +231,6 @@ app.get("/hy2ip", (req, res) => {
         res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
-
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
     fs.readFile(filePath, "utf8", (err, data) => {
