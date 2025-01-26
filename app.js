@@ -272,60 +272,27 @@ app.get("/info", (req, res) => {
 });
 
 app.get("/hy2ip", (req, res) => {
-    res.type("html").send(`
-        <html>
-        <head>
-            <style>
-                .scrollable {
-                    max-height: 300px;
-                    overflow-y: auto;
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    margin-top: 20px;
-                    background-color: #f9f9f9;
-                }
-                button {
-                    padding: 10px 20px;
-                    font-size: 16px;
-                    cursor: pointer;
-                    background-color: #007bff;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    margin: 10px 20px;
-                }
-                button:hover {
-                    background-color: #0056b3;
-                }
-            </style>
-        </head>
-        <body>
-            <h3>点击“更新”按钮以获取并更新可用IP</h3>
-            <button onclick="updateIP()">更新</button>
+    const hostname = os.hostname();
+    const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
+    const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, hostname];
 
-            <div id="output" class="scrollable">
-                <pre>等待操作...</pre>
-            </div>
+    // 获取可用的 IP
+    getUnblockIP(hosts).then(ip => {
+        if (!ip) {
+            return res.type("html").send("<pre>未找到可用的IP，请稍后再试。</pre>");
+        }
 
-            <script>
-                // 点击按钮时，执行 IP 更新操作
-                function updateIP() {
-                    document.querySelector("#output").innerHTML = "<pre>正在获取可用IP...</pre>";
-                    
-                    // 向服务器发送请求，获取更新结果
-                    fetch('/hy2ip', { method: 'GET' })
-                    .then(response => response.text())
-                    .then(data => {
-                        document.querySelector("#output").innerHTML = data; // 显示返回的结果
-                    })
-                    .catch(err => {
-                        document.querySelector("#output").innerHTML = "<pre>发生错误: " + err.message + "</pre>"; // 显示错误信息
-                    });
-                }
-            </script>
-        </body>
-        </html>
-    `);
+        // 更新配置并重启服务
+        const success = updateConfigAndRestart(ip);
+        if (!success) {
+            return res.type("html").send("<pre>更新配置失败，请检查配置文件或联系管理员。</pre>");
+        }
+
+        res.type("html").send(`<pre>当前 IP 更新成功，新的 IP 为 ${ip}</pre>`);
+    }).catch(err => {
+        console.error("获取 IP 失败:", err.message);
+        res.type("html").send("<pre>操作失败，请稍后再试。</pre>");
+    });
 });
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
