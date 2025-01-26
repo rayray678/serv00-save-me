@@ -174,6 +174,10 @@ app.get("/hy2ip", (req, res) => {
                 logMessages.push(`stderr: ${stderr}`);
             }
 
+            // 打印 stdout 用于调试
+            console.log("stdout:", stdout);
+            console.log("stderr:", stderr);
+
             // 过滤掉不需要的部分
             let filteredOutput = stdout.split("\n").filter(line => {
                 // 排除不需要的日志行
