@@ -203,13 +203,29 @@ app.get("/hy2ip", (req, res) => {
                 console.log(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
                 console.log(`Config 配置文件成功更新IP为 ${updatedIp}`);
 
-                // 返回执行的成功信息
-                res.json({
-                    success: true,
-                    message: "hy2ip.sh script executed successfully.",
-                    logs: logMessages,
-                    output: `SingBox 配置文件成功更新IP为 ${updatedIp}\nConfig 配置文件成功更新IP为 ${updatedIp}\n正在重启 sing-box...`
-                });
+                // 将日志转换为 HTML 格式
+                let htmlLogs = logMessages.map(msg => `<p>${msg}</p>`).join("");
+
+                // 返回HTML格式的输出
+                res.send(`
+                    <html>
+                        <head>
+                            <title>hy2ip.sh 执行结果</title>
+                        </head>
+                        <body>
+                            <h1>hy2ip.sh 执行结果</h1>
+                            <p><strong>成功：</strong> ${updatedIp}</p>
+                            <div>
+                                <h2>日志:</h2>
+                                ${htmlLogs}
+                            </div>
+                            <h2>输出:</h2>
+                            <p>SingBox 配置文件成功更新IP为 ${updatedIp}</p>
+                            <p>Config 配置文件成功更新IP为 ${updatedIp}</p>
+                            <p>正在重启 sing-box...</p>
+                        </body>
+                    </html>
+                `);
             } else {
                 logMessages.push("未能获取更新的 IP");
                 console.error("未能获取更新的 IP");
