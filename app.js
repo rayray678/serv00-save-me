@@ -205,10 +205,15 @@ app.get("/hy2ip", (req, res) => {
                                     margin: 0;
                                     padding: 0;
                                     background-color: #f4f4f4;
-                                    text-align: left
+                                    text-align: left;
+                                    padding-left: 30px; /* 左侧留出空白，类似于空5格 */
                                 }
                                 h1 {
-                                    text-align: center;
+                                    text-align: left;
+                                    margin-top: 20px;
+                                }
+                                h2 {
+                                    text-align: left;
                                     margin-top: 20px;
                                 }
                                 .scrollable {
@@ -218,7 +223,7 @@ app.get("/hy2ip", (req, res) => {
                                     overflow-y: auto;
                                     border: 1px solid #ccc;
                                     padding: 10px;
-                                    margin: 20px auto;
+                                    margin: 20px 0;
                                     background-color: #ffffff;
                                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                     border-radius: 5px;
@@ -260,6 +265,7 @@ app.get("/hy2ip", (req, res) => {
         res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
+
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
     fs.readFile(filePath, "utf8", (err, data) => {
