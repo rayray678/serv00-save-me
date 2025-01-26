@@ -279,17 +279,29 @@ app.get("/node", (req, res) => {
             <html>
             <head>
                 <style>
-                    .config-box {
-                        max-height: 400px;  
-                        overflow-y: auto;   
-                        border: 1px solid #ccc;
-                        padding: 10px;
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
                         background-color: #f4f4f4;
                     }
-                    #configContent {
-                        white-space: pre-wrap;  
-                        text-align: left;       
+                    .config-box {
+                        max-height: 60vh; /* 设置最大高度为视口高度的 60% */
+                        width: 90%; /* 设置宽度为视口宽度的 90% */
+                        overflow-y: auto;
+                        border: 1px solid #ccc;
+                        padding: 10px;
+                        background-color: #ffffff;
+                        margin: 20px auto;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        border-radius: 5px;
                     }
+
+                    #configContent {
+                        white-space: pre-wrap;
+                        text-align: left;
+                    }
+
                     .copy-btn {
                         padding: 5px 10px;
                         cursor: pointer;
@@ -297,15 +309,23 @@ app.get("/node", (req, res) => {
                         color: white;
                         border: none;
                         border-radius: 5px;
+                        margin: 10px;
                     }
                     .copy-btn:hover {
                         background-color: #0056b3;
+                    }
+
+                    @media (max-width: 600px) {
+                        .config-box {
+                            width: 95%;  /* 手机屏幕宽度调整为 95% */
+                            max-height: 50vh; /* 手机屏幕最大高度设置为视口高度的 50% */
+                        }
                     }
                 </style>
             </head>
             <body>
                 <div>
-                    <h3>节点信息</h3>
+                    <h3 style="text-align: center;">节点信息</h3>
                     <div class="config-box" id="configBox">
                         <pre id="configContent">
         `;
@@ -336,6 +356,7 @@ app.get("/node", (req, res) => {
         res.type("html").send(htmlContent);
     });
 });
+
 app.get("/log", (req, res) => {
     const command = "ps -A"; 
     exec(command, (err, stdout, stderr) => {
@@ -351,13 +372,41 @@ app.get("/log", (req, res) => {
             <html>
                 <head>
                     <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 0;
+                            padding: 0;
+                            background-color: #f4f4f4;
+                        }
+
                         .scrollable {
-                            max-height: 300px;  
+                            max-height: 60vh;  /* 设置最大高度为视口高度的60% */
                             overflow-y: auto;   
                             border: 1px solid #ccc;
                             padding: 10px;
                             margin-top: 20px;
                             background-color: #f9f9f9;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                            border-radius: 5px;
+                        }
+
+                        pre {
+                            white-space: pre-wrap;  /* 保证文本换行显示 */
+                            word-wrap: break-word;
+                        }
+
+                        @media (max-width: 600px) {
+                            .scrollable {
+                                width: 95%;  /* 手机屏幕宽度调整为95% */
+                                max-height: 50vh; /* 手机屏幕最大高度设置为视口高度的50% */
+                            }
+                        }
+
+                        @media (min-width: 601px) {
+                            .scrollable {
+                                width: 90%;  /* 对于宽屏设备，宽度为90% */
+                                max-height: 60vh; /* 高度为视口高度的60% */
+                            }
                         }
                     </style>
                 </head>
@@ -371,6 +420,7 @@ app.get("/log", (req, res) => {
         `);
     });
 });
+
 app.use((req, res, next) => {
     const validPaths = ["/info", "/hy2ip", "/node", "/log"];
     if (validPaths.includes(req.path)) {
