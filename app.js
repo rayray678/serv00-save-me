@@ -289,8 +289,15 @@ app.get("/node", (req, res) => {
                         margin: 0;
                         padding: 0;
                         background-color: #f4f4f4;
-                        text-align: left
+                        text-align: left;
+                        padding-left: 30px; /* 左侧留出空白，类似于空5格 */
                     }
+
+                    h3 {
+                        text-align: left;
+                        margin-top: 20px;
+                    }
+
                     .config-box {
                         max-height: 60vh; /* 设置最大高度为视口高度的 60% */
                         width: 90%; /* 设置宽度为视口宽度的 90% */
@@ -298,7 +305,7 @@ app.get("/node", (req, res) => {
                         border: 1px solid #ccc;
                         padding: 10px;
                         background-color: #ffffff;
-                        margin: 20px auto;
+                        margin: 20px 0;
                         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                         border-radius: 5px;
                     }
@@ -314,7 +321,7 @@ app.get("/node", (req, res) => {
                         color: white;
                         border: none;
                         border-radius: 5px;
-                        margin: 10px;
+                        margin: 10px 0;
                     }
 
                     .copy-btn:hover {
@@ -331,7 +338,7 @@ app.get("/node", (req, res) => {
             </head>
             <body>
                 <div>
-                    <h3 style="text-align: center;">节点信息</h3>
+                    <h3>节点信息</h3>
                     <div class="config-box" id="configBox">
                         <pre id="configContent">
         `;
