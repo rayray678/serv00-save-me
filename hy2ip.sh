@@ -11,7 +11,7 @@ get_ip() {
     local hosts=("cache${host_number}.serv00.com" "web${host_number}.serv00.com" "$hostname")
 
     for host in "${hosts[@]}"; do
-        local response=$(curl -s "https://ss.botai.us.kg/api/getip?host=$host")
+        local response=$(curl -s --max-time 10 "https://ss.botai.us.kg/api/getip?host=$host")
         if [[ "$response" =~ "not found" ]]; then
             echo "未识别主机 ${host}！"
             continue
