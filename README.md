@@ -29,7 +29,7 @@
         例如：https://fuhuo.serv00.net/info
 ![Image Description](https://github.com/ryty1/alist-log/blob/main/github_images/3.png?raw=true)
 
-  ## 6、自己可以杀掉进程再刷新网页，然后再SSH端 ps aux 查询进程
+  ## ● 自己可以杀掉进程再刷新网页，然后再SSH端 ps aux 查询进程
   
-  ## 7、默认只有 [饭奇骏](https://github.com/frankiejun/serv00-play) 大佬的 singbox 进程，至于集中自动化管理需要自己开发。
+  ## ● 默认只有 [饭奇骏](https://github.com/frankiejun/serv00-play) 大佬的 singbox 进程，至于集中自动化管理需要自己开发。
         
