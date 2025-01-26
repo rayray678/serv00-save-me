@@ -289,7 +289,6 @@ app.get("/node", (req, res) => {
                         margin: 0;
                         padding: 0;
                         background-color: #f4f4f4;
-                        text-align: left;
                         padding-left: 30px; /* 左侧留出空白，类似于空5格 */
                     }
 
