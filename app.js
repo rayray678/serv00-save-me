@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { execSync } = require("child_process");
-const fetch = require("node-fetch");
+const fetch = (await import('node-fetch')).default;
 const express = require("express");
 const { exec } = require("child_process");
 const fs = require("fs");
