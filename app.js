@@ -146,7 +146,7 @@ function updateConfigAndRestart(ip) {
 async function changeHy2IPWithUnblockCheck() {
     const hostname = os.hostname();
     const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
-    const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, hostname];
+    const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, `s${hostNumber}.serv00.com`];
 
     const ip = await getUnblockIP(hosts); // 获取可用的 IP
     if (!ip) {
