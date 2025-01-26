@@ -46,6 +46,10 @@ function executeHy2ipScript(logMessages, callback) {
         callback(error, stdout, stderr);
     });
 }
+function KeepAlive() {
+    const command = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
+    executeCommand(command, "keepalive.sh", true);
+}
 setInterval(KeepAlive, 20000);
 app.get("/info", (req, res) => {
     runShellCommand();
