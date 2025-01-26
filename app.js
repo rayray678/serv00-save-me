@@ -139,7 +139,7 @@ app.get("/info", (req, res) => {
                     <span style="--char-index: 24;">中</span>
                 </div>
                 <div class="button-container">
-                    <button onclick="window.location.href='/hy2ip'">节点信息</button>
+                    <button onclick="window.location.href='/hy2ip'">更新IP</button>
                     <button onclick="window.location.href='/node'">节点信息</button>
                     <button onclick="window.location.href='/log'">实时日志</button>
                 </div>
