@@ -186,7 +186,7 @@ app.get("/hy2ip", (req, res) => {
 
             // 如果找到了更新的 IP，则返回成功信息
             if (updatedIp) {
-                logMessages.push("hy2ip.sh 执行成功");
+                logMessages.push("命令 执行成功");
                 logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push("正在重启 sing-box...");
@@ -202,7 +202,7 @@ app.get("/hy2ip", (req, res) => {
                         </head>
                         <body>
                             <h1>IP更新结果</h1>
-                            <p><strong>成功：</strong> ${updatedIp}</p>
+                            <p><strong>有效IP：</strong> ${updatedIp}</p>
                             <div>
                                 <h2>日志:</h2>
                                 ${htmlLogs}
