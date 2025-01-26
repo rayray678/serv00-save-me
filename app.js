@@ -161,25 +161,30 @@ app.get("/info", (req, res) => {
 app.get("/hy2ip", (req, res) => {
     try {
         let logMessages = []; // 用于收集日志信息
-        logMessages.push("Received request to execute hy2ip.sh script...");
-        console.log(logMessages[logMessages.length - 1]);
 
         // 执行 hy2ip.sh 脚本并捕获输出
         executeHy2ipScript(logMessages, (error, stdout, stderr) => {
             if (error) {
                 logMessages.push(`Error: ${error.message}`);
-                console.error(`Error: ${error.message}`);
                 res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
                 return;
             }
 
             if (stderr) {
                 logMessages.push(`stderr: ${stderr}`);
-                console.error(`stderr: ${stderr}`);
             }
 
+            // 过滤掉不需要的部分
+            let filteredOutput = stdout.split("\n").filter(line => {
+                // 排除不需要的日志行
+                return !line.includes("Received request") && 
+                       !line.includes("Executing command") &&
+                       !line.includes("Command to be executed") &&
+                       !line.includes("\u001b[0m");
+            }).join("\n");
+
             // 处理标准输出中的信息
-            let outputMessages = stdout.split("\n");
+            let outputMessages = filteredOutput.split("\n");
 
             // 获取成功更新的 IP（从输出中提取）
             let updatedIp = "";
@@ -197,11 +202,7 @@ app.get("/hy2ip", (req, res) => {
                 logMessages.push("hy2ip.sh 执行成功");
                 logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
-                logMessages.push("sing-box 已重启");
-
-                console.log("hy2ip.sh 执行成功");
-                console.log(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
-                console.log(`Config 配置文件成功更新IP为 ${updatedIp}`);
+                logMessages.push("正在重启 sing-box...");
 
                 // 将日志转换为 HTML 格式
                 let htmlLogs = logMessages.map(msg => `<p>${msg}</p>`).join("");
@@ -210,21 +211,41 @@ app.get("/hy2ip", (req, res) => {
                 res.send(`
                     <html>
                         <head>
-                            <title>HY2_IP 更新</title>
+                            <title>hy2ip.sh 执行结果</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                }
+                                .log-container {
+                                    width: 100%;
+                                    height: 300px;
+                                    overflow-y: auto;
+                                    border: 1px solid #ccc;
+                                    padding: 10px;
+                                    margin-top: 20px;
+                                    background-color: #f9f9f9;
+                                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                                }
+                            </style>
                         </head>
                         <body>
-                            <h1>IP更新结果</h1>
+                            <h1>hy2ip.sh 执行结果</h1>
                             <p><strong>成功：</strong> ${updatedIp}</p>
                             <div>
                                 <h2>日志:</h2>
-                                ${htmlLogs}
+                                <div class="log-container">
+                                    ${htmlLogs}
+                                </div>
                             </div>
+                            <h2>输出:</h2>
+                            <p>SingBox 配置文件成功更新IP为 ${updatedIp}</p>
+                            <p>Config 配置文件成功更新IP为 ${updatedIp}</p>
+                            <p>正在重启 sing-box...</p>
                         </body>
                     </html>
                 `);
             } else {
                 logMessages.push("未能获取更新的 IP");
-                console.error("未能获取更新的 IP");
 
                 res.status(500).json({
                     success: false,
@@ -236,7 +257,6 @@ app.get("/hy2ip", (req, res) => {
     } catch (error) {
         let logMessages = [];
         logMessages.push("Error executing hy2ip.sh script:", error.message);
-        console.error(logMessages[logMessages.length - 1]);
 
         res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
