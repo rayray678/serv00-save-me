@@ -34,12 +34,8 @@ function runShellCommand() {
 }
 function executeHy2ipScript(logMessages, callback) {
     const username = process.env.USER.toLowerCase(); // 获取当前用户名并转换为小写
-    logMessages.push(`Executing command for user: ${username}`);
-    console.log(`Executing command for user: ${username}`);
 
     const command = `cd ${process.env.HOME}/domains/${username}.serv00.net/public_nodejs/ && bash hy2ip.sh`;
-    logMessages.push(`Command to be executed: ${command}`);
-    console.log(`Command to be executed: ${command}`);
 
     // 执行脚本并捕获输出
     exec(command, (error, stdout, stderr) => {
