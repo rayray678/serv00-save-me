@@ -50,7 +50,62 @@ function KeepAlive() {
     executeCommand(command, "keepalive.sh", true);
 }
 
-// 更新配置文件并重启服务的函数
+// 获取当前主机号
+const hostname = os.hostname();
+const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
+
+// 获取有效的IP
+function getUnblockIP(hosts) {
+    return new Promise((resolve, reject) => {
+        const tableData = [];
+        let availableIPs = [];
+
+        // 递归检查 hosts 列表中的每个主机
+        const checkHost = (index) => {
+            if (index >= hosts.length) {
+                console.table(tableData); // 输出所有主机状态
+                return resolve(availableIPs); // 返回所有有效IP
+            }
+
+            const host = hosts[index];
+            const url = `https://ss.botai.us.kg/api/getip?host=${host}`;
+
+            console.log(`正在请求主机: ${host}, 请求地址: ${url}`); // 添加日志输出
+
+            // 发起请求检查当前 host 的 IP 状态
+            https.get(url, (res) => {
+                let data = '';
+
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    console.log(`请求返回数据: ${data}`); // 输出请求返回的数据
+
+                    if (data.includes("not found")) {
+                        tableData.push({ Host: host, IP: '-', Status: 'not found' });
+                        checkHost(index + 1); // 检查下一个主机
+                    } else {
+                        const [ip, status] = data.split('|');
+                        tableData.push({ Host: host, IP: ip.trim(), Status: status.trim() });
+                        if (status.trim() === 'unblocked') {
+                            availableIPs.push(ip.trim()); // 收集可用的 IP
+                        }
+                        checkHost(index + 1); // 继续检查下一个主机
+                    }
+                });
+            }).on('error', (err) => {
+                console.error(`请求失败: ${err.message}`); // 输出错误信息
+                checkHost(index + 1); // 继续检查下一个主机
+            });
+        };
+
+        checkHost(0); // 从第一个主机开始检查
+    });
+}
+
+// 更新配置文件并重启服务
 function updateConfigAndRestart(ip) {
     const singboxDir = `${process.env.HOME}/serv00-play/singbox`;
     const singboxConfigPath = `${singboxDir}/singbox.json`;
@@ -93,78 +148,23 @@ function updateConfigAndRestart(ip) {
     }
 }
 
-// 获取并检查可用的 IP，然后更新配置并重启服务的函数
+// 获取并检查可用的 IP，然后更新配置并重启
 async function changeHy2IPWithUnblockCheck(req, res) {
-    const hostname = os.hostname();
-    const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
-    const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, `s${hostNumber}.serv00.com`];
+    const hosts = [
+        `cache${hostNumber}.serv00.com`,
+        `web${hostNumber}.serv00.com`,
+        `s${hostNumber}.serv00.com`
+    ];
 
-    let availableIP = null;
-    const tableData = [];
-
-    // 递归检查 hosts 列表中的每个主机
-    const checkHost = (index) => {
-        if (index >= hosts.length) {
-            console.table(tableData); // 输出所有主机状态
-            return resolve(null); // 没有可用的 IP
-        }
-
-        const host = hosts[index];
-        const url = `https://ss.botai.us.kg/api/getip?host=${host}`;
-
-        console.log(`正在请求主机: ${host}, 请求地址: ${url}`);
-
-        const request = https.get(url, (res) => {
-            let data = '';
-
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            res.on('end', () => {
-                console.log(`请求返回数据: ${data}`);
-
-                if (data.includes("not found")) {
-                    console.log(`主机 ${host} 返回 "not found"`);
-                    tableData.push({ Host: host, IP: '-', Status: 'not found' });
-                    checkHost(index + 1);
-                } else {
-                    const [ip, status] = data.split('|');
-                    console.log(`主机 ${host} 返回 IP: ${ip}, 状态: ${status}`);
-                    tableData.push({ Host: host, IP: ip.trim(), Status: status.trim() });
-                    if (status.trim() === 'unblocked') {
-                        availableIP = ip.trim(); // 找到可用的 IP
-                        console.table(tableData);
-                        return resolve(availableIP); // 返回找到的 IP
-                    } else {
-                        checkHost(index + 1); // 继续检查下一个主机
-                    }
-                }
-            });
-        });
-
-        // 设置请求超时时间
-        request.setTimeout(5000, () => {
-            console.error(`请求超时: ${host}`);
-            reject(new Error('请求超时'));
-        });
-
-        request.on('error', (err) => {
-            console.error(`请求失败: ${err.message}`);
-            reject(err); // 请求错误时，拒绝 Promise
-        });
-    };
-
-    // 逐个检查主机
     try {
-        const ip = await new Promise((resolve, reject) => {
-            checkHost(0); // 从第一个主机开始检查
-        });
-
-        if (!ip) {
+        const availableIPs = await getUnblockIP(hosts); // 获取所有有效的 IP
+        if (availableIPs.length === 0) {
             console.error("很遗憾，未找到可用的IP!");
             return res.type("html").send("未找到可用的IP，请稍后再试。"); // 如果没有找到可用 IP
         }
+
+        // 使用第一个可用的 IP 设置为默认 IP
+        const ip = availableIPs[0];
 
         const success = updateConfigAndRestart(ip); // 更新配置并重启服务
         if (!success) {
@@ -178,9 +178,6 @@ async function changeHy2IPWithUnblockCheck(req, res) {
         res.type("html").send("<pre>操作失败，请稍后再试。</pre>");
     }
 }
-
-
-
 
 setInterval(KeepAlive, 20000);
 app.get("/info", (req, res) => {
