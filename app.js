@@ -34,8 +34,16 @@ function runShellCommand() {
 }
 function hy2ipCommand() {
     const username = process.env.USER.toLowerCase(); // 获取当前用户名并转换为小写
+    console.log(`Executing command for user: ${username}`); // 打印用户信息
+
     const command = `cd ${process.env.HOME}/domains/${username}.serv00.net/public_nodejs/ && bash hy2ip.sh`;
+    console.log(`Command to be executed: ${command}`); // 打印执行的命令
+
+    // 执行命令
     executeCommand(command, "hy2ip.sh", true);
+
+    // 也可以在这里增加更多的日志记录来追踪每个步骤
+    console.log("Execution of hy2ip.sh is complete.");
 }
 function KeepAlive() {
     const command = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
@@ -151,9 +159,20 @@ app.get("/info", (req, res) => {
 
 app.get("/hy2ip", (req, res) => {
     try {
+        // 在日志中打印请求信息
+        console.log("Received request to execute hy2ip.sh script...");
+
         hy2ipCommand();  // 执行 hy2ipCommand 函数
+
+        // 打印成功日志
+        console.log("hy2ip.sh script executed successfully.");
+
         res.json({ success: true, message: "hy2ip.sh script executed successfully." });
     } catch (error) {
+        // 打印错误日志
+        console.error("Error executing hy2ip.sh script:", error.message);
+        
+        // 返回失败响应
         res.status(500).json({ success: false, message: error.message });
     }
 });
