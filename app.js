@@ -50,6 +50,7 @@ function KeepAlive() {
     executeCommand(command, "keepalive.sh", true);
 }
 
+// 获取可用 IP 的函数
 function getUnblockIP(hosts) {
     return new Promise((resolve, reject) => {
         let availableIP = null;
@@ -64,16 +65,19 @@ function getUnblockIP(hosts) {
 
             const host = hosts[index];
             const url = `https://ss.botai.us.kg/api/getip?host=${host}`;
-            
-            // 发起请求检查当前 host 的 IP 状态
-            https.get(url, (res) => {
-                let data = '';
 
+            console.log(`正在请求主机: ${host}，请求地址: ${url}`);
+
+            // 发起请求检查当前 host 的 IP 状态
+            https.get(url, { timeout: 5000 }, (res) => {
+                let data = '';
+                
                 res.on('data', (chunk) => {
                     data += chunk;
                 });
 
                 res.on('end', () => {
+                    console.log(`请求 ${host} 返回的数据: ${data}`);  // 打印出每个请求的返回数据
                     if (data.includes("not found")) {
                         tableData.push({ Host: host, IP: '-', Status: 'not found' });
                         checkHost(index + 1); // 检查下一个主机
@@ -89,8 +93,11 @@ function getUnblockIP(hosts) {
                         }
                     }
                 });
+            }).on('timeout', () => {
+                console.error(`请求 ${host} 超时`);
+                reject(new Error('请求超时'));
             }).on('error', (err) => {
-                console.error(`请求失败: ${err.message}`);
+                console.error(`请求 ${host} 失败: ${err.message}`);
                 reject(err); // 请求错误时，拒绝 Promise
             });
         };
@@ -143,25 +150,31 @@ function updateConfigAndRestart(ip) {
 }
 
 // 获取并检查可用的 IP，然后更新配置并重启
-async function changeHy2IPWithUnblockCheck() {
+async function changeHy2IPWithUnblockCheck(req, res) {
     const hostname = os.hostname();
     const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
     const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, `s${hostNumber}.serv00.com`];
 
-    const ip = await getUnblockIP(hosts); // 获取可用的 IP
-    if (!ip) {
-        console.error("很遗憾，未找到可用的IP!");
-        return res.type("html").send("未找到可用的IP，请稍后再试。"); // 如果没有找到可用 IP
-    }
+    try {
+        const ip = await getUnblockIP(hosts); // 获取可用的 IP
+        if (!ip) {
+            console.error("很遗憾，未找到可用的IP!");
+            return res.type("html").send("未找到可用的IP，请稍后再试。"); // 如果没有找到可用 IP
+        }
 
-    const success = updateConfigAndRestart(ip); // 更新配置并重启服务
-    if (!success) {
-        console.error("操作失败，请检查配置!");
-        return res.type("html").send("操作失败，请检查配置文件或联系管理员。"); // 如果操作失败
-    }
+        const success = updateConfigAndRestart(ip); // 更新配置并重启服务
+        if (!success) {
+            console.error("操作失败，请检查配置!");
+            return res.type("html").send("操作失败，请检查配置文件或联系管理员。"); // 如果操作失败
+        }
 
-    res.type("html").send(`<pre>当前 IP 更新成功，新的 IP 为 ${ip}</pre>`); // 成功后反馈更新结果
+        res.type("html").send(`<pre>当前 IP 更新成功，新的 IP 为 ${ip}</pre>`); // 成功后反馈更新结果
+    } catch (err) {
+        console.error("发生错误:", err.message);
+        res.type("html").send("<pre>操作失败，请稍后再试。</pre>");
+    }
 }
+
 
 setInterval(KeepAlive, 20000);
 app.get("/info", (req, res) => {
@@ -271,29 +284,8 @@ app.get("/info", (req, res) => {
     `);
 });
 
-app.get("/hy2ip", (req, res) => {
-    const hostname = os.hostname();
-    const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
-    const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, hostname];
+app.get("/hy2ip", changeHy2IPWithUnblockCheck);
 
-    // 获取可用的 IP
-    getUnblockIP(hosts).then(ip => {
-        if (!ip) {
-            return res.type("html").send("<pre>未找到可用的IP，请稍后再试。</pre>");
-        }
-
-        // 更新配置并重启服务
-        const success = updateConfigAndRestart(ip);
-        if (!success) {
-            return res.type("html").send("<pre>更新配置失败，请检查配置文件或联系管理员。</pre>");
-        }
-
-        res.type("html").send(`<pre>当前 IP 更新成功，新的 IP 为 ${ip}</pre>`);
-    }).catch(err => {
-        console.error("获取 IP 失败:", err.message);
-        res.type("html").send("<pre>操作失败，请稍后再试。</pre>");
-    });
-});
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
     fs.readFile(filePath, "utf8", (err, data) => {
