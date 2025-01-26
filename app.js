@@ -66,18 +66,19 @@ function getUnblockIP(hosts) {
             const host = hosts[index];
             const url = `https://ss.botai.us.kg/api/getip?host=${host}`;
 
-            console.log(`正在请求主机: ${host}，请求地址: ${url}`);
+            console.log(`正在请求主机: ${host}, 请求地址: ${url}`); // 添加日志输出
 
             // 发起请求检查当前 host 的 IP 状态
-            https.get(url, { timeout: 5000 }, (res) => {
+            https.get(url, (res) => {
                 let data = '';
-                
+
                 res.on('data', (chunk) => {
                     data += chunk;
                 });
 
                 res.on('end', () => {
-                    console.log(`请求 ${host} 返回的数据: ${data}`);  // 打印出每个请求的返回数据
+                    console.log(`请求返回数据: ${data}`); // 输出请求返回的数据
+
                     if (data.includes("not found")) {
                         tableData.push({ Host: host, IP: '-', Status: 'not found' });
                         checkHost(index + 1); // 检查下一个主机
@@ -93,11 +94,8 @@ function getUnblockIP(hosts) {
                         }
                     }
                 });
-            }).on('timeout', () => {
-                console.error(`请求 ${host} 超时`);
-                reject(new Error('请求超时'));
             }).on('error', (err) => {
-                console.error(`请求 ${host} 失败: ${err.message}`);
+                console.error(`请求失败: ${err.message}`); // 输出错误信息
                 reject(err); // 请求错误时，拒绝 Promise
             });
         };
@@ -105,6 +103,7 @@ function getUnblockIP(hosts) {
         checkHost(0); // 从第一个主机开始检查
     });
 }
+
 
 // 更新配置文件并重启服务
 function updateConfigAndRestart(ip) {
