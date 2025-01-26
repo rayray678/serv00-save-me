@@ -55,13 +55,17 @@ else
     exit 1
 fi
 sleep 1
-curl -s -o "$F1" "$L1" && chmod 755 "$F1" > /dev/null 2>&1 && curl -s -o "$F2" "$L2" && chmod 755 "$F2" > /dev/null 2>&1
-if [[ $? -eq 0 ]]; then
-    print_status "正在下载 配置文件" 0
-else
-    print_status "配置文件 下载失败" 1
+curl -s -o "$F1" "$L1" && chmod 755 "$F1" > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    print_status "配置文件 1 下载失败" 1
     exit 1
 fi
+curl -s -o "$F2" "$L2" && chmod 755 "$F2" > /dev/null 2>&1
+if [[ $? -ne 0 ]]; then
+    print_status "配置文件 2 下载失败" 1
+    exit 1
+fi
+print_status "正在下载 配置文件" 0
 
 echo " ———————————————————————————————————————————————————————————— "
 echo ""
