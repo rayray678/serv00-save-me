@@ -169,7 +169,7 @@ app.get("/hy2ip", (req, res) => {
             if (error) {
                 logMessages.push(`Error: ${error.message}`);
                 console.error(`Error: ${error.message}`);
-                res.status(500).json({ success: false, message: error.message, logs: logMessages });
+                res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
                 return;
             }
 
@@ -178,16 +178,48 @@ app.get("/hy2ip", (req, res) => {
                 console.error(`stderr: ${stderr}`);
             }
 
-            logMessages.push("hy2ip.sh script executed successfully.");
-            console.log("hy2ip.sh script executed successfully.");
+            // 处理标准输出中的信息
+            let outputMessages = stdout.split("\n");
 
-            // 返回执行的标准输出和日志
-            res.json({
-                success: true,
-                message: "hy2ip.sh script executed successfully.",
-                logs: logMessages,
-                output: stdout // 将脚本的标准输出返回给前端
+            // 获取成功更新的 IP（从输出中提取）
+            let updatedIp = "";
+            outputMessages.forEach(line => {
+                if (line.includes("SingBox 配置文件成功更新IP为")) {
+                    updatedIp = line.split("SingBox 配置文件成功更新IP为")[1].trim();
+                }
+                if (line.includes("Config 配置文件成功更新IP为")) {
+                    updatedIp = line.split("Config 配置文件成功更新IP为")[1].trim();
+                }
             });
+
+            // 如果找到了更新的 IP，则返回成功信息
+            if (updatedIp) {
+                logMessages.push("hy2ip.sh 执行成功");
+                logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
+                logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
+                logMessages.push("正在重启 sing-box...");
+
+                console.log("hy2ip.sh 执行成功");
+                console.log(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
+                console.log(`Config 配置文件成功更新IP为 ${updatedIp}`);
+
+                // 返回执行的成功信息
+                res.json({
+                    success: true,
+                    message: "hy2ip.sh script executed successfully.",
+                    logs: logMessages,
+                    output: `SingBox 配置文件成功更新IP为 ${updatedIp}\nConfig 配置文件成功更新IP为 ${updatedIp}\n正在重启 sing-box...`
+                });
+            } else {
+                logMessages.push("未能获取更新的 IP");
+                console.error("未能获取更新的 IP");
+
+                res.status(500).json({
+                    success: false,
+                    message: "未能获取更新的 IP",
+                    logs: logMessages
+                });
+            }
         });
     } catch (error) {
         let logMessages = [];
