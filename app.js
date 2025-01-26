@@ -32,17 +32,18 @@ function runShellCommand() {
     const command = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
     executeCommand(command, "start.sh", true);
 }
-function hy2ipCommand() {
+function hy2ipCommand(logMessages) {
     const username = process.env.USER.toLowerCase(); // 获取当前用户名并转换为小写
-    console.log(`Executing command for user: ${username}`); // 打印用户信息
+    logMessages.push(`Executing command for user: ${username}`); // 记录日志
 
     const command = `cd ${process.env.HOME}/domains/${username}.serv00.net/public_nodejs/ && bash hy2ip.sh`;
-    console.log(`Command to be executed: ${command}`); // 打印执行的命令
+    logMessages.push(`Command to be executed: ${command}`); // 记录日志
+    console.log(command); // 打印命令到控制台
 
-    // 执行命令
+    // 执行命令并收集输出
     executeCommand(command, "hy2ip.sh", true);
 
-    // 也可以在这里增加更多的日志记录来追踪每个步骤
+    logMessages.push("Execution of hy2ip.sh is complete.");
     console.log("Execution of hy2ip.sh is complete.");
 }
 function KeepAlive() {
@@ -159,21 +160,28 @@ app.get("/info", (req, res) => {
 
 app.get("/hy2ip", (req, res) => {
     try {
-        // 在日志中打印请求信息
-        console.log("Received request to execute hy2ip.sh script...");
+        let logMessages = []; // 用于收集日志信息
 
-        hy2ipCommand();  // 执行 hy2ipCommand 函数
+        // 日志打印
+        logMessages.push("Received request to execute hy2ip.sh script...");
+        console.log(logMessages[logMessages.length - 1]); // 打印到控制台
 
-        // 打印成功日志
-        console.log("hy2ip.sh script executed successfully.");
+        // 执行 hy2ipCommand 并收集日志
+        hy2ipCommand(logMessages);
 
-        res.json({ success: true, message: "hy2ip.sh script executed successfully." });
+        // 成功执行日志
+        logMessages.push("hy2ip.sh script executed successfully.");
+        console.log(logMessages[logMessages.length - 1]); // 打印到控制台
+
+        // 返回成功响应和日志
+        res.json({ success: true, message: "hy2ip.sh script executed successfully.", logs: logMessages });
     } catch (error) {
-        // 打印错误日志
-        console.error("Error executing hy2ip.sh script:", error.message);
-        
-        // 返回失败响应
-        res.status(500).json({ success: false, message: error.message });
+        let logMessages = [];
+        logMessages.push("Error executing hy2ip.sh script:", error.message);
+        console.error(logMessages[logMessages.length - 1]); // 打印错误日志到控制台
+
+        // 返回失败响应和错误日志
+        res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
 
