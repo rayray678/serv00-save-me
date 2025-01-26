@@ -50,10 +50,6 @@ function KeepAlive() {
     executeCommand(command, "keepalive.sh", true);
 }
 
-const https = require('https');
-const fs = require('fs');
-const os = require('os');
-
 // 更新配置文件并重启服务的函数
 function updateConfigAndRestart(ip) {
     const singboxDir = `${process.env.HOME}/serv00-play/singbox`;
