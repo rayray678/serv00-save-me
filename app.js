@@ -205,6 +205,7 @@ app.get("/hy2ip", (req, res) => {
                                     margin: 0;
                                     padding: 0;
                                     background-color: #f4f4f4;
+                                    text-align: left
                                 }
                                 h1 {
                                     text-align: center;
@@ -221,7 +222,6 @@ app.get("/hy2ip", (req, res) => {
                                     background-color: #ffffff;
                                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                     border-radius: 5px;
-                                    text-align: left; /* 设置日志内容左对齐 */
                                 }
                                 @media (max-width: 600px) {
                                     .scrollable {
@@ -283,6 +283,7 @@ app.get("/node", (req, res) => {
                         margin: 0;
                         padding: 0;
                         background-color: #f4f4f4;
+                        text-align: left
                     }
                     .config-box {
                         max-height: 60vh; /* 设置最大高度为视口高度的 60% */
@@ -294,7 +295,6 @@ app.get("/node", (req, res) => {
                         margin: 20px auto;
                         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                         border-radius: 5px;
-                        text-align: left; /* 让内容左对齐 */
                     }
 
                     #configContent {
