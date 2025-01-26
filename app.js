@@ -210,7 +210,7 @@ app.get("/hy2ip", (req, res) => {
                 res.send(`
                     <html>
                         <head>
-                            <title>HY2IP更新</title>
+                            <title>HY2_IP 更新</title>
                         </head>
                         <body>
                             <h1>IP更新结果</h1>
