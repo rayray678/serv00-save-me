@@ -1,21 +1,18 @@
-const https = require('https');
 require('dotenv').config();
+const { execSync } = require("child_process");
+const fetch = require("node-fetch");
 const express = require("express");
-const { exec, execSync } = require("child_process");
-const os = require('os');
+const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const app = express();
 app.use(express.json());
 let logs = [];
 let latestStartLog = "";
-
 function logMessage(message) {
     logs.push(message);
     if (logs.length > 5) logs.shift();
 }
-
-// 现有的命令
 function executeCommand(command, actionName, isStartLog = false, callback) {
     exec(command, (err, stdout, stderr) => {
         const timestamp = new Date().toLocaleString();
@@ -33,151 +30,133 @@ function executeCommand(command, actionName, isStartLog = false, callback) {
         if (callback) callback(stdout);
     });
 }
-
 function runShellCommand() {
     const command = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
     executeCommand(command, "start.sh", true);
 }
-
-function stopCommand() {
-    const command = `cd ${process.env.HOME}/serv00-play/singbox/ && bash killsing-box.sh`;
-    executeCommand(command, "killsing-box", true);
-}
-
-// 现有的KeepAlive定时器
 function KeepAlive() {
     const command = `cd ${process.env.HOME}/serv00-play/ && bash keepalive.sh`;
     executeCommand(command, "keepalive.sh", true);
 }
+async function changeHy2IP() {
+    // green 和 red 用于打印带有颜色的日志
+    function green(message) {
+        console.log(`\x1b[32m${message}\x1b[0m`);
+    }
 
-// 获取当前主机号
-const hostname = os.hostname();
-const hostNumber = hostname.match(/s(\d+)/) ? hostname.match(/s(\d+)/)[1] : '00';
+    function red(message) {
+        console.error(`\x1b[31m${message}\x1b[0m`);
+    }
 
-// 获取有效的IP
-function getUnblockIP(hosts) {
-    return new Promise((resolve, reject) => {
-        const tableData = [];
-        let availableIPs = [];
+    // 获取 IP 地址
+    async function getIp() {
+        const hostname = require("os").hostname();
+        const hostNumber = hostname.split(".")[0].replace(/[^\d]/g, "");
+        const hosts = [`cache${hostNumber}.serv00.com`, `web${hostNumber}.serv00.com`, hostname];
 
-        // 递归检查 hosts 列表中的每个主机
-        const checkHost = (index) => {
-            if (index >= hosts.length) {
-                console.table(tableData); // 输出所有主机状态
-                return resolve(availableIPs); // 返回所有有效IP
+        for (const host of hosts) {
+            try {
+                const response = await fetch(`https://ss.botai.us.kg/api/getip?host=${host}`);
+                const data = await response.text();
+
+                if (data.includes("not found")) {
+                    console.log(`未识别主机 ${host}！`);
+                    continue;
+                }
+
+                const [ip, status] = data.split("|");
+                if (status === "Accessible") {
+                    return ip;
+                }
+            } catch (error) {
+                console.error(`获取主机 ${host} 的 IP 时出错: ${error.message}`);
             }
+        }
 
-            const host = hosts[index];
-            const url = `https://ss.botai.us.kg/api/getip?host=${host}`;
+        red("未找到可用的 IP！");
+        return null;
+    }
 
-            console.log(`正在请求主机: ${host}, 请求地址: ${url}`); // 添加日志输出
+    // 更新 SingBox 配置文件
+    function updateConfigJson(configFile, newIp) {
+        if (!fs.existsSync(configFile)) {
+            red(`配置文件 ${configFile} 不存在！`);
+            return false;
+        }
 
-            // 发起请求检查当前 host 的 IP 状态
-            https.get(url, (res) => {
-                let data = '';
-
-                res.on('data', (chunk) => {
-                    data += chunk;
-                });
-
-                res.on('end', () => {
-                    console.log(`请求返回数据: ${data}`); // 输出请求返回的数据
-
-                    if (data.includes("not found")) {
-                        tableData.push({ Host: host, IP: '-', Status: 'not found' });
-                        checkHost(index + 1); // 检查下一个主机
-                    } else {
-                        const [ip, status] = data.split('|');
-                        tableData.push({ Host: host, IP: ip.trim(), Status: status.trim() });
-                        if (status.trim() === 'unblocked') {
-                            availableIPs.push(ip.trim()); // 收集可用的 IP
-                        }
-                        checkHost(index + 1); // 继续检查下一个主机
-                    }
-                });
-            }).on('error', (err) => {
-                console.error(`请求失败: ${err.message}`); // 输出错误信息
-                checkHost(index + 1); // 继续检查下一个主机
+        try {
+            const config = JSON.parse(fs.readFileSync(configFile, "utf8"));
+            config.inbounds.forEach(inbound => {
+                if (inbound.tag === "hysteria-in") {
+                    inbound.listen = newIp;
+                }
             });
-        };
-
-        checkHost(0); // 从第一个主机开始检查
-    });
-}
-
-// 更新配置文件并重启服务
-function updateConfigAndRestart(ip) {
-    const singboxDir = `${process.env.HOME}/serv00-play/singbox`;
-    const singboxConfigPath = `${singboxDir}/singbox.json`;
-    const configPath = `${singboxDir}/config.json`;
-
-    // 检查配置文件是否存在
-    if (!fs.existsSync(singboxConfigPath) || !fs.existsSync(configPath)) {
-        console.error("未安装节点，请先安装!");
-        return false;
+            fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+            green(`SingBox 配置文件成功更新IP为 ${newIp}`);
+            return true;
+        } catch (error) {
+            red(`更新配置文件失败: ${error.message}`);
+            return false;
+        }
     }
 
-    try {
-        // 更新 singbox 配置文件中的 IP 地址
-        const singboxConfig = JSON.parse(fs.readFileSync(singboxConfigPath, 'utf8'));
-        singboxConfig.HY2IP = ip;
-        fs.writeFileSync(singboxConfigPath, JSON.stringify(singboxConfig, null, 2));
-
-        // 更新 config.json 配置文件中的 listen 字段
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        const inbounds = config.inbounds.find((ib) => ib.tag === 'hysteria-in');
-        if (inbounds) {
-            inbounds.listen = ip;
-            fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    // 更新 singbox 配置文件
+    function updateSingboxJson(configFile, newIp) {
+        if (!fs.existsSync(configFile)) {
+            red(`配置文件 ${configFile} 不存在！`);
+            return false;
         }
 
-        console.log(`HY2 更换IP成功，当前IP为 ${ip}`);
-        console.log("正在重启sing-box...");
+        try {
+            const config = JSON.parse(fs.readFileSync(configFile, "utf8"));
+            config.HY2IP = newIp;
+            fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+            green(`Config 配置文件成功更新IP为 ${newIp}`);
+            return true;
+        } catch (error) {
+            red(`更新配置文件失败: ${error.message}`);
+            return false;
+        }
+    }
 
-        // 停止并重启服务
-        stopCommand();
-        setTimeout(() => {
-            runShellCommand();  // 3秒后启动
-            console.log("sing-box 已重启。");
-        }, 3000);  
+    // 停止 SingBox 服务
+    function stopSingBox() {
+        try {
+            execSync("cd ~/serv00-play/singbox/ && bash killsing-box.sh", { stdio: "inherit" });
+        } catch (error) {
+            red(`停止 SingBox 时出错: ${error.message}`);
+        }
+    }
 
-        return true; // 配置更新并重启成功
-    } catch (err) {
-        console.error("更新配置文件失败!", err.message);
-        return false; // 配置更新失败
+    // 启动 SingBox 服务
+    function startSingBox() {
+        try {
+            execSync("cd ~/serv00-play/singbox/ && bash start.sh", { stdio: "inherit" });
+        } catch (error) {
+            red(`启动 SingBox 时出错: ${error.message}`);
+        }
+    }
+
+    // 获取 IP 并更新配置文件
+    const configFile1 = `${process.env.HOME}/serv00-play/singbox/config.json`;
+    const configFile2 = `${process.env.HOME}/serv00-play/singbox/singbox.json`;
+    const hy2Ip = await getIp();
+
+    if (!hy2Ip) {
+        red("获取可用 IP 失败！");
+        return;
+    }
+
+    const updatedConfig1 = updateConfigJson(configFile1, hy2Ip);
+    const updatedConfig2 = updateSingboxJson(configFile2, hy2Ip);
+
+    if (updatedConfig1 && updatedConfig2) {
+        console.log("正在重启 sing-box...");
+        stopSingBox();
+        setTimeout(startSingBox, 3000);
     }
 }
 
-// 获取并检查可用的 IP，然后更新配置并重启
-async function changeHy2IPWithUnblockCheck(req, res) {
-    const hosts = [
-        `cache${hostNumber}.serv00.com`,
-        `web${hostNumber}.serv00.com`,
-        `s${hostNumber}.serv00.com`
-    ];
-
-    try {
-        const availableIPs = await getUnblockIP(hosts); // 获取所有有效的 IP
-        if (availableIPs.length === 0) {
-            console.error("很遗憾，未找到可用的IP!");
-            return res.type("html").send("未找到可用的IP，请稍后再试。"); // 如果没有找到可用 IP
-        }
-
-        // 使用第一个可用的 IP 设置为默认 IP
-        const ip = availableIPs[0];
-
-        const success = updateConfigAndRestart(ip); // 更新配置并重启服务
-        if (!success) {
-            console.error("操作失败，请检查配置!");
-            return res.type("html").send("操作失败，请检查配置文件或联系管理员。"); // 如果操作失败
-        }
-
-        res.type("html").send(`<pre>当前 IP 更新成功，新的 IP 为 ${ip}</pre>`); // 成功后反馈更新结果
-    } catch (err) {
-        console.error("发生错误:", err.message);
-        res.type("html").send("<pre>操作失败，请稍后再试。</pre>");
-    }
-}
 
 setInterval(KeepAlive, 20000);
 app.get("/info", (req, res) => {
@@ -277,7 +256,6 @@ app.get("/info", (req, res) => {
                     <span style="--char-index: 24;">中</span>
                 </div>
                 <div class="button-container">
-                    <button onclick="window.location.href='/hy2ip'">更新IP</button>
                     <button onclick="window.location.href='/node'">节点信息</button>
                     <button onclick="window.location.href='/log'">实时日志</button>
                 </div>
@@ -287,7 +265,15 @@ app.get("/info", (req, res) => {
     `);
 });
 
-app.get("/hy2ip", changeHy2IPWithUnblockCheck);
+app.get("/hy2ip", async (req, res) => {
+    try {
+        await changeHy2IP(); // 调用 changeHy2IP() 执行所有逻辑
+        const ip = await changeHy2IP(); // 获取新的 IP（也可以只调用一次 changeHy2IP）
+        res.json({ success: true, ip });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
@@ -391,9 +377,8 @@ app.get("/log", (req, res) => {
                 </head>
                 <body>
                     <pre><b>最近日志:</b>\n${latestLog}</pre>
-                    <pre><b>进程详情:</b>\n</pre>
                     <div class="scrollable">
-                        <pre>${processOutput}</pre>
+                        <pre><b>进程详情:</b>\n${processOutput}</pre>
                     </div>
                 </body>
             </html>
@@ -401,7 +386,7 @@ app.get("/log", (req, res) => {
     });
 });
 app.use((req, res, next) => {
-    const validPaths = ["/info", "/hy2ip","/node", "/log"];
+    const validPaths = ["/info", "/hy2ip", "/node", "/log"];
     if (validPaths.includes(req.path)) {
         return next();
     }
