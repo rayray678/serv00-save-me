@@ -189,7 +189,7 @@ app.get("/hy2ip", (req, res) => {
                 logMessages.push("命令 执行成功");
                 logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
-                logMessages.push("正在重启 sing-box...");
+                logMessages.push("sing-box 已重启");
 
                 // 将日志转换为 HTML 格式
                 let htmlLogs = logMessages.map(msg => `<p>${msg}</p>`).join("");
@@ -202,16 +202,31 @@ app.get("/hy2ip", (req, res) => {
                             <style>
                                 body {
                                     font-family: Arial, sans-serif;
+                                    margin: 0;
+                                    padding: 0;
+                                    background-color: #f4f4f4;
+                                }
+                                h1 {
+                                    text-align: center;
+                                    margin-top: 20px;
                                 }
                                 .scrollable {
-                                    width: 100%;
-                                    height: 300px;
+                                    width: 90%; /* 宽度自适应 */
+                                    height: 50vh; /* 高度为视口高度的 50% */
+                                    max-height: 500px; /* 最大高度 */
                                     overflow-y: auto;
                                     border: 1px solid #ccc;
                                     padding: 10px;
-                                    margin-top: 20px;
-                                    background-color: #f9f9f9;
+                                    margin: 20px auto;
+                                    background-color: #ffffff;
                                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                                    border-radius: 5px;
+                                }
+                                @media (max-width: 600px) {
+                                    .scrollable {
+                                        width: 95%; /* 手机上占屏幕宽度的 95% */
+                                        height: 40vh; /* 手机上高度为视口高度的 40% */
+                                    }
                                 }
                             </style>
                         </head>
@@ -244,6 +259,7 @@ app.get("/hy2ip", (req, res) => {
         res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
+
 
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
