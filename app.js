@@ -50,8 +50,6 @@ function KeepAlive() {
     executeCommand(command, "keepalive.sh", true);
 }
 
-const https = require('https');
-
 function getUnblockIP(hosts) {
     return new Promise((resolve, reject) => {
         let availableIP = null;
