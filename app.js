@@ -197,7 +197,7 @@ app.get("/hy2ip", (req, res) => {
                 logMessages.push("hy2ip.sh 执行成功");
                 logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
-                logMessages.push("正在重启 sing-box...");
+                logMessages.push("sing-box 已重启");
 
                 console.log("hy2ip.sh 执行成功");
                 console.log(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
@@ -210,19 +210,15 @@ app.get("/hy2ip", (req, res) => {
                 res.send(`
                     <html>
                         <head>
-                            <title>hy2ip.sh 执行结果</title>
+                            <title>HY2IP更新</title>
                         </head>
                         <body>
-                            <h1>hy2ip.sh 执行结果</h1>
+                            <h1>IP更新结果</h1>
                             <p><strong>成功：</strong> ${updatedIp}</p>
                             <div>
                                 <h2>日志:</h2>
                                 ${htmlLogs}
                             </div>
-                            <h2>输出:</h2>
-                            <p>SingBox 配置文件成功更新IP为 ${updatedIp}</p>
-                            <p>Config 配置文件成功更新IP为 ${updatedIp}</p>
-                            <p>正在重启 sing-box...</p>
                         </body>
                     </html>
                 `);
