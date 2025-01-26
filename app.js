@@ -221,6 +221,7 @@ app.get("/hy2ip", (req, res) => {
                                     background-color: #ffffff;
                                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                     border-radius: 5px;
+                                    text-align: left; /* 设置日志内容左对齐 */
                                 }
                                 @media (max-width: 600px) {
                                     .scrollable {
@@ -259,8 +260,6 @@ app.get("/hy2ip", (req, res) => {
         res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
-
-
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
     fs.readFile(filePath, "utf8", (err, data) => {
@@ -295,11 +294,11 @@ app.get("/node", (req, res) => {
                         margin: 20px auto;
                         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                         border-radius: 5px;
+                        text-align: left; /* 让内容左对齐 */
                     }
 
                     #configContent {
                         white-space: pre-wrap;
-                        text-align: left;
                     }
 
                     .copy-btn {
@@ -311,6 +310,7 @@ app.get("/node", (req, res) => {
                         border-radius: 5px;
                         margin: 10px;
                     }
+
                     .copy-btn:hover {
                         background-color: #0056b3;
                     }
