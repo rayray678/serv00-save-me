@@ -15,7 +15,7 @@ get_ip() {
     for host in "${hosts[@]}"; do
         local response=$(curl -s "https://ss.botai.us.kg/api/getip?host=$host")
         if [[ "$response" =~ "not found" ]]; then
-            echo "未识别主机 ${host}！"
+            echo "未识别主机 ${host}, 请联系作者！"
             continue
         fi
 
