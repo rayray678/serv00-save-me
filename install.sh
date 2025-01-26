@@ -26,7 +26,9 @@ U1_DOMAIN=$(echo "$U1" | tr '[:upper:]' '[:lower:]')
 D1="$U1_DOMAIN.serv00.net"
 D2="/home/$U1/domains/$D1"
 F1="$D2/public_nodejs/app.js"
+F1="$D2/public_nodejs/hy2ip.sh"
 L1="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/app.js"
+L2="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/hy2ip.sh"
 
 echo ""
 echo " ———————————————————————————————————————————————————————————— "
@@ -53,7 +55,7 @@ else
     exit 1
 fi
 sleep 1
-curl -s -o "$F1" "$L1" && chmod 755 "$F1" > /dev/null 2>&1
+curl -s -o "$F1" "$L1" && chmod 755 "$F1" > /dev/null 2>&1 && curl -s -o "$F2" "$L2" && chmod 755 "$F2" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     print_status "正在下载 配置文件" 0
 else
