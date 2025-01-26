@@ -22,6 +22,7 @@
 2、登录SSH客户端安装依赖
 
     cd ~/domains/域名
+
     npm install dotenv basic-auth express
 
 3、进入域名目录
@@ -32,7 +33,9 @@
         
     nano app.js
 
- Ctrl+S保存，然后Ctrl+X退出
+    Ctrl+S
+
+    Ctrl+X
 
 5、浏览器访问域名，如图（如打不开可能需要挂代理）
         例如：https://fuhuo.serv00.net/info
