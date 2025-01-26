@@ -205,7 +205,9 @@ app.get("/hy2ip", (req, res) => {
                             <p><strong>有效IP：</strong> ${updatedIp}</p>
                             <div>
                                 <h2>日志:</h2>
-                                ${htmlLogs}
+                                <div class="scrollable">
+                                <pre> ${htmlLogs} </pre>
+                                </div>
                             </div>
                         </body>
                     </html>
