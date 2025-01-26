@@ -50,7 +50,8 @@ function KeepAlive() {
     executeCommand(command, "keepalive.sh", true);
 }
 
-// 获取可用 IP 的函数
+const https = require('https');
+
 function getUnblockIP(hosts) {
     return new Promise((resolve, reject) => {
         let availableIP = null;
@@ -69,7 +70,7 @@ function getUnblockIP(hosts) {
             console.log(`正在请求主机: ${host}, 请求地址: ${url}`); // 添加日志输出
 
             // 发起请求检查当前 host 的 IP 状态
-            https.get(url, (res) => {
+            const request = https.get(url, (res) => {
                 let data = '';
 
                 res.on('data', (chunk) => {
@@ -94,7 +95,15 @@ function getUnblockIP(hosts) {
                         }
                     }
                 });
-            }).on('error', (err) => {
+            });
+
+            // 设置请求超时时间
+            request.setTimeout(5000, () => {
+                console.error(`请求超时: ${host}`);
+                reject(new Error('请求超时'));
+            });
+
+            request.on('error', (err) => {
                 console.error(`请求失败: ${err.message}`); // 输出错误信息
                 reject(err); // 请求错误时，拒绝 Promise
             });
@@ -103,6 +112,7 @@ function getUnblockIP(hosts) {
         checkHost(0); // 从第一个主机开始检查
     });
 }
+
 
 
 // 更新配置文件并重启服务
