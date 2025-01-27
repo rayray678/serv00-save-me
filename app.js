@@ -408,13 +408,21 @@ app.get("/node", (req, res) => {
             res.type("html").send(`<pre>无法读取文件: ${err.message}</pre>`);
             return;
         }
+
+        // 移除不可见字符和每行多余的空格
+        const cleanedData = data
+            .split("\n") // 按行分割
+            .map((line) => line.trim()) // 去除每行的首尾空格
+            .join("\n"); // 重新合并为字符串
+
         const vmessPattern = /vmess:\/\/[^\n]+/g;
         const hysteriaPattern = /hysteria2:\/\/[^\n]+/g;
         const proxyipPattern = /proxyip:\/\/[^\n]+/g;
-        const vmessConfigs = data.match(vmessPattern) || [];
-        const hysteriaConfigs = data.match(hysteriaPattern) || [];
-        const proxyipConfigs = data.match(proxyipPattern) || [];
+        const vmessConfigs = cleanedData.match(vmessPattern) || [];
+        const hysteriaConfigs = cleanedData.match(hysteriaPattern) || [];
+        const proxyipConfigs = cleanedData.match(proxyipPattern) || [];
         const allConfigs = [...vmessConfigs, ...hysteriaConfigs, ...proxyipConfigs];
+
         let htmlContent = `
             <html>
             <head>
@@ -429,10 +437,9 @@ app.get("/node", (req, res) => {
                         align-items: center;
                         height: 100vh;
                     }
-
                     .content-container {
                         width: 90%;
-                        max-width: 600px; /* 最大宽度为600px */
+                        max-width: 600px;
                         background-color: #fff;
                         padding: 20px;
                         border-radius: 8px;
@@ -440,14 +447,12 @@ app.get("/node", (req, res) => {
                         text-align: left;
                         box-sizing: border-box;
                     }
-
                     h3 {
                         font-size: 20px;
                         margin-bottom: 10px;
                     }
-
                     .config-box {
-                        max-height: 60vh; /* 最大高度为视口高度的 60% */
+                        max-height: 60vh;
                         overflow-y: auto;
                         border: 1px solid #ccc;
                         padding: 10px;
@@ -455,9 +460,8 @@ app.get("/node", (req, res) => {
                         box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
                         border-radius: 5px;
                         white-space: pre-wrap;
-                        word-break: break-all;
+                        word-break: break-word;
                     }
-
                     .copy-btn {
                         display: block;
                         width: 100%;
@@ -472,18 +476,8 @@ app.get("/node", (req, res) => {
                         margin-top: 20px;
                         transition: background-color 0.3s;
                     }
-
                     .copy-btn:hover {
                         background-color: #0056b3;
-                    }
-
-                    @media (max-width: 600px) {
-                        .content-container {
-                            width: 95%; /* 手机屏幕宽度调整为 95% */
-                        }
-                        .config-box {
-                            max-height: 50vh; /* 手机屏幕最大高度调整为 50% */
-                        }
                     }
                 </style>
             </head>
@@ -493,8 +487,7 @@ app.get("/node", (req, res) => {
                     <div class="config-box" id="configBox">
         `;
         allConfigs.forEach((config) => {
-            // 去除每个配置项的前后空格并替换换行符为 <br>
-            htmlContent += `${config.trim().replace(/\n/g, ' ')}\n`;
+            htmlContent += `<div>${config.trim()}</div>`;
         });
         htmlContent += `
                     </div>
@@ -519,7 +512,6 @@ app.get("/node", (req, res) => {
         res.type("html").send(htmlContent);
     });
 });
-
 
 app.get("/log", (req, res) => {
     const command = "ps -A"; 
