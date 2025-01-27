@@ -55,93 +55,86 @@ app.get("/info", (req, res) => {
         <head>
             <style>
                 body {
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     height: 100vh;
-                    margin: 0;
-                    font-family: Arial, sans-serif;
-                    text-align: center;
                 }
                 .content-container {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    max-width: 600px;
+                    width: 100%;
+                    max-width: 600px; /* 最大宽度为600px */
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                    box-sizing: border-box;
+                    text-align: left; /* 左对齐 */
                 }
                 .dynamic-text {
-                    font-size: 30px;
+                    font-size: 24px;
                     font-weight: bold;
-                    white-space: nowrap;
-                    display: inline-block;
+                    margin-bottom: 20px;
+                    line-height: 1.5;
                 }
                 @keyframes growShrink {
                     0% {
                         transform: scale(1);
                     }
-                    25% {
-                        transform: scale(1.5);
-                    }
                     50% {
+                        transform: scale(1.2);
+                    }
+                    100% {
                         transform: scale(1);
                     }
                 }
-
                 .dynamic-text span {
                     display: inline-block;
-                    animation: growShrink 1s infinite;
+                    animation: growShrink 1.2s infinite;
                     animation-delay: calc(0.1s * var(--char-index));
                 }
                 .button-container {
                     margin-top: 20px;
+                    display: flex;
+                    flex-wrap: wrap; /* 适配小屏，按钮会换行 */
+                    gap: 10px;
                 }
                 button {
-                    padding: 10px 20px;
+                    flex: 1; /* 按钮自适应宽度 */
+                    min-width: 100px; /* 防止按钮过小 */
+                    padding: 10px 15px;
                     font-size: 16px;
-                    cursor: pointer;
                     background-color: #007bff;
                     color: white;
                     border: none;
-                    border-radius: 5px;
-                    margin: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
                 }
                 button:hover {
                     background-color: #0056b3;
+                }
+                @media (max-width: 600px) {
+                    .dynamic-text {
+                        font-size: 20px;
+                    }
+                    button {
+                        font-size: 14px;
+                    }
                 }
             </style>
         </head>
         <body>
             <div class="content-container">
                 <div class="dynamic-text">
-                    <span style="--char-index: 0;">S</span>
-                    <span style="--char-index: 1;">i</span>
-                    <span style="--char-index: 2;">n</span>
-                    <span style="--char-index: 3;">g</span>
-                    <span style="--char-index: 4;">B</span>
-                    <span style="--char-index: 5;">o</span>
-                    <span style="--char-index: 6;">x</span>
-                    <span style="--char-index: 7;"> </span>
-                    <span style="--char-index: 8;">已</span>
-                    <span style="--char-index: 9;">复</span>
-                    <span style="--char-index: 10;">活</span>
+                    ${"SingBox 已复活".split("").map((char, index) => 
+                        `<span style="--char-index: ${index};">${char}</span>`).join("")}
                 </div>
-                <div class="dynamic-text" style="margin-top: 20px;">
-                    <span style="--char-index: 11;">H</span>
-                    <span style="--char-index: 12;">t</span>
-                    <span style="--char-index: 13;">m</span>
-                    <span style="--char-index: 14;">l</span>
-                    <span style="--char-index: 15;">O</span>
-                    <span style="--char-index: 16;">n</span>
-                    <span style="--char-index: 17;">L</span>
-                    <span style="--char-index: 18;">i</span>
-                    <span style="--char-index: 19;">v</span>
-                    <span style="--char-index: 20;">e</span>
-                    <span style="--char-index: 21;"> </span>
-                    <span style="--char-index: 22;">守</span>
-                    <span style="--char-index: 23;">护</span>
-                    <span style="--char-index: 24;">中</span>
+                <div class="dynamic-text">
+                    ${"HtmlOnLive 守护中".split("").map((char, index) => 
+                        `<span style="--char-index: ${index + 10};">${char}</span>`).join("")}
                 </div>
                 <div class="button-container">
                     <button onclick="window.location.href='/hy2ip'">换HY2_IP</button>
@@ -153,7 +146,6 @@ app.get("/info", (req, res) => {
         </html>
     `);
 });
-
 
 // 中间件：解析请求体
 app.use(express.urlencoded({ extended: true }));
