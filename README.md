@@ -46,5 +46,5 @@
 
   ## ● 自己可以杀掉进程再刷新网页，然后再SSH端 ps aux 查询进程
   
-  ## ● 默认只有 [饭奇骏](https://github.com/frankiejun/serv00-play) 大佬的 singbox 进程，至于集中自动化管理需要自己开发。需要源码再开发联系 [机器人](https://t.me/SerokBot_bot) 
+  ## ● 默认只有 [饭奇骏](https://github.com/frankiejun/serv00-play) 大佬的 singbox 进程，至于集中自动化管理需要自己开发。需要源码再开发联系 [机器人](https://t.me/SerokBot_bot) 。
         
