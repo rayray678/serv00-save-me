@@ -556,7 +556,7 @@ app.get("/log", (req, res) => {
                             }
 
                             pre {
-                                white-space: pre-wrap;  /* 允许文本换行 */
+                                white-space: pre-wrap;  /* 保证文本换行 */
                                 word-wrap: break-word;  /* 长单词换行 */
                             }
 
@@ -570,7 +570,6 @@ app.get("/log", (req, res) => {
                                 background-color: #f9f9f9;
                                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                 border-radius: 5px;
-                                white-space: pre-wrap;  /* 允许换行 */
                             }
 
                             .scrollable pre {
@@ -644,7 +643,7 @@ app.get("/log", (req, res) => {
                         }
 
                         pre {
-                            white-space: pre-wrap;  /* 允许文本换行 */
+                            white-space: pre-wrap;  /* 保证文本换行 */
                             word-wrap: break-word;  /* 长单词换行 */
                         }
 
@@ -658,7 +657,6 @@ app.get("/log", (req, res) => {
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                            white-space: pre-wrap;  /* 允许换行 */
                         }
 
                         .scrollable pre {
