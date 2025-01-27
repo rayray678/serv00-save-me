@@ -556,8 +556,8 @@ app.get("/log", (req, res) => {
                             }
 
                             pre {
-                                white-space: nowrap;  /* 保证文本不换行 */
-                                word-wrap: break-word;  /* 确保长单词在必要时换行 */
+                                white-space: pre-wrap;  /* 允许文本换行 */
+                                word-wrap: break-word;  /* 长单词换行 */
                             }
 
                             .scrollable {
@@ -570,7 +570,10 @@ app.get("/log", (req, res) => {
                                 background-color: #f9f9f9;
                                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                 border-radius: 5px;
-                                white-space: nowrap;  /* 强制不换行 */
+                            }
+
+                            .scrollable pre {
+                                white-space: nowrap;  /* 强制单行超出时水平滚动 */
                             }
 
                             @media (max-width: 600px) {
@@ -640,8 +643,8 @@ app.get("/log", (req, res) => {
                         }
 
                         pre {
-                            white-space: nowrap;  /* 保证文本不换行 */
-                            word-wrap: break-word;  /* 确保长单词在必要时换行 */
+                            white-space: pre-wrap;  /* 允许文本换行 */
+                            word-wrap: break-word;  /* 长单词换行 */
                         }
 
                         .scrollable {
@@ -654,7 +657,10 @@ app.get("/log", (req, res) => {
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                            white-space: nowrap;  /* 强制不换行 */
+                        }
+
+                        .scrollable pre {
+                            white-space: nowrap;  /* 强制单行超出时水平滚动 */
                         }
 
                         @media (max-width: 600px) {
