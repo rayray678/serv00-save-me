@@ -71,13 +71,14 @@ app.get("/info", (req, res) => {
                     border-radius: 8px;
                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                     box-sizing: border-box;
-                    text-align: left; /* 左对齐 */
+                    text-align: center; /* 改为居中对齐 */
                 }
                 .dynamic-text {
                     font-size: 24px;
                     font-weight: bold;
                     margin-bottom: 20px;
                     line-height: 1.5;
+                    display: inline-block; /* 使得每个字符按需换行 */
                 }
                 @keyframes growShrink {
                     0% {
