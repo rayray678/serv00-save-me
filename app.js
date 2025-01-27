@@ -565,6 +565,13 @@ app.get("/log", (req, res) => {
 
                         .log-container {
                             margin-bottom: 20px;
+                            white-space: pre-wrap;  /* 自动换行 */
+                            word-wrap: break-word;  /* 防止超出容器宽度 */
+                            border: 1px solid #ccc;
+                            padding: 10px;
+                            background-color: #f9f9f9;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                            border-radius: 5px;
                         }
 
                         .scrollable {
@@ -606,6 +613,7 @@ app.get("/log", (req, res) => {
         `);
     });
 });
+
 app.use((req, res, next) => {
     const validPaths = ["/info", "/hy2ip", "/node", "/log"];
     if (validPaths.includes(req.path)) {
