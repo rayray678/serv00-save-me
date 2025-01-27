@@ -563,10 +563,6 @@ app.get("/log", (req, res) => {
                             box-sizing: border-box;
                         }
 
-                        pre {
-                            margin: 0;
-                        }
-
                         .log-container {
                             margin-bottom: 20px;
                             white-space: pre-wrap;  /* 自动换行 */
@@ -579,7 +575,7 @@ app.get("/log", (req, res) => {
                         }
 
                         .scrollable {
-                            max-height: 70vh;  /* 增加进程详情框的高度 */
+                            max-height: 60vh;
                             overflow-x: auto; /* 横向滚动 */
                             white-space: nowrap; /* 禁止换行 */
                             border: 1px solid #ccc;
@@ -589,12 +585,16 @@ app.get("/log", (req, res) => {
                             border-radius: 5px;
                         }
 
+                        pre {
+                            margin: 0; /* 防止 pre 标签内的内容左右溢出 */
+                        }
+
                         @media (max-width: 600px) {
                             .container {
                                 width: 95%;
                             }
                             .scrollable {
-                                max-height: 60vh; /* 手机屏幕时高度调整为60% */
+                                max-height: 50vh; /* 手机屏幕时高度调整为50% */
                             }
                         }
                     </style>
