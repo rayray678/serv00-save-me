@@ -159,7 +159,6 @@ app.get("/info", (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 路由 1：显示输入页面
 app.get("/hy2ip", (req, res) => {
     res.send(`
         <html>
@@ -171,28 +170,44 @@ app.get("/hy2ip", (req, res) => {
                         margin: 0;
                         padding: 0;
                         background-color: #f4f4f4;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                    }
+                    .container {
+                        width: 90%;
+                        max-width: 400px;
+                        background-color: #fff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                         text-align: left;
-                        padding-left: 30px;
                     }
                     h1 {
-                        text-align: left;
-                        margin-top: 20px;
+                        font-size: 24px;
+                        margin-bottom: 10px;
                     }
-                    form {
-                        margin: 20px 0;
+                    p {
+                        font-size: 14px;
+                        margin-bottom: 20px;
+                        color: #555;
                     }
                     input[type="text"] {
-                        padding: 5px;
+                        width: 100%;
+                        padding: 10px;
                         font-size: 14px;
-                        width: 200px;
                         border: 1px solid #ccc;
                         border-radius: 4px;
+                        box-sizing: border-box;
+                        margin-bottom: 15px;
                     }
                     button {
-                        padding: 5px 10px;
-                        font-size: 14px;
+                        width: 100%;
+                        padding: 10px;
+                        font-size: 16px;
                         background-color: #007bff;
-                        color: #fff;
+                        color: white;
                         border: none;
                         border-radius: 4px;
                         cursor: pointer;
@@ -203,12 +218,15 @@ app.get("/hy2ip", (req, res) => {
                 </style>
             </head>
             <body>
-                <h1>HY2_IP 更新</h1>
-                <p>请输入“更新”以确认执行 IP 更新操作。</p>
-                <form action="/hy2ip/execute" method="POST">
-                    <input type="text" name="confirmation" placeholder="请输入 更新">
-                    <button type="submit">提交</button>
-                </form>
+                <div class="container">
+                    <h1>HY2_IP 更新</h1>
+                    <p>请输入“更新”以确认执行 IP 更新。</p>
+                    <form action="/hy2ip/execute" method="POST">
+                        <input type="text" name="confirmation" placeholder="请输入 更新">
+                        <button type="submit">提交</button>
+                    </form>
+                    <p>【注】：IP 如成功更换原线路会失效，请复制新信息食用。</p>
+                </div>
             </body>
         </html>
     `);
