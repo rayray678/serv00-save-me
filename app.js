@@ -565,8 +565,17 @@ app.get("/log", (req, res) => {
 
                         pre {
                             margin: 0;
+                        }
+
+                        .log-container {
+                            margin-bottom: 20px;
                             white-space: pre-wrap;  /* 自动换行 */
                             word-wrap: break-word;  /* 防止超出容器宽度 */
+                            border: 1px solid #ccc;
+                            padding: 10px;
+                            background-color: #f9f9f9;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                            border-radius: 5px;
                         }
 
                         .scrollable {
@@ -578,7 +587,6 @@ app.get("/log", (req, res) => {
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                            margin-top: 20px;  /* 使进程详情和日志之间的空白空间缩小 */
                         }
 
                         @media (max-width: 600px) {
@@ -593,7 +601,9 @@ app.get("/log", (req, res) => {
                 </head>
                 <body>
                     <div class="container">
-                        <pre><b>最近日志:</b>\n${latestLog}</pre>
+                        <div class="log-container">
+                            <pre><b>最近日志:</b>\n${latestLog}</pre>
+                        </div>
                         <div class="scrollable">
                             <pre><b>进程详情:</b>\n${processOutput}</pre>
                         </div>
