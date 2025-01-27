@@ -552,8 +552,25 @@ app.get("/log", (req, res) => {
                             height: 100vh;
                         }
 
+                        .container {
+                            width: 90%;
+                            max-width: 1000px;
+                            background-color: #fff;
+                            padding: 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                            text-align: left;
+                            box-sizing: border-box;
+                        }
+
+                        pre {
+                            margin: 0;
+                            white-space: pre-wrap;  /* 自动换行 */
+                            word-wrap: break-word;  /* 防止超出容器宽度 */
+                        }
+
                         .scrollable {
-                            max-height: 60vh;
+                            max-height: 70vh;  /* 增加进程详情框的高度 */
                             overflow-x: auto; /* 横向滚动 */
                             white-space: nowrap; /* 禁止换行 */
                             border: 1px solid #ccc;
@@ -561,21 +578,21 @@ app.get("/log", (req, res) => {
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                        }
-
-                        pre {
-                            margin: 0; /* 防止 pre 标签内的内容左右溢出 */
+                            margin-top: 20px;  /* 使进程详情和日志之间的空白空间缩小 */
                         }
 
                         @media (max-width: 600px) {
-                            
+                            .container {
+                                width: 95%;
+                            }
                             .scrollable {
-                                max-height: 50vh; /* 手机屏幕时高度调整为50% */
+                                max-height: 60vh; /* 手机屏幕时高度调整为60% */
                             }
                         }
                     </style>
                 </head>
                 <body>
+                    <div class="container">
                         <pre><b>最近日志:</b>\n${latestLog}</pre>
                         <div class="scrollable">
                             <pre><b>进程详情:</b>\n${processOutput}</pre>
