@@ -409,12 +409,9 @@ app.get("/node", (req, res) => {
             return;
         }
 
-        // 确保配置项之间有换行符，并去除多余空白
         const cleanedData = data
-            .replace(/(vmess:\/\/|hysteria2:\/\/|proxyip:\/\/)/g, '\n$1') // 为协议前添加换行符
-            .split("\n") // 按行分割
-            .map((line) => line.trim()) // 去除每行的首尾空格
-            .join("\n"); // 重新合并为字符串
+            .replace(/(vmess:\/\/|hysteria2:\/\/|proxyip:\/\/)/g, '\n$1')
+            .trim();
 
         const vmessPattern = /vmess:\/\/[^\n]+/g;
         const hysteriaPattern = /hysteria2:\/\/[^\n]+/g;
@@ -487,9 +484,11 @@ app.get("/node", (req, res) => {
                     <h3>节点信息</h3>
                     <div class="config-box" id="configBox">
         `;
+
         allConfigs.forEach((config) => {
             htmlContent += `<div>${config.trim()}</div>`;
         });
+
         htmlContent += `
                     </div>
                     <button class="copy-btn" onclick="copyToClipboard('#configBox')">一键复制</button>
@@ -497,14 +496,27 @@ app.get("/node", (req, res) => {
 
                 <script>
                     function copyToClipboard(id) {
-                        const text = document.querySelector(id).textContent;
+                        const element = document.querySelector(id);
+                        let text;
+
+                        if (element.innerText) {
+                            text = element.innerText;
+                        } else {
+                            text = Array.from(element.children).map(child => child.textContent).join("\\n");
+                        }
+
                         const textarea = document.createElement('textarea');
                         textarea.value = text;
                         document.body.appendChild(textarea);
                         textarea.select();
-                        document.execCommand('copy');
+                        const success = document.execCommand('copy');
                         document.body.removeChild(textarea);
-                        alert('已复制到剪贴板！');
+
+                        if (success) {
+                            alert('已复制到剪贴板！');
+                        } else {
+                            alert('复制失败，请手动复制！');
+                        }
                     }
                 </script>
             </body>
