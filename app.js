@@ -420,42 +420,57 @@ app.get("/node", (req, res) => {
             <head>
                 <style>
                     body {
-                        font-family: Arial, sans-serif;
                         margin: 0;
                         padding: 0;
+                        font-family: Arial, sans-serif;
                         background-color: #f4f4f4;
-                        padding-left: 30px; /* 左侧留出空白，类似于空5格 */
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                    }
+
+                    .content-container {
+                        width: 90%;
+                        max-width: 600px; /* 最大宽度为600px */
+                        background-color: #fff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                        text-align: left;
+                        box-sizing: border-box;
                     }
 
                     h3 {
-                        text-align: left;
-                        margin-top: 20px;
+                        font-size: 20px;
+                        margin-bottom: 10px;
                     }
 
                     .config-box {
-                        max-height: 60vh; /* 设置最大高度为视口高度的 60% */
-                        width: 90%; /* 设置宽度为视口宽度的 90% */
+                        max-height: 60vh; /* 最大高度为视口高度的 60% */
                         overflow-y: auto;
                         border: 1px solid #ccc;
                         padding: 10px;
-                        background-color: #ffffff;
-                        margin: 20px 0;
-                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        background-color: #f9f9f9;
+                        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
                         border-radius: 5px;
-                    }
-
-                    #configContent {
                         white-space: pre-wrap;
+                        word-break: break-all;
                     }
 
                     .copy-btn {
-                        padding: 5px 10px;
-                        cursor: pointer;
+                        display: block;
+                        width: 100%;
+                        padding: 10px;
+                        font-size: 16px;
                         background-color: #007bff;
                         color: white;
                         border: none;
                         border-radius: 5px;
-                        margin: 10px 0;
+                        cursor: pointer;
+                        text-align: center;
+                        margin-top: 20px;
+                        transition: background-color 0.3s;
                     }
 
                     .copy-btn:hover {
@@ -463,32 +478,32 @@ app.get("/node", (req, res) => {
                     }
 
                     @media (max-width: 600px) {
+                        .content-container {
+                            width: 95%; /* 手机屏幕宽度调整为 95% */
+                        }
                         .config-box {
-                            width: 95%;  /* 手机屏幕宽度调整为 95% */
-                            max-height: 50vh; /* 手机屏幕最大高度设置为视口高度的 50% */
+                            max-height: 50vh; /* 手机屏幕最大高度调整为 50% */
                         }
                     }
                 </style>
             </head>
             <body>
-                <div>
+                <div class="content-container">
                     <h3>节点信息</h3>
                     <div class="config-box" id="configBox">
-                        <pre id="configContent">
         `;
         allConfigs.forEach((config) => {
             htmlContent += `${config}\n`;
         });
         htmlContent += `
-                        </pre>
                     </div>
-                    <button class="copy-btn" onclick="copyToClipboard('#configContent')">一键复制</button>
+                    <button class="copy-btn" onclick="copyToClipboard('#configBox')">一键复制</button>
                 </div>
 
                 <script>
                     function copyToClipboard(id) {
-                        var text = document.querySelector(id).textContent;
-                        var textarea = document.createElement('textarea');
+                        const text = document.querySelector(id).textContent;
+                        const textarea = document.createElement('textarea');
                         textarea.value = text;
                         document.body.appendChild(textarea);
                         textarea.select();
