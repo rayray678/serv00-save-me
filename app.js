@@ -232,7 +232,7 @@ app.get("/hy2ip", (req, res) => {
                         <input type="text" name="confirmation" placeholder="请输入 更新">
                         <button type="submit">提交</button>
                     </form>
-                    <p>【注】：IP 如成功更换，原线路会失效，请复制新信息食用。</p>
+                    <p>【注】：不同 IP 如成功更换，原线路会失效，请复制新信息食用。</p>
                 </div>
             </body>
         </html>
