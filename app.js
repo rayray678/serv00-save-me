@@ -563,28 +563,23 @@ app.get("/log", (req, res) => {
                             box-sizing: border-box;
                         }
 
+                        .log-container {
+                            margin-bottom: 20px;
+                        }
+
                         .scrollable {
                             max-height: 60vh;
-                            overflow-x: auto;  /* 横向滚动 */
-                            overflow-y: auto;  /* 纵向滚动 */
+                            overflow-x: auto; /* 横向滚动 */
+                            white-space: nowrap; /* 禁止换行 */
                             border: 1px solid #ccc;
                             padding: 10px;
-                            margin-top: 20px;
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
                         }
 
                         pre {
-                            white-space: pre-wrap; 
-                            word-wrap: break-word;
                             margin: 0; /* 防止 pre 标签内的内容左右溢出 */
-                        }
-
-                        .log-container {
-                            margin-bottom: 20px;
                         }
 
                         @media (max-width: 600px) {
@@ -592,10 +587,9 @@ app.get("/log", (req, res) => {
                                 width: 95%;
                             }
                             .scrollable {
-                                max-height: 50vh; 
+                                max-height: 50vh; /* 手机屏幕时高度调整为50% */
                             }
                         }
-
                     </style>
                 </head>
                 <body>
