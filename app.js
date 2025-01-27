@@ -159,88 +159,13 @@ app.get("/info", (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/hy2ip", (req, res) => {
-    res.send(`
-        <html>
-            <head>
-                <title>HY2_IP 更新</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                        background-color: #f4f4f4;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        height: 100vh;
-                    }
-                    .container {
-                        width: 90%;
-                        max-width: 400px;
-                        background-color: #fff;
-                        padding: 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                        text-align: left;
-                    }
-                    h1 {
-                        font-size: 24px;
-                        margin-bottom: 10px;
-                    }
-                    p {
-                        font-size: 14px;
-                        margin-bottom: 20px;
-                        color: #555;
-                    }
-                    input[type="text"] {
-                        width: 100%;
-                        padding: 10px;
-                        font-size: 14px;
-                        border: 1px solid #ccc;
-                        border-radius: 4px;
-                        box-sizing: border-box;
-                        margin-bottom: 15px;
-                    }
-                    button {
-                        width: 100%;
-                        padding: 10px;
-                        font-size: 16px;
-                        background-color: #007bff;
-                        color: white;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                    }
-                    button:hover {
-                        background-color: #0056b3;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>HY2_IP 更新</h1>
-                    <p>请输入“更新”以确认执行 IP 更新。</p>
-                    <form action="/hy2ip/execute" method="POST">
-                        <input type="text" name="confirmation" placeholder="请输入 更新">
-                        <button type="submit">提交</button>
-                    </form>
-                    <p>【注】：IP 如成功更换原线路会失效，请复制新信息食用。</p>
-                </div>
-            </body>
-        </html>
-    `);
-});
+
 
 app.post("/hy2ip/execute", (req, res) => {
     const confirmation = req.body.confirmation?.trim();
 
-    // Debug: 打印请求内容
-    console.log("Received confirmation:", confirmation);
-
     // 验证用户输入是否为“更新”
     if (confirmation !== "更新") {
-        // 输入错误时返回提示页面
         return res.send(`
             <html>
                 <head>
@@ -258,26 +183,23 @@ app.post("/hy2ip/execute", (req, res) => {
                         }
                         .container {
                             width: 100%;
-                            max-width: 800px; /* 最大宽度 */
+                            max-width: 800px;
                             background-color: #fff;
                             padding: 20px;
-                            margin: 0 10px; /* 防止过于靠近屏幕边缘 */
+                            margin: 0 10px;
                             border-radius: 8px;
                             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                             text-align: left;
                         }
                         h1 {
                             font-size: 24px;
-                            margin-bottom: 10px;
+                            margin-bottom: 20px;
                         }
                         p {
-                            font-size: 14px;
-                            margin-bottom: 20px;
+                            font-size: 16px;
                             color: red;
                         }
                         a {
-                            display: inline-block;
-                            font-size: 14px;
                             color: #007bff;
                             text-decoration: none;
                         }
@@ -307,9 +229,7 @@ app.post("/hy2ip/execute", (req, res) => {
                 return res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
             }
 
-            if (stderr) {
-                logMessages.push(`stderr: ${stderr}`);
-            }
+            if (stderr) logMessages.push(`stderr: ${stderr}`);
 
             let outputMessages = stdout.split("\n");
             let updatedIp = "";
@@ -348,43 +268,28 @@ app.post("/hy2ip/execute", (req, res) => {
                                 }
                                 .container {
                                     width: 100%;
-                                    max-width: 800px; /* 最大宽度 */
+                                    max-width: 800px;
                                     background-color: #fff;
                                     padding: 20px;
-                                    margin: 0 10px; /* 防止过于靠近屏幕边缘 */
+                                    margin: 0 10px;
                                     border-radius: 8px;
                                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                                     text-align: left;
                                 }
                                 h1 {
                                     font-size: 24px;
-                                    margin-bottom: 10px;
-                                }
-                                p {
-                                    font-size: 14px;
                                     margin-bottom: 20px;
                                 }
+                                p {
+                                    font-size: 16px;
+                                }
                                 .scrollable {
-                                    width: 100%;
                                     max-height: 300px;
                                     overflow-y: auto;
                                     border: 1px solid #ccc;
                                     padding: 10px;
                                     background-color: #f9f9f9;
                                     border-radius: 4px;
-                                    box-sizing: border-box;
-                                }
-                                @media (max-width: 600px) {
-                                    .container {
-                                        width: 100%;
-                                        padding: 15px;
-                                    }
-                                    h1 {
-                                        font-size: 20px;
-                                    }
-                                    p {
-                                        font-size: 12px;
-                                    }
                                 }
                             </style>
                         </head>
@@ -394,7 +299,7 @@ app.post("/hy2ip/execute", (req, res) => {
                                 <p><strong>有效IP：</strong> ${updatedIp}</p>
                                 <div>
                                     <h2>日志:</h2>
-                                    <div class="scrollable" id="logContainer">
+                                    <div class="scrollable">
                                         ${htmlLogs}
                                     </div>
                                 </div>
