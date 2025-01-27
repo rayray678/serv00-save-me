@@ -540,7 +540,7 @@ app.get("/log", (req, res) => {
 
                             .container {
                                 width: 90%;
-                                max-width: 800px;  /* 最大宽度为800px */
+                                max-width: 800px;
                                 background-color: #fff;
                                 padding: 20px;
                                 border-radius: 8px;
@@ -556,26 +556,26 @@ app.get("/log", (req, res) => {
                             }
 
                             pre {
-                                white-space: pre-wrap;
-                                word-wrap: break-word;
+                                white-space: pre-wrap;  /* 保证文本换行显示 */
+                                word-wrap: break-word;  /* 确保长单词在必要时换行 */
                             }
 
                             .scrollable {
-                                max-height: 60vh;  /* 最大高度为视口高度的60% */
-                                overflow-x: auto;  /* 允许水平滚动 */
-                                overflow-y: auto;  /* 允许垂直滚动 */
+                                max-height: 60vh; /* 最大高度为视口高度的60% */
+                                overflow-x: auto; /* 允许水平滚动 */
+                                overflow-y: auto; /* 允许垂直滚动 */
                                 border: 1px solid #ccc;
                                 padding: 10px;
                                 margin-top: 20px;
                                 background-color: #f9f9f9;
                                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                 border-radius: 5px;
-                                white-space: nowrap;  /* 防止换行 */
+                                white-space: nowrap;  /* 强制不换行 */
                             }
 
                             @media (max-width: 600px) {
                                 .container {
-                                    width: 95%;  /* 手机屏幕宽度调整为95% */
+                                    width: 95%; /* 手机屏幕宽度调整为95% */
                                 }
 
                                 .scrollable {
@@ -624,7 +624,7 @@ app.get("/log", (req, res) => {
 
                         .container {
                             width: 90%;
-                            max-width: 800px;  /* 最大宽度为800px */
+                            max-width: 800px;
                             background-color: #fff;
                             padding: 20px;
                             border-radius: 8px;
@@ -640,26 +640,26 @@ app.get("/log", (req, res) => {
                         }
 
                         pre {
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
+                            white-space: pre-wrap;  /* 保证文本换行显示 */
+                            word-wrap: break-word;  /* 确保长单词在必要时换行 */
                         }
 
                         .scrollable {
-                            max-height: 60vh;  /* 最大高度为视口高度的60% */
-                            overflow-x: auto;  /* 允许水平滚动 */
-                            overflow-y: auto;  /* 允许垂直滚动 */
+                            max-height: 60vh; /* 最大高度为视口高度的60% */
+                            overflow-x: auto; /* 允许水平滚动 */
+                            overflow-y: auto; /* 允许垂直滚动 */
                             border: 1px solid #ccc;
                             padding: 10px;
                             margin-top: 20px;
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                            white-space: nowrap;  /* 防止换行 */
+                            white-space: nowrap;  /* 强制不换行 */
                         }
 
                         @media (max-width: 600px) {
                             .container {
-                                width: 95%;  /* 手机屏幕宽度调整为95% */
+                                width: 95%; /* 手机屏幕宽度调整为95% */
                             }
 
                             .scrollable {
