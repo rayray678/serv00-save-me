@@ -257,10 +257,11 @@ app.post("/hy2ip/execute", (req, res) => {
                             height: 100vh;
                         }
                         .container {
-                            width: 90%;
-                            max-width: 400px;
+                            width: 100%;
+                            max-width: 800px; /* 最大宽度 */
                             background-color: #fff;
                             padding: 20px;
+                            margin: 0 10px; /* 防止过于靠近屏幕边缘 */
                             border-radius: 8px;
                             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                             text-align: left;
@@ -346,10 +347,11 @@ app.post("/hy2ip/execute", (req, res) => {
                                     height: 100vh;
                                 }
                                 .container {
-                                    width: 90%;
-                                    max-width: 600px;
+                                    width: 100%;
+                                    max-width: 800px; /* 最大宽度 */
                                     background-color: #fff;
                                     padding: 20px;
+                                    margin: 0 10px; /* 防止过于靠近屏幕边缘 */
                                     border-radius: 8px;
                                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                                     text-align: left;
@@ -374,7 +376,7 @@ app.post("/hy2ip/execute", (req, res) => {
                                 }
                                 @media (max-width: 600px) {
                                     .container {
-                                        width: 95%;
+                                        width: 100%;
                                         padding: 15px;
                                     }
                                     h1 {
