@@ -159,7 +159,92 @@ app.get("/info", (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
+app.get("/hy2ip", (req, res) => {
+    res.send(`
+        <html>
+            <head>
+                <title>HY2_IP 更新</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f4f4f4;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                    }
+                    .container {
+                        width: 100%;
+                        max-width: 600px; /* 最大宽度为 600px */
+                        background-color: #fff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                        box-sizing: border-box;
+                        text-align: left;
+                    }
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 15px;
+                    }
+                    p {
+                        font-size: 16px;
+                        margin-bottom: 20px;
+                        color: #555;
+                        line-height: 1.5;
+                    }
+                    input[type="text"] {
+                        width: 100%;
+                        padding: 12px;
+                        font-size: 14px;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        box-sizing: border-box;
+                        margin-bottom: 15px;
+                    }
+                    button {
+                        width: 100%;
+                        padding: 12px;
+                        font-size: 16px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease;
+                    }
+                    button:hover {
+                        background-color: #0056b3;
+                    }
+                    @media (max-width: 600px) {
+                        .container {
+                            padding: 15px;
+                        }
+                        h1 {
+                            font-size: 20px;
+                        }
+                        p {
+                            font-size: 14px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>HY2_IP 更新</h1>
+                    <p>请输入“更新”以确认执行 IP 更新。</p>
+                    <form action="/hy2ip/execute" method="POST">
+                        <input type="text" name="confirmation" placeholder="请输入 更新">
+                        <button type="submit">提交</button>
+                    </form>
+                    <p>【注】：IP 如成功更换，原线路会失效，请复制新信息食用。</p>
+                </div>
+            </body>
+        </html>
+    `);
+});
 
 app.post("/hy2ip/execute", (req, res) => {
     const confirmation = req.body.confirmation?.trim();
