@@ -563,14 +563,7 @@ app.get("/log", (req, res) => {
                             box-sizing: border-box;
                         }
 
-                        /* 最近日志的样式 */
-                        pre {
-                            white-space: pre-wrap;  /* 自动换行 */
-                            word-wrap: break-word;  /* 防止超出容器宽度 */
-                            overflow-wrap: break-word; /* 确保长单词不会溢出 */
-                            margin: 0; /* 防止 pre 标签内的内容溢出 */
-                        }
-
+                        /* 最近日志部分 */
                         .log-container {
                             margin-bottom: 20px;
                             border: 1px solid #ccc;
@@ -578,10 +571,14 @@ app.get("/log", (req, res) => {
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
+                            white-space: pre-wrap;  /* 自动换行 */
+                            word-wrap: break-word;  /* 防止超出容器宽度 */
+                            overflow-wrap: break-word; /* 确保长单词不会溢出 */
                         }
 
+                        /* 进程详情部分 */
                         .scrollable {
-                            max-height: 60vh; /* 进程详情框高 */
+                            max-height: 60vh; /* 设置进程详情框高 */
                             overflow-x: auto; /* 横向滚动 */
                             white-space: nowrap; /* 禁止换行 */
                             border: 1px solid #ccc;
@@ -591,12 +588,16 @@ app.get("/log", (req, res) => {
                             border-radius: 5px;
                         }
 
+                        pre {
+                            margin: 0; /* 防止 pre 标签内的内容左右溢出 */
+                        }
+
                         @media (max-width: 600px) {
                             .container {
                                 width: 95%;
                             }
                             .scrollable {
-                                max-height: 50vh; /* 手机屏幕时，进程详情高度调整为50% */
+                                max-height: 50vh; /* 手机屏幕时进程详情高度调整为50% */
                             }
                         }
                     </style>
