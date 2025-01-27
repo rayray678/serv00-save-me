@@ -575,7 +575,7 @@ app.get("/log", (req, res) => {
                         }
 
                         .scrollable {
-                            max-height: 60vh;
+                            max-height: 60vh; /* 设置与最近日志框相同的高度 */
                             overflow-x: auto; /* 横向滚动 */
                             white-space: nowrap; /* 禁止换行 */
                             border: 1px solid #ccc;
