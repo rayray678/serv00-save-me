@@ -232,11 +232,10 @@ app.get("/hy2ip", (req, res) => {
     `);
 });
 
-// 路由 2：验证输入并执行脚本
 app.post("/hy2ip/execute", (req, res) => {
     const confirmation = req.body.confirmation?.trim();
 
-    // Debug: 打印请求体内容
+    // Debug: 打印请求内容
     console.log("Received confirmation:", confirmation);
 
     // 验证用户输入是否为“更新”
@@ -252,33 +251,59 @@ app.post("/hy2ip/execute", (req, res) => {
                             margin: 0;
                             padding: 0;
                             background-color: #f4f4f4;
-                            text-align: left;
-                            padding-left: 30px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            height: 100vh;
                         }
-                        .error {
+                        .container {
+                            width: 90%;
+                            max-width: 400px;
+                            background-color: #fff;
+                            padding: 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                            text-align: left;
+                        }
+                        h1 {
+                            font-size: 24px;
+                            margin-bottom: 10px;
+                        }
+                        p {
+                            font-size: 14px;
+                            margin-bottom: 20px;
                             color: red;
-                            margin-top: 20px;
+                        }
+                        a {
+                            display: inline-block;
+                            font-size: 14px;
+                            color: #007bff;
+                            text-decoration: none;
+                        }
+                        a:hover {
+                            text-decoration: underline;
                         }
                     </style>
                 </head>
                 <body>
-                    <h1>更新失败</h1>
-                    <p class="error">输入错误！请返回并输入“更新”以确认。</p>
-                    <a href="/hy2ip">返回</a>
+                    <div class="container">
+                        <h1>更新失败</h1>
+                        <p>输入错误！请返回并输入“更新”以确认。</p>
+                        <a href="/hy2ip">返回</a>
+                    </div>
                 </body>
             </html>
         `);
     }
 
-    // 如果输入正确，执行 hy2ip.sh 脚本
+    // 输入正确时执行脚本
     try {
-        let logMessages = []; // 用于收集日志信息
+        let logMessages = []; // 收集日志信息
 
         executeHy2ipScript(logMessages, (error, stdout, stderr) => {
             if (error) {
                 logMessages.push(`Error: ${error.message}`);
-                res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
-                return;
+                return res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
             }
 
             if (stderr) {
@@ -298,7 +323,7 @@ app.post("/hy2ip/execute", (req, res) => {
             });
 
             if (updatedIp) {
-                logMessages.push("命令 执行成功");
+                logMessages.push("命令执行成功");
                 logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
                 logMessages.push("sing-box 已重启");
@@ -315,34 +340,61 @@ app.post("/hy2ip/execute", (req, res) => {
                                     margin: 0;
                                     padding: 0;
                                     background-color: #f4f4f4;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                }
+                                .container {
+                                    width: 90%;
+                                    max-width: 600px;
+                                    background-color: #fff;
+                                    padding: 20px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                                     text-align: left;
-                                    padding-left: 30px;
                                 }
                                 h1 {
-                                    text-align: left;
-                                    margin-top: 20px;
+                                    font-size: 24px;
+                                    margin-bottom: 10px;
+                                }
+                                p {
+                                    font-size: 14px;
+                                    margin-bottom: 20px;
                                 }
                                 .scrollable {
-                                    width: 90%;
-                                    height: 50vh;
-                                    max-height: 500px;
+                                    width: 100%;
+                                    max-height: 300px;
                                     overflow-y: auto;
                                     border: 1px solid #ccc;
                                     padding: 10px;
-                                    margin: 20px 0;
-                                    background-color: #ffffff;
-                                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                                    border-radius: 5px;
+                                    background-color: #f9f9f9;
+                                    border-radius: 4px;
+                                    box-sizing: border-box;
+                                }
+                                @media (max-width: 600px) {
+                                    .container {
+                                        width: 95%;
+                                        padding: 15px;
+                                    }
+                                    h1 {
+                                        font-size: 20px;
+                                    }
+                                    p {
+                                        font-size: 12px;
+                                    }
                                 }
                             </style>
                         </head>
                         <body>
-                            <h1>IP更新结果</h1>
-                            <p><strong>有效IP：</strong> ${updatedIp}</p>
-                            <div>
-                                <h2>日志:</h2>
-                                <div class="scrollable" id="logContainer">
-                                    ${htmlLogs}
+                            <div class="container">
+                                <h1>IP 更新结果</h1>
+                                <p><strong>有效IP：</strong> ${updatedIp}</p>
+                                <div>
+                                    <h2>日志:</h2>
+                                    <div class="scrollable" id="logContainer">
+                                        ${htmlLogs}
+                                    </div>
                                 </div>
                             </div>
                         </body>
@@ -350,7 +402,6 @@ app.post("/hy2ip/execute", (req, res) => {
                 `);
             } else {
                 logMessages.push("未能获取更新的 IP");
-
                 res.status(500).json({
                     success: false,
                     message: "未能获取更新的 IP",
@@ -524,8 +575,9 @@ app.get("/log", (req, res) => {
                 </head>
                 <body>
                     <pre><b>最近日志:</b>\n${latestLog}</pre>
+                    <pre><b><b>进程详情:</b></pre>
                     <div class="scrollable">
-                        <pre><b>进程详情:</b>\n${processOutput}</pre>
+                        <pre>${processOutput}</pre>
                     </div>
                 </body>
             </html>
