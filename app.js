@@ -409,8 +409,9 @@ app.get("/node", (req, res) => {
             return;
         }
 
-        // 移除不可见字符和每行多余的空格
+        // 确保配置项之间有换行符，并去除多余空白
         const cleanedData = data
+            .replace(/(vmess:\/\/|hysteria2:\/\/|proxyip:\/\/)/g, '\n$1') // 为协议前添加换行符
             .split("\n") // 按行分割
             .map((line) => line.trim()) // 去除每行的首尾空格
             .join("\n"); // 重新合并为字符串
