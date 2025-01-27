@@ -556,7 +556,7 @@ app.get("/log", (req, res) => {
                             }
 
                             pre {
-                                white-space: pre-wrap;  /* 保证文本换行显示 */
+                                white-space: nowrap;  /* 保证文本不换行 */
                                 word-wrap: break-word;  /* 确保长单词在必要时换行 */
                             }
 
@@ -640,7 +640,7 @@ app.get("/log", (req, res) => {
                         }
 
                         pre {
-                            white-space: pre-wrap;  /* 保证文本换行显示 */
+                            white-space: nowrap;  /* 保证文本不换行 */
                             word-wrap: break-word;  /* 确保长单词在必要时换行 */
                         }
 
