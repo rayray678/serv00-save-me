@@ -558,7 +558,9 @@ app.get("/log", (req, res) => {
 
                         .scrollable {
                             max-height: 60vh;  
-                            overflow-y: auto;
+                            overflow-x: auto;  /* 启用水平滚动 */
+                            overflow-y: hidden; /* 禁止垂直滚动 */
+                            white-space: nowrap; /* 禁止换行 */
                             border: 2px solid #ccc; /* 可调整边框大小 */
                             padding: 10px;
                             margin-top: 20px;
@@ -568,7 +570,7 @@ app.get("/log", (req, res) => {
                         }
 
                         pre {
-                            white-space: pre-wrap;  
+                            white-space: nowrap;  /* 保持内容在一行显示 */
                             word-wrap: break-word;
                             text-align: left; /* 文字左对齐 */
                         }
