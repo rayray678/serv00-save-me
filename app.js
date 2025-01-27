@@ -401,7 +401,8 @@ app.post("/hy2ip/execute", (req, res) => {
         res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
-
+app.get("/node", (req, res) => {
+    const filePath = 
 const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
 fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
