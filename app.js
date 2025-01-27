@@ -402,126 +402,124 @@ app.post("/hy2ip/execute", (req, res) => {
     }
 });
 app.get("/node", (req, res) => {
-    const filePath = 
-const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
-fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) {
-        res.type("html").send(`<pre>无法读取文件: ${err.message}</pre>`);
-        return;
-    }
+    const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
+    fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+            res.type("html").send(`<pre>无法读取文件: ${err.message}</pre>`);
+            return;
+        }
+        const vmessPattern = /vmess:\/\/[^\n]+/g;
+        const hysteriaPattern = /hysteria2:\/\/[^\n]+/g;
+        const proxyipPattern = /proxyip:\/\/[^\n]+/g;
+        const vmessConfigs = data.match(vmessPattern) || [];
+        const hysteriaConfigs = data.match(hysteriaPattern) || [];
+        const proxyipConfigs = data.match(proxyipPattern) || [];
+        const allConfigs = [...vmessConfigs, ...hysteriaConfigs, ...proxyipConfigs];
+        let htmlContent = `
+            <html>
+            <head>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                    }
 
-    const vmessPattern = /vmess:\/\/[^\n]+/g;
-    const hysteriaPattern = /hysteria2:\/\/[^\n]+/g;
-    const proxyipPattern = /proxyip:\/\/[^\n]+/g;
-    const vmessConfigs = cleanedData.match(vmessPattern) || [];
-    const hysteriaConfigs = cleanedData.match(hysteriaPattern) || [];
-    const proxyipConfigs = cleanedData.match(proxyipPattern) || [];
-    const allConfigs = [...vmessConfigs, ...hysteriaConfigs, ...proxyipConfigs];
-
-    let htmlContent = `
-        <html>
-        <head>
-            <style>
-                body {
-                    margin: 0;
-                    padding: 0;
-                    font-family: Arial, sans-serif;
-                    background-color: #f4f4f4;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                }
-
-                .content-container {
-                    width: 90%;
-                    max-width: 600px;
-                    background-color: #fff;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                    text-align: left;
-                    box-sizing: border-box;
-                }
-
-                h3 {
-                    font-size: 20px;
-                    margin-bottom: 10px;
-                }
-
-                .config-box {
-                    max-height: 60vh;
-                    overflow-y: auto;
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    background-color: #f9f9f9;
-                    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-                    border-radius: 5px;
-                    white-space: pre-wrap;
-                    word-break: break-word;
-                }
-
-                .copy-btn {
-                    display: block;
-                    width: 100%;
-                    padding: 10px;
-                    font-size: 16px;
-                    background-color: #007bff;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    text-align: center;
-                    margin-top: 20px;
-                    transition: background-color 0.3s;
-                }
-
-                .copy-btn:hover {
-                    background-color: #0056b3;
-                }
-
-                @media (max-width: 600px) {
                     .content-container {
-                        width: 95%;
+                        width: 90%;
+                        max-width: 600px; /* 最大宽度为600px */
+                        background-color: #fff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                        text-align: left;
+                        box-sizing: border-box;
                     }
+
+                    h3 {
+                        font-size: 20px;
+                        margin-bottom: 10px;
+                    }
+
                     .config-box {
-                        max-height: 50vh;
+                        max-height: 60vh; /* 最大高度为视口高度的 60% */
+                        overflow-y: auto;
+                        border: 1px solid #ccc;
+                        padding: 10px;
+                        background-color: #f9f9f9;
+                        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+                        border-radius: 5px;
+                        white-space: pre-wrap;
+                        word-break: break-all;
                     }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="content-container">
-                <h3>节点信息</h3>
-                <div class="config-box" id="configBox">
-    `;
 
-    allConfigs.forEach((config) => {
-    htmlContent += `${config.trim()}<br>`;
-    });
+                    .copy-btn {
+                        display: block;
+                        width: 100%;
+                        padding: 10px;
+                        font-size: 16px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        text-align: center;
+                        margin-top: 20px;
+                        transition: background-color 0.3s;
+                    }
 
-    htmlContent += `
+                    .copy-btn:hover {
+                        background-color: #0056b3;
+                    }
+
+                    @media (max-width: 600px) {
+                        .content-container {
+                            width: 95%; /* 手机屏幕宽度调整为 95% */
+                        }
+                        .config-box {
+                            max-height: 50vh; /* 手机屏幕最大高度调整为 50% */
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="content-container">
+                    <h3>节点信息</h3>
+                    <div class="config-box" id="configBox">
+        `;
+        allConfigs.forEach((config) => {
+            // 去除每个配置项的前后空格并替换换行符为 <br>
+            htmlContent += `${config.trim().replace(/\n/g, ' ')}\n`;
+        });
+        htmlContent += `
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('#configBox')">一键复制</button>
                 </div>
-                <button class="copy-btn" onclick="copyToClipboard('#configBox')">一键复制</button>
-            </div>
 
-            <script>
-                function copyToClipboard(id) {
-                    const text = document.querySelector(id).textContent;
-                    const textarea = document.createElement('textarea');
-                    textarea.value = text;
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    alert('已复制到剪贴板！');
-                }
-            </script>
-        </body>
-        </html>
-    `;
-    res.type("html").send(htmlContent);
+                <script>
+                    function copyToClipboard(id) {
+                        const text = document.querySelector(id).textContent;
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('已复制到剪贴板！');
+                    }
+                </script>
+            </body>
+            </html>
+        `;
+        res.type("html").send(htmlContent);
+    });
 });
+
 
 app.get("/log", (req, res) => {
     const command = "ps -A"; 
