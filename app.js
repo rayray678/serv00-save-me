@@ -552,28 +552,6 @@ app.get("/log", (req, res) => {
                             height: 100vh;
                         }
 
-                        .container {
-                            width: 90%;
-                            max-width: 1000px;
-                            background-color: #fff;
-                            padding: 20px;
-                            border-radius: 8px;
-                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                            text-align: left;
-                            box-sizing: border-box;
-                        }
-
-                        .log-container {
-                            margin-bottom: 20px;
-                            white-space: pre-wrap;  /* 自动换行 */
-                            word-wrap: break-word;  /* 防止超出容器宽度 */
-                            border: 1px solid #ccc;
-                            padding: 10px;
-                            background-color: #f9f9f9;
-                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                            border-radius: 5px;
-                        }
-
                         .scrollable {
                             max-height: 60vh;
                             overflow-x: auto; /* 横向滚动 */
@@ -590,9 +568,7 @@ app.get("/log", (req, res) => {
                         }
 
                         @media (max-width: 600px) {
-                            .container {
-                                width: 95%;
-                            }
+                            
                             .scrollable {
                                 max-height: 50vh; /* 手机屏幕时高度调整为50% */
                             }
@@ -600,10 +576,7 @@ app.get("/log", (req, res) => {
                     </style>
                 </head>
                 <body>
-                    <div class="container">
-                        <div class="log-container">
-                            <pre><b>最近日志:</b>\n${latestLog}</pre>
-                        </div>
+                        <pre><b>最近日志:</b>\n${latestLog}</pre>
                         <div class="scrollable">
                             <pre><b>进程详情:</b>\n${processOutput}</pre>
                         </div>
