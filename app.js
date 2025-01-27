@@ -601,9 +601,7 @@ app.get("/log", (req, res) => {
                 </head>
                 <body>
                     <div class="container">
-                        <div class="log-container">
-                            <pre><b>最近日志:</b>\n${latestLog}</pre>
-                        </div>
+                        <pre><b>最近日志:</b>\n${latestLog}</pre>
                         <div class="scrollable">
                             <pre><b>进程详情:</b>\n${processOutput}</pre>
                         </div>
