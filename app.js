@@ -568,7 +568,7 @@ app.get("/log", (req, res) => {
                             white-space: pre-wrap;  /* 自动换行 */
                             word-wrap: break-word;  /* 防止超出容器宽度 */
                             overflow-wrap: break-word; /* 确保长单词不会溢出 */
-                            margin: 0; /* 防止 pre 标签内的内容左右溢出 */
+                            margin: 0; /* 防止 pre 标签内的内容溢出 */
                         }
 
                         .log-container {
@@ -581,7 +581,7 @@ app.get("/log", (req, res) => {
                         }
 
                         .scrollable {
-                            max-height: 60vh; /* 设置与最近日志框相同的高度 */
+                            max-height: 60vh; /* 进程详情框高 */
                             overflow-x: auto; /* 横向滚动 */
                             white-space: nowrap; /* 禁止换行 */
                             border: 1px solid #ccc;
@@ -596,14 +596,16 @@ app.get("/log", (req, res) => {
                                 width: 95%;
                             }
                             .scrollable {
-                                max-height: 50vh; /* 手机屏幕时高度调整为50% */
+                                max-height: 50vh; /* 手机屏幕时，进程详情高度调整为50% */
                             }
                         }
                     </style>
                 </head>
                 <body>
                     <div class="container">
-                        <pre><b>最近日志:</b>\n${latestLog}</pre>
+                        <div class="log-container">
+                            <pre><b>最近日志:</b>\n${latestLog}</pre>
+                        </div>
                         <div class="scrollable">
                             <pre><b>进程详情:</b>\n${processOutput}</pre>
                         </div>
