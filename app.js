@@ -71,14 +71,14 @@ app.get("/info", (req, res) => {
                     border-radius: 8px;
                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                     box-sizing: border-box;
-                    text-align: center; /* 改为居中对齐 */
+                    text-align: left; /* 保持文字左对齐 */
                 }
                 .dynamic-text {
                     font-size: 24px;
                     font-weight: bold;
                     margin-bottom: 20px;
                     line-height: 1.5;
-                    display: inline-block; /* 使得每个字符按需换行 */
+                    text-align: center; /* 两行文本居中 */
                 }
                 @keyframes growShrink {
                     0% {
@@ -103,8 +103,8 @@ app.get("/info", (req, res) => {
                     gap: 10px;
                 }
                 button {
-                    flex: 1; /* 按钮自适应宽度 */
-                    min-width: 100px; /* 防止按钮过小 */
+                    flex: 1;
+                    min-width: 100px;
                     padding: 10px 15px;
                     font-size: 16px;
                     background-color: #007bff;
