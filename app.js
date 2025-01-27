@@ -562,13 +562,15 @@ app.get("/log", (req, res) => {
 
                             .scrollable {
                                 max-height: 60vh;  /* 最大高度为视口高度的60% */
-                                overflow-y: auto;
+                                overflow-x: auto;  /* 允许水平滚动 */
+                                overflow-y: auto;  /* 允许垂直滚动 */
                                 border: 1px solid #ccc;
                                 padding: 10px;
                                 margin-top: 20px;
                                 background-color: #f9f9f9;
                                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                                 border-radius: 5px;
+                                white-space: nowrap;  /* 防止换行 */
                             }
 
                             @media (max-width: 600px) {
@@ -644,13 +646,15 @@ app.get("/log", (req, res) => {
 
                         .scrollable {
                             max-height: 60vh;  /* 最大高度为视口高度的60% */
-                            overflow-y: auto;
+                            overflow-x: auto;  /* 允许水平滚动 */
+                            overflow-y: auto;  /* 允许垂直滚动 */
                             border: 1px solid #ccc;
                             padding: 10px;
                             margin-top: 20px;
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
+                            white-space: nowrap;  /* 防止换行 */
                         }
 
                         @media (max-width: 600px) {
