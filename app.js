@@ -154,13 +154,80 @@ app.get("/info", (req, res) => {
     `);
 });
 
-app.all("/hy2ip", (req, res) => {
-    if (req.method === "GET") {
-        // 返回输入确认表单页面
-        res.send(`
+
+// 中间件：解析请求体
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// 路由 1：显示输入页面
+app.get("/hy2ip", (req, res) => {
+    res.send(`
+        <html>
+            <head>
+                <title>HY2_IP 更新</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f4f4f4;
+                        text-align: left;
+                        padding-left: 30px;
+                    }
+                    h1 {
+                        text-align: left;
+                        margin-top: 20px;
+                    }
+                    form {
+                        margin: 20px 0;
+                    }
+                    input[type="text"] {
+                        padding: 5px;
+                        font-size: 14px;
+                        width: 200px;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                    }
+                    button {
+                        padding: 5px 10px;
+                        font-size: 14px;
+                        background-color: #007bff;
+                        color: #fff;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    button:hover {
+                        background-color: #0056b3;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>HY2_IP 更新</h1>
+                <p>请输入“更新”以确认执行 IP 更新操作。</p>
+                <form action="/hy2ip/execute" method="POST">
+                    <input type="text" name="confirmation" placeholder="请输入 更新">
+                    <button type="submit">提交</button>
+                </form>
+            </body>
+        </html>
+    `);
+});
+
+// 路由 2：验证输入并执行脚本
+app.post("/hy2ip/execute", (req, res) => {
+    const confirmation = req.body.confirmation?.trim();
+
+    // Debug: 打印请求体内容
+    console.log("Received confirmation:", confirmation);
+
+    // 验证用户输入是否为“更新”
+    if (confirmation !== "更新") {
+        // 输入错误时返回提示页面
+        return res.send(`
             <html>
                 <head>
-                    <title>HY2_IP 更新</title>
+                    <title>HY2_IP 更新失败</title>
                     <style>
                         body {
                             font-family: Arial, sans-serif;
@@ -170,178 +237,114 @@ app.all("/hy2ip", (req, res) => {
                             text-align: left;
                             padding-left: 30px;
                         }
-                        h1 {
-                            text-align: left;
-                            margin-top: 20px;
-                        }
-                        form {
-                            margin: 20px 0;
-                        }
-                        input[type="text"] {
-                            padding: 5px;
-                            font-size: 14px;
-                            width: 200px;
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                        }
-                        button {
-                            padding: 5px 10px;
-                            font-size: 14px;
-                            background-color: #007bff;
-                            color: #fff;
-                            border: none;
-                            border-radius: 4px;
-                            cursor: pointer;
-                        }
-                        button:hover {
-                            background-color: #0056b3;
-                        }
                         .error {
                             color: red;
-                            margin-top: 10px;
+                            margin-top: 20px;
                         }
                     </style>
                 </head>
                 <body>
-                    <h1>HY2_IP 更新</h1>
-                    <p>请输入“更新”以确认执行 IP 更新操作。</p>
-                    <form method="POST">
-                        <input type="text" name="confirmation" placeholder="请输入 更新">
-                        <button type="submit">提交</button>
-                    </form>
+                    <h1>更新失败</h1>
+                    <p class="error">输入错误！请返回并输入“更新”以确认。</p>
+                    <a href="/hy2ip">返回</a>
                 </body>
             </html>
         `);
-    } else if (req.method === "POST") {
-        // 检查输入内容
-        const confirmation = req.body.confirmation?.trim();
+    }
 
-        if (confirmation !== "更新") {
-            // 输入错误时返回提示页面
-            return res.send(`
-                <html>
-                    <head>
-                        <title>HY2_IP 更新失败</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                margin: 0;
-                                padding: 0;
-                                background-color: #f4f4f4;
-                                text-align: left;
-                                padding-left: 30px;
-                            }
-                            .error {
-                                color: red;
-                                margin-top: 20px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>更新失败</h1>
-                        <p class="error">输入错误！请返回并输入“更新”以确认。</p>
-                        <a href="/hy2ip">返回</a>
-                    </body>
-                </html>
-            `);
-        }
+    // 如果输入正确，执行 hy2ip.sh 脚本
+    try {
+        let logMessages = []; // 用于收集日志信息
 
-        // 如果输入正确，执行 hy2ip.sh 脚本
-        try {
-            let logMessages = []; // 用于收集日志信息
+        executeHy2ipScript(logMessages, (error, stdout, stderr) => {
+            if (error) {
+                logMessages.push(`Error: ${error.message}`);
+                res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
+                return;
+            }
 
-            executeHy2ipScript(logMessages, (error, stdout, stderr) => {
-                if (error) {
-                    logMessages.push(`Error: ${error.message}`);
-                    res.status(500).json({ success: false, message: "hy2ip.sh 执行失败", logs: logMessages });
-                    return;
+            if (stderr) {
+                logMessages.push(`stderr: ${stderr}`);
+            }
+
+            let outputMessages = stdout.split("\n");
+            let updatedIp = "";
+
+            outputMessages.forEach(line => {
+                if (line.includes("SingBox 配置文件成功更新IP为")) {
+                    updatedIp = line.split("SingBox 配置文件成功更新IP为")[1].trim();
                 }
-
-                if (stderr) {
-                    logMessages.push(`stderr: ${stderr}`);
-                }
-
-                let outputMessages = stdout.split("\n");
-                let updatedIp = "";
-
-                outputMessages.forEach(line => {
-                    if (line.includes("SingBox 配置文件成功更新IP为")) {
-                        updatedIp = line.split("SingBox 配置文件成功更新IP为")[1].trim();
-                    }
-                    if (line.includes("Config 配置文件成功更新IP为")) {
-                        updatedIp = line.split("Config 配置文件成功更新IP为")[1].trim();
-                    }
-                });
-
-                if (updatedIp) {
-                    logMessages.push("命令 执行成功");
-                    logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
-                    logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
-                    logMessages.push("sing-box 已重启");
-
-                    let htmlLogs = logMessages.map(msg => `<p>${msg}</p>`).join("");
-
-                    res.send(`
-                        <html>
-                            <head>
-                                <title>HY2_IP 更新结果</title>
-                                <style>
-                                    body {
-                                        font-family: Arial, sans-serif;
-                                        margin: 0;
-                                        padding: 0;
-                                        background-color: #f4f4f4;
-                                        text-align: left;
-                                        padding-left: 30px;
-                                    }
-                                    h1 {
-                                        text-align: left;
-                                        margin-top: 20px;
-                                    }
-                                    .scrollable {
-                                        width: 90%;
-                                        height: 50vh;
-                                        max-height: 500px;
-                                        overflow-y: auto;
-                                        border: 1px solid #ccc;
-                                        padding: 10px;
-                                        margin: 20px 0;
-                                        background-color: #ffffff;
-                                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                                        border-radius: 5px;
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <h1>IP更新结果</h1>
-                                <p><strong>有效IP：</strong> ${updatedIp}</p>
-                                <div>
-                                    <h2>日志:</h2>
-                                    <div class="scrollable" id="logContainer">
-                                        ${htmlLogs}
-                                    </div>
-                                </div>
-                            </body>
-                        </html>
-                    `);
-                } else {
-                    logMessages.push("未能获取更新的 IP");
-
-                    res.status(500).json({
-                        success: false,
-                        message: "未能获取更新的 IP",
-                        logs: logMessages
-                    });
+                if (line.includes("Config 配置文件成功更新IP为")) {
+                    updatedIp = line.split("Config 配置文件成功更新IP为")[1].trim();
                 }
             });
-        } catch (error) {
-            let logMessages = [];
-            logMessages.push("Error executing hy2ip.sh script:", error.message);
 
-            res.status(500).json({ success: false, message: error.message, logs: logMessages });
-        }
-    } else {
-        res.status(405).send("Method Not Allowed");
+            if (updatedIp) {
+                logMessages.push("命令 执行成功");
+                logMessages.push(`SingBox 配置文件成功更新IP为 ${updatedIp}`);
+                logMessages.push(`Config 配置文件成功更新IP为 ${updatedIp}`);
+                logMessages.push("sing-box 已重启");
+
+                let htmlLogs = logMessages.map(msg => `<p>${msg}</p>`).join("");
+
+                res.send(`
+                    <html>
+                        <head>
+                            <title>HY2_IP 更新结果</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    margin: 0;
+                                    padding: 0;
+                                    background-color: #f4f4f4;
+                                    text-align: left;
+                                    padding-left: 30px;
+                                }
+                                h1 {
+                                    text-align: left;
+                                    margin-top: 20px;
+                                }
+                                .scrollable {
+                                    width: 90%;
+                                    height: 50vh;
+                                    max-height: 500px;
+                                    overflow-y: auto;
+                                    border: 1px solid #ccc;
+                                    padding: 10px;
+                                    margin: 20px 0;
+                                    background-color: #ffffff;
+                                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                                    border-radius: 5px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>IP更新结果</h1>
+                            <p><strong>有效IP：</strong> ${updatedIp}</p>
+                            <div>
+                                <h2>日志:</h2>
+                                <div class="scrollable" id="logContainer">
+                                    ${htmlLogs}
+                                </div>
+                            </div>
+                        </body>
+                    </html>
+                `);
+            } else {
+                logMessages.push("未能获取更新的 IP");
+
+                res.status(500).json({
+                    success: false,
+                    message: "未能获取更新的 IP",
+                    logs: logMessages
+                });
+            }
+        });
+    } catch (error) {
+        let logMessages = [];
+        logMessages.push("Error executing hy2ip.sh script:", error.message);
+
+        res.status(500).json({ success: false, message: error.message, logs: logMessages });
     }
 });
 
