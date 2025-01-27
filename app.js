@@ -616,6 +616,7 @@ app.get("/log", (req, res) => {
         `);
     });
 });
+
 app.use((req, res, next) => {
     const validPaths = ["/info", "/hy2ip", "/node", "/log"];
     if (validPaths.includes(req.path)) {
