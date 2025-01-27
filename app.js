@@ -409,9 +409,6 @@ fs.readFile(filePath, "utf8", (err, data) => {
         return;
     }
 
-    // 移除不可见字符（制表符和 BOM）
-    const cleanedData = data.replace(/\t/g, "").replace(/\uFEFF/g, "");
-
     const vmessPattern = /vmess:\/\/[^\n]+/g;
     const hysteriaPattern = /hysteria2:\/\/[^\n]+/g;
     const proxyipPattern = /proxyip:\/\/[^\n]+/g;
