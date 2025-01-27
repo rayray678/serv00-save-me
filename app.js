@@ -495,7 +495,7 @@ app.get("/node", (req, res) => {
         `;
         allConfigs.forEach((config) => {
             // 去除每个配置项的前后空格并替换换行符为 <br>
-            htmlContent += `${config.trim().replace(/\n/g, '<br>')}\n`;
+            htmlContent += `${config.trim().replace(/\n/g, '<br>')}`;
         });
         htmlContent += `
                     </div>
