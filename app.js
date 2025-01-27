@@ -540,33 +540,11 @@ app.get("/log", (req, res) => {
                             margin: 0;
                             padding: 0;
                             background-color: #f4f4f4;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            height: 100vh;
                         }
 
-                        .content-container {
-                            width: 100%;
-                            max-width: 600px; /* 最大宽度为600px */
-                            background-color: #fff;
-                            padding: 20px;
-                            border-radius: 8px;
-                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                            box-sizing: border-box;
-                            text-align: center; /* 居中对齐 */
-                        }
-
-                        pre {
-                            white-space: pre-wrap;  /* 保证文本换行显示 */
-                            word-wrap: break-word;
-                            font-size: 16px;
-                        }
-
-                        section {
+                        .scrollable {
                             max-height: 60vh;  /* 设置最大高度为视口高度的60% */
                             overflow-y: auto;   
-                            overflow-x: auto;   /* 允许水平滚动 */
                             border: 1px solid #ccc;
                             padding: 10px;
                             margin-top: 20px;
@@ -575,29 +553,30 @@ app.get("/log", (req, res) => {
                             border-radius: 5px;
                         }
 
-                        @media (max-width: 600px) {
-                            .content-container {
-                                width: 95%;  /* 手机屏幕宽度调整为95% */
-                            }
+                        pre {
+                            white-space: pre-wrap;  /* 保证文本换行显示 */
+                            word-wrap: break-word;
+                        }
 
-                            pre {
-                                font-size: 14px;  /* 调整字体大小 */
+                        @media (max-width: 600px) {
+                            .scrollable {
+                                width: 95%;  /* 手机屏幕宽度调整为95% */
+                                max-height: 50vh; /* 手机屏幕最大高度设置为视口高度的50% */
                             }
                         }
 
                         @media (min-width: 601px) {
-                            .content-container {
+                            .scrollable {
                                 width: 90%;  /* 对于宽屏设备，宽度为90% */
+                                max-height: 60vh; /* 高度为视口高度的60% */
                             }
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="content-container">
-                        <pre><b>最近日志:</b>\n${latestLog}</pre>
-                        <section>
-                            <pre><b>进程详情:</b>\n${processOutput}</pre>
-                        </section>
+                    <pre><b>最近日志:</b>\n${latestLog}</pre>
+                    <div class="scrollable">
+                        <pre><b>进程详情:</b>\n${processOutput}</pre>
                     </div>
                 </body>
             </html>
