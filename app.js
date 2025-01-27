@@ -563,10 +563,16 @@ app.get("/log", (req, res) => {
                             box-sizing: border-box;
                         }
 
-                        .log-container {
-                            margin-bottom: 20px;
+                        /* 最近日志的样式 */
+                        pre {
                             white-space: pre-wrap;  /* 自动换行 */
                             word-wrap: break-word;  /* 防止超出容器宽度 */
+                            overflow-wrap: break-word; /* 确保长单词不会溢出 */
+                            margin: 0; /* 防止 pre 标签内的内容左右溢出 */
+                        }
+
+                        .log-container {
+                            margin-bottom: 20px;
                             border: 1px solid #ccc;
                             padding: 10px;
                             background-color: #f9f9f9;
@@ -583,10 +589,6 @@ app.get("/log", (req, res) => {
                             background-color: #f9f9f9;
                             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                             border-radius: 5px;
-                        }
-
-                        pre {
-                            margin: 0; /* 防止 pre 标签内的内容左右溢出 */
                         }
 
                         @media (max-width: 600px) {
