@@ -486,7 +486,7 @@ app.get("/node", (req, res) => {
         `;
 
         allConfigs.forEach((config) => {
-            htmlContent += `<div>${config.trim()}</div>`;
+            htmlContent += `<div>${config.trim()}</div>`; // 去掉首尾空格
         });
 
         htmlContent += `
@@ -497,16 +497,16 @@ app.get("/node", (req, res) => {
                 <script>
                     function copyToClipboard(id) {
                         const element = document.querySelector(id);
-                        let text;
+                        let text = "";
 
-                        if (element.innerText) {
-                            text = element.innerText;
-                        } else {
-                            text = Array.from(element.children).map(child => child.textContent).join("\\n");
-                        }
+                        // 遍历每一行内容，去除首尾空格并拼接
+                        Array.from(element.children).forEach(child => {
+                            text += child.textContent.trim() + "\\n";
+                        });
 
+                        // 创建临时文本框进行复制
                         const textarea = document.createElement('textarea');
-                        textarea.value = text;
+                        textarea.value = text.trim(); // 去除整体的多余空行
                         document.body.appendChild(textarea);
                         textarea.select();
                         const success = document.execCommand('copy');
