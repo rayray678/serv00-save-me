@@ -23,19 +23,17 @@ app.get('/webssh', (req, res) => {
     const enteredPassword = req.query.password;
     const storedPassword = getPassword();
 
+    // 检查是否存在密码文件
     if (!storedPassword) {
-        return res.redirect('/webssh?setup=true');  // 若没有设置密码，则强制设置
+        return res.status(403).send('Password not set. Please set the password first.');
     }
 
+    // 如果密码不匹配，返回错误
     if (enteredPassword !== storedPassword) {
         return res.send('Incorrect password. <a href="/webssh?setup=true">Set password</a>');
     }
 
-    res.sendFile(path.join(__dirname, 'webssh.html'));  // 密码验证通过，显示 WebSSH 终端
-});
-
-// 路由：设置密码页面
-app.get('/webssh?setup=true', (req, res) => {
+    // 密码验证通过，显示 WebSSH 终端页面
     res.sendFile(path.join(__dirname, 'webssh.html'));
 });
 
