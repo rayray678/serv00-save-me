@@ -14,7 +14,6 @@
   ##  ● 功能：
     1、进程激活，
     2、更换HY2_IP
-       (没问题不要点，如果点了且更换了ip需重新复制新节点食用)
     3、查看复制节点，
     4、查看日志及进程列表。
 ![Image Description](https://raw.githubusercontent.com/ryty1/alist-log/refs/heads/main/github_images/4.jpg?raw=true)
