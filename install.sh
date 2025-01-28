@@ -27,10 +27,8 @@ D1="$U1_DOMAIN.serv00.net"
 D2="/home/$U1/domains/$D1"
 F1="$D2/public_nodejs/app.js"
 F2="$D2/public_nodejs/hy2ip.sh"
-F3="$D2/public_nodejs/webssh.js"
 L1="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/app.js"
 L2="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/hy2ip.sh"
-L3="https://raw.githubusercontent.com/ryty1/sver00-save-me/refs/heads/main/webssh.js"
 echo ""
 echo " ———————————————————————————————————————————————————————————— "
 cd && devil www del "$D1" > /dev/null 2>&1 && [[ -d "$D2" ]] && rm -rf "$D2" > /dev/null 2>&1
@@ -48,7 +46,7 @@ else
     exit 1
 fi
 sleep 1
-cd "$D2" && npm init -y > /dev/null 2>&1 && npm install dotenv basic-auth express ws > /dev/null 2>&1
+cd "$D2" && npm init -y > /dev/null 2>&1 && npm install dotenv basic-auth express > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     print_status "正在安装 环境依赖" 0
 else
@@ -66,11 +64,7 @@ if [[ $? -ne 0 ]]; then
     print_status "配置文件 2 下载失败" 1
     exit 1
 fi
-curl -s -o "$F3" "$L3" && chmod 755 "$F3" > /dev/null 2>&1
-if [[ $? -ne 0 ]]; then
-    print_status "配置文件 3 下载失败" 1
-    exit 1
-fi
+
 print_status "正在下载 配置文件" 0
 
 echo " ———————————————————————————————————————————————————————————— "
