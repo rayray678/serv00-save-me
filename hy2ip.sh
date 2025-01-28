@@ -76,7 +76,7 @@ r() {
     fi
     k "$s" "$u"
     o "$t" "$u"
-    echo "正在重启 sing-box..."
+    echo "sing-box 己重启"
     v
     sleep 3
     w
