@@ -48,7 +48,7 @@ else
     exit 1
 fi
 sleep 1
-cd "$D2" && npm init -y > /dev/null 2>&1 && npm install dotenv basic-auth express ws > /dev/null 2>&1
+cd "$D2" && npm init -y > /dev/null 2>&1 && npm install dotenv basic-auth express websocket > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     print_status "正在安装 环境依赖" 0
 else
