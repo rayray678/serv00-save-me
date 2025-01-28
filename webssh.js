@@ -34,7 +34,145 @@ app.get('/webssh', (req, res) => {
     }
 
     // 密码验证通过，显示 WebSSH 终端页面
-    res.sendFile(path.join(__dirname, 'webssh.html'));
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>WebSSH</title>
+            <style>
+                body {
+                    font-family: monospace;
+                    background-color: #282c34;
+                    color: #f8f8f2;
+                    padding: 20px;
+                }
+                input, button {
+                    padding: 10px;
+                    margin: 10px;
+                }
+                #terminal {
+                    width: 100%;
+                    height: 300px;
+                    background-color: #111;
+                    color: #fff;
+                    padding: 10px;
+                    overflow-y: scroll;
+                }
+                #command {
+                    width: 100%;
+                    padding: 10px;
+                    margin: 5px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>WebSSH</h1>
+
+            <div id="passwordSetup" style="display: none;">
+                <h2>Set a Password</h2>
+                <p>Please set a password for the terminal access.</p>
+                <input type="password" id="password" placeholder="Enter new password" />
+                <button onclick="setPassword()">Set Password</button>
+            </div>
+
+            <div id="terminalContainer" style="display: none;">
+                <h2>Terminal</h2>
+                <div id="terminal"></div>
+                <input type="text" id="command" placeholder="Enter command" />
+                <button onclick="sendCommand()">Send Command</button>
+            </div>
+
+            <script>
+                // 获取当前URL中是否带有setup参数（强制设置密码）
+                const urlParams = new URLSearchParams(window.location.search);
+                const enteredPassword = urlParams.get('password');
+                const storedPassword = localStorage.getItem('password');
+
+                // 如果没有设置密码，显示密码设置页面
+                if (!storedPassword) {
+                    document.getElementById('passwordSetup').style.display = 'block';
+                    document.getElementById('terminalContainer').style.display = 'none';
+                } else {
+                    // 如果有密码，验证密码
+                    if (enteredPassword !== storedPassword) {
+                        alert('Incorrect password!');
+                        window.location.href = '/webssh?setup=true';
+                    } else {
+                        // 密码正确，显示 WebSSH 页面
+                        document.getElementById('passwordSetup').style.display = 'none';
+                        document.getElementById('terminalContainer').style.display = 'block';
+                        connectWebSocket();
+                    }
+                }
+
+                function setPassword() {
+                    const password = document.getElementById('password').value;
+
+                    if (!password) {
+                        alert('Please enter a password!');
+                        return;
+                    }
+
+                    // 保存密码到本地存储
+                    localStorage.setItem('password', password);
+
+                    // 提交密码到服务器
+                    fetch('/set-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Password set successfully!');
+                            window.location.href = '/webssh?password=' + password;  // 密码设置完后，跳转到 WebSSH
+                        } else {
+                            alert('Error setting password.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        alert('An error occurred.');
+                    });
+                }
+
+                let ws;
+
+                function connectWebSocket() {
+                    ws = new WebSocket('ws://' + window.location.host + '/webssh');
+                    
+                    ws.onopen = function () {
+                        console.log('WebSocket connected');
+                    };
+
+                    ws.onmessage = function (event) {
+                        document.getElementById('terminal').innerText += event.data + '\\n';
+                        document.getElementById('terminal').scrollTop = document.getElementById('terminal').scrollHeight;
+                    };
+
+                    ws.onerror = function (error) {
+                        console.log('WebSocket Error: ' + error);
+                    };
+
+                    ws.onclose = function () {
+                        console.log('WebSocket closed');
+                    };
+                }
+
+                function sendCommand() {
+                    const command = document.getElementById('command').value;
+                    
+                    if (command) {
+                        ws.send(command);
+                        document.getElementById('command').value = '';  // 清空命令输入框
+                    }
+                }
+            </script>
+        </body>
+        </html>
+    `);
 });
 
 // 路由：保存设置的密码
