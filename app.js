@@ -234,7 +234,6 @@ app.post("/hy2ip/execute", (req, res) => {
     }
 
     // 直接执行 `hy2ip.sh` 并返回结果
-     ()
     executeHy2ipScript((error, stdout, stderr) => {
         let logContent = "";
 
