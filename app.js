@@ -219,6 +219,7 @@ app.get("/hy2ip", (req, res) => {
 
 app.post("/hy2ip/execute", (req, res) => {
     const confirmation = req.body.confirmation?.trim();
+    console.log(`Received confirmation: ${confirmation}`); // 日志记录确认输入
 
     if (confirmation !== "更新") {
         return res.send(`
@@ -235,12 +236,15 @@ app.post("/hy2ip/execute", (req, res) => {
 
     // 直接执行 `hy2ip.sh` 并返回结果
     executeHy2ipScript((error, stdout, stderr) => {
+        console.log("Script execution completed"); // 日志记录脚本执行完成
+
         let logContent = "";
 
         if (error) {
+            console.error(`Error executing script: ${error.message}`); // 日志记录错误
             logContent = `<p style="color:red;">脚本执行失败: ${error.message}</p>`;
         } else {
-            // 按行转换日志格式
+            console.log("Script output:", stdout); // 日志记录脚本输出
             logContent = stdout
                 .split("\n")
                 .map(line => `<p>${line}</p>`)
