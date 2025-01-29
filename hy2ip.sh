@@ -38,7 +38,7 @@ k() {
     fi
     jq --arg m "$m" '
         (.inbounds[] | select(.tag == "hysteria-in") | .listen) = $m
-    ' "$l" > n.json && mv n.json "$l"
+    ' "$l" > temp.json && mv temp.json "$l"
 
     if [[ $? -eq 0 ]]; then
         a "SingBox 配置文件成功更新IP为 $m"
@@ -47,44 +47,46 @@ k() {
         return 1
     fi
 }
-o() {
-    local p="$1"
-    local q="$2"
-    if [[ ! -f "$p" ]]; then
-        b "配置文件 $p 不存在！"
+n() {
+    local o="$1"
+    local p="$2"
+    if [[ ! -f "$o" ]]; then
+        b "配置文件 $o 不存在！"
         return 1
     fi
-    jq --arg q "$q" '
-        .HY2IP = $q
-    ' "$p" > n.json && mv n.json "$p"
+    jq --arg p "$p" '
+        .HY2IP = $p
+    ' "$o" > temp.json && mv temp.json "$o"
 
     if [[ $? -eq 0 ]]; then
-        a "Config 配置文件成功更新IP为 $q"
+        a "Config 配置文件成功更新IP为 $p"
     else
         b "更新配置文件失败！"
         return 1
     fi
 }
-r() {
-    local s="$HOME/serv00-play/singbox/config.json"
-    local t="$HOME/serv00-play/singbox/singbox.json"
-    local u=$(c)
+q() {
+    local r="$HOME/serv00-play/singbox/config.json"
+    local s="$HOME/serv00-play/singbox/singbox.json"
+    local t=$(c)
 
-    if [[ -z "$u" ]]; then
-        b "获取可用 IP 失败！"
+    if [[ -z "$t" ]]; then
+        b "获取可用 IP 失败，配置文件未更新！"
         return 1
     fi
-    k "$s" "$u"
-    o "$t" "$u"
-    echo "sing-box 己重启"
-    v
+
+    k "$r" "$t"
+    n "$s" "$t"
+
+    echo "正在重启 sing-box..."
+    u
     sleep 3
-    w
+    v
 }
-v() {
+u() {
     cd ~/serv00-play/singbox/ && bash killsing-box.sh
 }
-w() {
+v() {
     cd ~/serv00-play/singbox/ && bash start.sh
 }
-r
+q
