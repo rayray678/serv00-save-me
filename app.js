@@ -300,7 +300,8 @@ app.post("/hy2ip/execute", (req, res) => {
                 logMessages.push("没有找到有效 IP");
                 res.send(generateHtml("HY2_IP 更新", "无", logMessages, true));
             }
-        });
+        }
+    });
     } catch (error) {
         let logMessages = ["命令执行成功", "没有找到有效 IP"];
         res.send(generateHtml("HY2_IP 更新", "无", logMessages, true));
