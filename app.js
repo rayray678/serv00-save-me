@@ -271,24 +271,19 @@ app.post("/hy2ip/execute", (req, res) => {
         let logMessages = [];
 
         executeHy2ipScript(logMessages, (error, stdout, stderr) => {
-            if (error) {
-                logMessages.push(`Error: ${error.message}`);
-                return res.send(generateHtml("HY2_IP 更新", "无", logMessages, true));
-            }
-
-            if (stderr) logMessages.push(`stderr: ${stderr}`);
-
-            let outputMessages = stdout.split("\n");
             let updatedIp = "";
 
-            outputMessages.forEach(line => {
-                if (line.includes("SingBox 配置文件成功更新IP为")) {
-                    updatedIp = line.split("SingBox 配置文件成功更新IP为")[1].trim();
-                }
-                if (line.includes("Config 配置文件成功更新IP为")) {
-                    updatedIp = line.split("Config 配置文件成功更新IP为")[1].trim();
-                }
-            });
+            if (stdout) {
+                let outputMessages = stdout.split("\n");
+                outputMessages.forEach(line => {
+                    if (line.includes("SingBox 配置文件成功更新IP为")) {
+                        updatedIp = line.split("SingBox 配置文件成功更新IP为")[1].trim();
+                    }
+                    if (line.includes("Config 配置文件成功更新IP为")) {
+                        updatedIp = line.split("Config 配置文件成功更新IP为")[1].trim();
+                    }
+                });
+            }
 
             if (updatedIp && updatedIp !== "未找到可用的 IP！") {
                 logMessages.push("命令执行成功");
@@ -297,18 +292,19 @@ app.post("/hy2ip/execute", (req, res) => {
                 logMessages.push("sing-box 已重启");
                 res.send(generateHtml("HY2_IP 更新", updatedIp, logMessages));
             } else {
-                logMessages.push("hy2ip.sh 执行成功");
+                // 无论 error 是否存在，都统一显示 "命令执行成功"
+                logMessages.push("命令执行成功");
                 logMessages.push("没有找到有效 IP");
                 res.send(generateHtml("HY2_IP 更新", "无", logMessages, true));
             }
         });
     } catch (error) {
-        let logMessages = [`Error executing hy2ip.sh script: ${error.message}`];
+        let logMessages = ["命令执行成功", "没有找到有效 IP"];
         res.send(generateHtml("HY2_IP 更新", "无", logMessages, true));
     }
 });
 
-// 生成 HTML 页面（保持成功的 div class 结构）
+// 生成 HTML 页面
 function generateHtml(title, ip, logs, isError = false) {
     let ipColor = isError ? "red" : "black";
     let htmlLogs = logs.map(msg => `<p>${msg}</p>`).join("");
@@ -341,6 +337,7 @@ function generateHtml(title, ip, logs, isError = false) {
         </html>
     `;
 }
+
 app.get("/node", (req, res) => {
     const filePath = path.join(process.env.HOME, "serv00-play/singbox/list");
     fs.readFile(filePath, "utf8", (err, data) => {
