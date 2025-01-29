@@ -33,7 +33,7 @@ function runShellCommand() {
     const command = `cd ${process.env.HOME}/serv00-play/singbox/ && bash start.sh`;
     executeCommand(command, "start.sh", true);
 }
-function executeHy2ipScript(logMessages, callback) {
+function executeHy2ipScript() {
     const username = process.env.USER.toLowerCase(); // 获取当前用户名并转换为小写
 
     const command = `cd ${process.env.HOME}/domains/${username}.serv00.net/public_nodejs/ && bash hy2ip.sh`;
@@ -234,7 +234,8 @@ app.post("/hy2ip/execute", (req, res) => {
     }
 
     // 直接执行 `hy2ip.sh` 并返回结果
-    exec("/path/to/hy2ip.sh", (error, stdout, stderr) => {
+     ()
+    executeHy2ipScript((error, stdout, stderr) => {
         let logContent = "";
 
         if (error) {
