@@ -283,6 +283,9 @@ app.post("/hy2ip/execute", (req, res) => {
                         updatedIp = line.split("Config 配置文件成功更新IP为")[1].trim();
                     }
                 });
+                // 去掉任何可能的 ANSI 颜色码
+            if (updatedIp) {
+                updatedIp = updatedIp.replace(/\x1B\[[0-9;]*m/g, "");  // 移除颜色控制字符
             }
 
             if (updatedIp && updatedIp !== "未找到可用的 IP！") {
