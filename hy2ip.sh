@@ -83,7 +83,7 @@ changeHy2IP() {
     local hy2_ip=$(get_ip)
 
     # 打印获取到的IP
-    echo "获取的 IP: $hy2_ip"
+    echo "有效 IP: $hy2_ip"
 
     # 如果没有获取到有效 IP，退出函数
     if [[ -z "$hy2_ip" ]]; then
