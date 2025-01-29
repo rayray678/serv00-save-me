@@ -245,8 +245,9 @@ app.post("/hy2ip/execute", (req, res) => {
                 .split("\n")
                 .map(line => `<p>${line}</p>`)
                 .join("");
-        });
-        
+        }
+
+        // 发送最终结果
         res.send(`
             <html>
                 <head>
