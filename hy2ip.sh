@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# 打印绿色字体
+# 用于绿色打印
 green() {
     echo -e "\033[32m$1\033[0m"
 }
 
-# 打印红色字体
+# 用于红色打印
 red() {
     echo -e "\033[31m$1\033[0m"
 }
 
-# 获取可用的IP
+# 获取有效IP的函数
 get_ip() {
     local hostname=$(hostname)
     local host_number=$(echo "$hostname" | awk -F'[s.]' '{print $2}')
@@ -28,15 +28,15 @@ get_ip() {
 
         if [[ "$status" == "Accessible" ]]; then
             echo "$ip"
-            return
+            return 0
         fi
     done
 
-    red "未找到可用的 IP！"
-    return 1
+    echo ""  # 返回空字符串表示未找到有效IP
+    return 1  # 返回错误代码
 }
 
-# 更新配置文件中的IP
+# 更新 config.json 配置文件
 update_config_json() {
     local configFile="$1"
     local new_ip="$2"
@@ -56,7 +56,7 @@ update_config_json() {
     fi
 }
 
-# 更新 singbox 配置文件中的HY2IP字段
+# 更新 singbox.json 配置文件
 update_singbox_json() {
     local configFile="$1"
     local new_ip="$2"
@@ -76,38 +76,41 @@ update_singbox_json() {
     fi
 }
 
-# 处理更新IP的主函数
+# 修改 IP 地址的主函数
 changeHy2IP() {
     local configFile1="$HOME/serv00-play/singbox/config.json"
     local configFile2="$HOME/serv00-play/singbox/singbox.json"
     local hy2_ip=$(get_ip)
 
-    # 如果没有获取到有效的 IP，直接返回，不进行配置文件更新
-    if [[ -z "$hy2_ip" || "$hy2_ip" == "未找到可用的 IP！" ]]; then
-        red "获取可用 IP 失败！"
-        return 1
+    # 打印获取到的IP
+    echo "获取的 IP: $hy2_ip"
+
+    # 如果没有获取到有效 IP，退出函数
+    if [[ -z "$hy2_ip" ]]; then
+        red "获取可用 IP 失败！未更新配置文件。"
+        return 1  # 返回并退出，表示未找到有效IP，不做任何更新
     fi
-    
-    # 如果获取到了有效的 IP，更新配置文件
+
+    # 只有在找到有效IP时才更新配置文件
     update_config_json "$configFile1" "$hy2_ip"
     update_singbox_json "$configFile2" "$hy2_ip"
     
-    # 重启服务
+    # 重启 SingBox
     echo "正在重启 sing-box..."
     stopSingBox
     sleep 3
     startSingBox
 }
 
-# 停止 SingBox 服务
+# 停止 SingBox
 stopSingBox() {
     cd ~/serv00-play/singbox/ && bash killsing-box.sh
 }
 
-# 启动 SingBox 服务
+# 启动 SingBox
 startSingBox() {
     cd ~/serv00-play/singbox/ && bash start.sh
 }
 
-# 执行更新操作
+# 调用主函数
 changeHy2IP
