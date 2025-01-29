@@ -87,7 +87,7 @@ changeHy2IP() {
 
     # 如果没有获取到有效 IP，退出函数
     if [[ -z "$hy2_ip" ]]; then
-        red "获取可用 IP 失败！未更新配置文件。"
+        red "没有可用 IP！"
         return 1  # 返回并退出，表示未找到有效IP，不做任何更新
     fi
 
