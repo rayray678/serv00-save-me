@@ -1,16 +1,13 @@
 #!/bin/bash
 
-# 混淆后的绿色打印
 A() {
     echo -e "\033[32m$1\033[0m"
 }
 
-# 混淆后的红色打印
 B() {
     echo -e "\033[31m$1\033[0m"
 }
 
-# 混淆后的获取有效IP的函数
 C() {
     local D=$(hostname)
     local E=$(echo "$D" | awk -F'[s.]' '{print $2}')
@@ -32,11 +29,10 @@ C() {
         fi
     done
 
-    echo ""  # 返回空字符串表示未找到有效IP
-    return 1  # 返回错误代码
+    echo ""  
+    return 1  
 }
 
-# 混淆后的更新 config.json 配置文件
 K() {
     local L="$1"
     local M="$2"
@@ -56,7 +52,6 @@ K() {
     fi
 }
 
-# 混淆后的更新 singbox.json 配置文件
 O() {
     local P="$1"
     local Q="$2"
@@ -76,41 +71,33 @@ O() {
     fi
 }
 
-# 混淆后的修改 IP 地址的主函数
 S() {
     local T="$HOME/serv00-play/singbox/config.json"
     local U="$HOME/serv00-play/singbox/singbox.json"
     local V=$(C)
 
-    # 打印获取到的IP
     echo "有效 IP: $V"
 
-    # 如果没有获取到有效 IP，退出函数
     if [[ -z "$V" ]]; then
         B "没有可用 IP！"
-        return 1  # 返回并退出，表示未找到有效IP，不做任何更新
+        return 1  
     fi
 
-    # 只有在找到有效IP时才更新配置文件
     K "$T" "$V"
     O "$U" "$V"
     
-    # 重启 SingBox
     echo "正在重启 sing-box..."
     W
     sleep 3
     X
 }
 
-# 混淆后的停止 SingBox
 W() {
     cd ~/serv00-play/singbox/ && bash killsing-box.sh
 }
 
-# 混淆后的启动 SingBox
 X() {
     cd ~/serv00-play/singbox/ && bash start.sh
 }
 
-# 调用主函数
 S
