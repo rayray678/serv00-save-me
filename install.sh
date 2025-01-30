@@ -25,7 +25,7 @@ v=$(echo "$u" | tr '[:upper:]' '[:lower:]')
 w="$v.serv00.net"
 x="/home/$u/domains/$w"
 y="$x/public_nodejs"
-z="https://github.com/ryty1/My-test/archive/refs/heads/main.zip"
+z="https://github.com/ryty1/serv00-save-me/archive/refs/heads/main.zip"
 
 echo " ———————————————————————————————————————————————————————————— "
 
@@ -79,8 +79,8 @@ rm -f "$y/README.md"
 rm -f "$y/file_list.txt"
 rm -f "$y/main.zip"
 
-chmod 755 "$y/htmlonlive/app.js" > /dev/null 2>&1
-chmod 755 "$y/htmlonlive/hy2ip.sh" > /dev/null 2>&1
+chmod 755 "$y/app.js" > /dev/null 2>&1
+chmod 755 "$y/hy2ip.sh" > /dev/null 2>&1
 
 echo ""
 echo " 【 恭 喜 】： 网 页 保 活 一 键 部 署 已 完 成  "
