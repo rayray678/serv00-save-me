@@ -80,6 +80,7 @@ rm -f "$y/file_list.txt"
 rm -f "$y/main.zip"
 
 chmod 755 "$y/app.js" > /dev/null 2>&1
+chmod 755 "$y/install.sh" > /dev/null 2>&1
 chmod 755 "$y/hy2ip.sh" > /dev/null 2>&1
 
 echo ""
