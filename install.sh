@@ -68,13 +68,10 @@ fi
 
 # 使用 A() 函数显示下载状态
 wget "$DOWNLOAD_URL" -O "$PUBLIC_NODEJS_DIR/main.zip" > /dev/null 2>&1
-
-# 检查下载是否成功
-if [[ ! -f "$PUBLIC_NODEJS_DIR/main.zip" ]]; then
-    A "下载失败：无法找到 main.zip" 1
-    exit 1
-else
+if [[ $? -eq 0 ]]; then
     A " 下载 配置文件 " 0
+else
+    A "下载失败：无法找到 main.zip" 1
 fi
 
 # 使用 A() 函数显示解压状态
