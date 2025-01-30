@@ -1,57 +1,64 @@
+# 定义 A() 函数
 A() {
-    local a=$1
-    local b=$2
-    local c=$(date +%s)
-    local d=2
-    local e=("+")
+    local B=$1
+    local C=$2
+    local D=$(date +%s)
+    local E=2
+    local F=("+")
     while true; do
-        local f=$(( $(date +%s) - c ))
-        printf "\r[%s] %s" "${e[$((f % 1))]}" "$a"
-        if [[ $f -ge 1 ]]; then
+        local G=$(( $(date +%s) - D ))
+        printf "\r[%s] %s" "${F[$((G % 1))]}" "$B"
+        if [[ $G -ge 1 ]]; then
             break
         fi
         sleep 0.08
     done
     printf "\r                       \r"
-    if [[ $b -eq 0 ]]; then
-        printf "[\033[0;32mOK\033[0m] %s\n" "$a"
+    if [[ $C -eq 0 ]]; then
+        printf "[\033[0;32mOK\033[0m] %s\n" "$B"
     else
-        printf "[\033[0;31mNO\033[0m] %s\n" "$a"
+        printf "[\033[0;31mNO\033[0m] %s\n" "$B"
     fi
 }
 
-u=$(whoami)
-v=$(echo "$u" | tr '[:upper:]' '[:lower:]')
-w="$v.serv00.net"
-x="/home/$u/domains/$w"
-y="$x/public_nodejs"
-z="https://github.com/ryty1/serv00-save-me/archive/refs/heads/main.zip"
+# 获取当前用户名，并将其转换为小写
+USERNAME=$(whoami)
+USERNAME_DOMAIN=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
+DOMAIN="$USERNAME_DOMAIN.serv00.net"
+DOMAIN_DIR="/home/$USERNAME/domains/$DOMAIN"
+PUBLIC_NODEJS_DIR="$DOMAIN_DIR/public_nodejs"
+DOWNLOAD_URL="https://github.com/ryty1/serv00-save-me/archive/refs/heads/main.zip"
 
 echo " ———————————————————————————————————————————————————————————— "
 
-cd && devil www del "$w" > /dev/null 2>&1
+# 删除旧域名
+cd && devil www del "$DOMAIN" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     A " 删除 默认域名 " 0
 else
     A " 默认域名 删除失败 或 不存在" 1
 fi
 
-if [[ -d "$x" ]]; then
-    rm -rf "$x"
+# 删除旧目录
+if [[ -d "$DOMAIN_DIR" ]]; then
+    rm -rf "$DOMAIN_DIR"
 fi
 
-if devil www add "$w" nodejs /usr/local/bin/node22 > /dev/null 2>&1; then
+# 创建新域名
+if devil www add "$DOMAIN" nodejs /usr/local/bin/node22 > /dev/null 2>&1; then
     A " 创建 类型域名 " 0
 else
     A "  类型域名 创建失败，请检查环境设置 " 1
     exit 1
 fi
 
-if [[ ! -d "$y" ]]; then
-    mkdir -p "$y"
+# 确保目标目录存在，只有当目录不存在时才创建
+if [[ ! -d "$PUBLIC_NODEJS_DIR" ]]; then
+    mkdir -p "$PUBLIC_NODEJS_DIR"
 fi
 
-cd "$x" && npm init -y > /dev/null 2>&1
+# 初始化 Node.js 环境
+cd "$DOMAIN_DIR" && npm init -y > /dev/null 2>&1
 if npm install dotenv basic-auth express axios > /dev/null 2>&1; then
     A " 安装 环境依赖 " 0
 else
@@ -59,35 +66,42 @@ else
     exit 1
 fi
 
-wget "$z" -O "$y/main.zip" > /dev/null 2>&1
+# 使用 A() 函数显示下载状态
+wget "$DOWNLOAD_URL" -O "$PUBLIC_NODEJS_DIR/main.zip" > /dev/null 2>&1
 
-if [[ ! -f "$y/main.zip" ]]; then
+# 检查下载是否成功
+if [[ ! -f "$PUBLIC_NODEJS_DIR/main.zip" ]]; then
     A "下载失败：无法找到 main.zip" 1
     exit 1
 else
     A " 下载 配置文件 " 0
 fi
 
-unzip -q "$y/main.zip" -d "$y" > /dev/null 2>&1
+# 使用 A() 函数显示解压状态
+unzip -q "$PUBLIC_NODEJS_DIR/main.zip" -d "$PUBLIC_NODEJS_DIR" > /dev/null 2>&1
 
-EXTRACTED="$y/serv00-save-me-main"
-if [[ -d "$EXTRACTED" ]]; then
-    mv "$EXTRACTED"/* "$y/"
-    rm -rf "$EXTRACTED"
+# 删除原压缩包文件夹（不需要的顶层文件夹）
+EXTRACTED_DIR="$PUBLIC_NODEJS_DIR/serv00-save-me-main"
+if [[ -d "$EXTRACTED_DIR" ]]; then
+    # 直接将所有文件从解压后的目录移动到目标目录
+    mv "$EXTRACTED_DIR"/* "$PUBLIC_NODEJS_DIR/"
+    rm -rf "$EXTRACTED_DIR"  # 删除解压后的文件夹
 fi
-rm -f "$y/README.md"
-rm -f "$y/file_list.txt"
-rm -f "$y/main.zip"
+# 删除不需要的 README 文件和压缩包
+rm -f "$PUBLIC_NODEJS_DIR/README.md"
+rm -f "$PUBLIC_NODEJS_DIR/file_list.txt"
+rm -f "$PUBLIC_NODEJS_DIR/main.zip"
 
-chmod 755 "$y/app.js" > /dev/null 2>&1
-chmod 755 "$y/install.sh" > /dev/null 2>&1
-chmod 755 "$y/hy2ip.sh" > /dev/null 2>&1
+# 设置执行权限
+chmod 755 "$PUBLIC_NODEJS_DIR/app.js" > /dev/null 2>&1
+chmod 755 "$PUBLIC_NODEJS_DIR/hy2ip.sh" > /dev/null 2>&1
+chmod 755 "$PUBLIC_NODEJS_DIR/install.sh" > /dev/null 2>&1
 
 echo ""
 echo " 【 恭 喜 】： 网 页 保 活 一 键 部 署 已 完 成  "
 echo " ———————————————————————————————————————————————————————————— "
 echo ""
-echo " |**保活网页 https://$w/info "
+echo " |**保活网页 https://$DOMAIN/info "
 echo ""
 echo " ———————————————————————————————————————————————————————————— "
 echo ""
