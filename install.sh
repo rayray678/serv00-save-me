@@ -70,7 +70,7 @@ fi
 
 unzip -q "$y/main.zip" -d "$y" > /dev/null 2>&1
 
-EXTRACTED="$y/My-test-main"
+EXTRACTED="$y/serv00-save-me-main"
 if [[ -d "$EXTRACTED" ]]; then
     mv "$EXTRACTED"/* "$y/"
     rm -rf "$EXTRACTED"
