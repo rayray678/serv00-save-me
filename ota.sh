@@ -68,7 +68,6 @@ check_for_updates() {
     local local_version=$(get_local_version)
 
     if [ "$local_version" = "$remote_version" ]; then
-        echo "———————————————————————"
         echo "✅ 当前已是是最新版！"
         return 0
     fi
