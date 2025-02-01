@@ -2,8 +2,8 @@
 
 # **配置**
 LOCAL_VERSION_FILE="version.txt"  # 本地版本文件
-REMOTE_VERSION_URL="http://example.com/version.txt"  # 远程版本URL
-REMOTE_DIR_URL="http://example.com/files/"  # 远程文件目录
+REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
+REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
 EXCLUDED_FILES=("README.md")  # 排除的文件
 EXCLUDED_DIRS=("public" "tmp")  # 排除的目录
 DOMAIN_DIR="."  # 文件所在的目录
