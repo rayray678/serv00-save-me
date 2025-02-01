@@ -59,7 +59,6 @@ else
     exit 1
 fi
 
-# 下载文件并校验
 wget "$A3" -O "$A2/main.zip" > /dev/null 2>&1
 if [[ $? -ne 0 || ! -s "$A2/main.zip" ]]; then
     X " 下载失败：文件不存在或为空" 1
@@ -68,17 +67,14 @@ else
     X " 下载 配置文件 " 0
 fi
 
-# 解压
 unzip -q "$A2/main.zip" -d "$A2" > /dev/null 2>&1
 
-# 处理解压目录
 B1="$A2/serv00-save-me-main"
 if [[ -d "$B1" ]]; then
     mv "$B1"/* "$A2/"
     rm -rf "$B1"
 fi
 
-# 删除不需要的文件
 rm -f "$A2/README.md"
 rm -f "$A2/file_list.txt"
 rm -f "$A2/main.zip"
