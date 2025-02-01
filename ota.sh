@@ -24,7 +24,13 @@ get_remote_version() {
 
 # **获取远程文件列表（不下载 file_list.txt，仅解析）**
 get_remote_file_list() {
-    curl -s "${REMOTE_DIR_URL}file_list.txt" | grep -Ev "$(printf "%s\n" "${EXCLUDED_FILES[@]}" | paste -sd '|' -)"
+    if [ ${#EXCLUDED_FILES[@]} -gt 0 ]; then
+        # 如果 EXCLUDED_FILES 不为空，使用 paste 命令连接文件并过滤
+        curl -s "${REMOTE_DIR_URL}file_list.txt" | grep -Ev "$(printf "%s\n" "${EXCLUDED_FILES[@]}" | paste -sd '|' -)"
+    else
+        # 如果 EXCLUDED_FILES 为空，直接返回所有文件
+        curl -s "${REMOTE_DIR_URL}file_list.txt"
+    fi
 }
 
 # **获取本地文件列表（排除目录）**
