@@ -58,6 +58,7 @@ delete_local_directory() {
 update_local_version() {
     local new_version=$1
     echo "$new_version" > "$LOCAL_VERSION_FILE"
+    echo "———————————————————————"
     echo "🎉 更新完成，新版本号: $new_version"
 }
 
@@ -67,6 +68,7 @@ check_for_updates() {
     local local_version=$(get_local_version)
 
     if [ "$local_version" = "$remote_version" ]; then
+        echo "———————————————————————"
         echo "✅ 当前已是是最新版！"
         return 0
     fi
@@ -111,6 +113,7 @@ check_for_updates() {
 display_version_and_results() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
+    echo "———————————————————————"
     echo "🅿️ 当前版本: $local_version"
     echo "⏫️ 最新版本: $remote_version"
     echo "———————————————————————"
