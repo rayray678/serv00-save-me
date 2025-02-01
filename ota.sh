@@ -1,11 +1,16 @@
 #!/bin/bash
 
 # **配置**
+U=$(whoami)
+V=$(echo "$U" | tr '[:upper:]' '[:lower:]')
+W="$V.serv00.net"
+A1="/home/$U/domains/$W"
+A2="$A1/public_nodejs"
 LOCAL_VERSION_FILE="version.txt"  # 本地版本文件
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
 EXCLUDED_DIRS=("public" "tmp")  # 需要保留的目录
-DOMAIN_DIR="."  # 本地文件所在的目录
+DOMAIN_DIR="$A2"  # 本地文件所在的目录
 
 # **获取本地版本号**
 get_local_version() {
