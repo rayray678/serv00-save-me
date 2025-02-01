@@ -58,7 +58,7 @@ delete_local_directory() {
 update_local_version() {
     local new_version=$1
     echo "$new_version" > "$LOCAL_VERSION_FILE"
-    echo "📢 版本更新完成，新版本号: $new_version"
+    echo "📢 更新完成，新版本号: $new_version"
 }
 
 # **检查并更新文件**
@@ -67,7 +67,7 @@ check_for_updates() {
     local local_version=$(get_local_version)
 
     if [ "$local_version" = "$remote_version" ]; then
-        echo "✅ 文件已是最新，无需更新"
+        echo "✅ 当前已是是最新版！"
         return 0
     fi
     echo "🔄 发现新版本，开始更新..."
