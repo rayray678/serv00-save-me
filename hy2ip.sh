@@ -17,7 +17,6 @@ C() {
         fi
         local I=$(echo "$H" | awk -F "|" '{print $1}')
         local J=$(echo "$H" | awk -F "|" '{print $2}')
-
         if [[ "$J" == "Accessible" ]]; then
             echo "$I"
             return 0
