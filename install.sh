@@ -70,6 +70,7 @@ rm -f "$A2/main.zip"
 chmod 755 "$A2/app.js" > /dev/null 2>&1
 chmod 755 "$A2/hy2ip.sh" > /dev/null 2>&1
 chmod 755 "$A2/install.sh" > /dev/null 2>&1
+chmod 755 "$A2/ota.sh" > /dev/null 2>&1
 echo ""
 echo " 【 恭 喜 】： 网 页 保 活 一 键 部 署 已 完 成  "
 echo " ———————————————————————————————————————————————————————————— "
