@@ -58,8 +58,7 @@ delete_local_directory() {
 update_local_version() {
     local new_version=$1
     echo "$new_version" > "$LOCAL_VERSION_FILE"
-    echo "———————————————————————"
-    echo "🎉 更新完成，新版本号: $new_version"
+    echo "📢 版本更新完成，新版本号: $new_version"
 }
 
 # **检查并更新文件**
@@ -68,10 +67,10 @@ check_for_updates() {
     local local_version=$(get_local_version)
 
     if [ "$local_version" = "$remote_version" ]; then
-        echo "✅ 当前已是是最新版！"
+        echo "✅ 文件已是最新，无需更新"
         return 0
     fi
-    echo "🔄 发现新版本，开始更新..."
+    echo "🔄 版本号不同，开始更新..."
 
     # 获取远程文件列表（不下载 file_list.txt）
     remote_files=$(get_remote_file_list)
@@ -112,10 +111,7 @@ check_for_updates() {
 display_version_and_results() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
-    echo "———————————————————————"
-    echo "🅿️ 当前版本: $local_version"
-    echo "⏫️ 最新版本: $remote_version"
-    echo "———————————————————————"
+    echo "📌 本地版本: $local_version  |  📌 远程版本: $remote_version"
 }
 
 # **执行更新**
