@@ -117,6 +117,5 @@ display_version_and_results() {
 }
 
 # **执行更新**
-echo "更新结果"
 display_version_and_results
 check_for_updates
