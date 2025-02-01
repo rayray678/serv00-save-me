@@ -33,7 +33,9 @@ get_remote_file_list() {
 
 # **获取本地文件列表（排除目录）**
 get_local_files() {
-    find "$DOMAIN_DIR" -type f | grep -Ev "$(printf "%s\n" "${EXCLUDED_DIRS[@]}" | paste -sd '|')"
+    # 将 EXCLUDED_DIRS 中的目录排除，固定匹配
+    local exclude_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
+    find "$DOMAIN_DIR" -type f | grep -Ev "$exclude_pattern"
 }
 
 # **下载并覆盖远程文件**
