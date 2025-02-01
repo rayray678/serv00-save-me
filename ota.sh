@@ -4,7 +4,7 @@
 LOCAL_VERSION_FILE="version.txt"  # 本地版本文件
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
-EXCLUDED_FILES=("README.md")  # 需要保留的文件
+EXCLUDED_FILES=("README.md" "file_list.txt")  # 需要保留的文件
 EXCLUDED_DIRS=("public" "tmp")  # 需要保留的目录
 DOMAIN_DIR="."  # 本地文件所在的目录
 
@@ -24,7 +24,7 @@ get_remote_version() {
 
 # **获取远程文件列表（不下载 file_list.txt，仅解析）**
 get_remote_file_list() {
-    curl -s "${REMOTE_DIR_URL}file_list.txt"
+    curl -s "${REMOTE_DIR_URL}file_list.txt" | grep -Ev "$(printf "%s\n" "${EXCLUDED_FILES[@]}" | paste -sd '|' -)"
 }
 
 # **获取本地文件列表（排除目录）**
@@ -100,7 +100,7 @@ check_for_updates() {
     done
 
     # 删除本地无效目录（不在 `EXCLUDED_DIRS` 列表中的）
-    for dir in $(find "$DOMAIN_DIR" -type d); do
+    for dir in $(find "$DOMAIN_DIR" -mindepth 1 -type d); do
         base_dir=$(basename "$dir")
         if ! printf "%s\n" "${EXCLUDED_DIRS[@]}" | grep -q "^$base_dir$"; then
             delete_local_directory "$dir"
