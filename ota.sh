@@ -4,9 +4,9 @@
 LOCAL_VERSION_FILE="version.txt"  # 本地版本文件
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
-EXCLUDED_FILES=("version.txt")  # 需要保留的文件
+EXCLUDED_FILES=("README.md")  # 需要保留的文件
 EXCLUDED_DIRS=("public" "tmp")  # 需要保留的目录
-DOMAIN_DIR="."  # 文件所在的目录
+DOMAIN_DIR="."  # 本地文件所在的目录
 
 # **获取本地版本号**
 get_local_version() {
@@ -22,9 +22,9 @@ get_remote_version() {
     curl -s "$REMOTE_VERSION_URL"
 }
 
-# **获取远程文件列表**
+# **获取远程文件列表（不下载 file_list.txt，仅解析）**
 get_remote_file_list() {
-    curl -s "${REMOTE_DIR_URL}file_list.txt" | grep -Ev "$(printf "%s\n" "${EXCLUDED_FILES[@]}" | paste -sd '|')"
+    curl -s "${REMOTE_DIR_URL}file_list.txt"
 }
 
 # **获取本地文件列表（排除目录）**
@@ -39,7 +39,7 @@ download_file() {
     echo "✅ ${file_name} 更新完成"
 }
 
-# **删除本地多余文件**
+# **删除本地无效文件**
 delete_local_file() {
     local file_name=$1
     rm -f "$file_name"
@@ -72,7 +72,7 @@ check_for_updates() {
 
     echo "🔄 版本号不同，开始更新..."
 
-    # 获取远程文件列表
+    # 获取远程文件列表（不下载 file_list.txt）
     remote_files=$(get_remote_file_list)
 
     # **防止误删：如果远程文件列表为空，则退出**
