@@ -57,8 +57,6 @@ update_local_version() {
 check_for_updates() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
-    
-    echo "📌 本地版本: $local_version, 远程版本: $remote_version"
 
     if [ "$local_version" == "$remote_version" ]; then
         echo "✅ 文件已是最新，无需更新"
@@ -92,9 +90,7 @@ display_version_and_results() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
 
-    echo -e "\n-------------------------------------------------"
     echo -e "📌 本地版本: $local_version  |  📌 远程版本: $remote_version"
-    echo -e "-------------------------------------------------"
 }
 
 # **执行更新**
