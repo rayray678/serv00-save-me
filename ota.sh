@@ -111,7 +111,9 @@ check_for_updates() {
 display_version_and_results() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
-    echo "📌 当前版本: $local_version  |  📌 最新版本: $remote_version"
+    echo "📌 当前版本: $local_version"
+    echo "📌 最新版本: $remote_version"
+    echo "——————————————————————"
 }
 
 # **执行更新**
