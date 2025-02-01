@@ -1,4 +1,5 @@
 app.js
 install.sh
 hy2ip.sh
+ota.sh
 version.txt
