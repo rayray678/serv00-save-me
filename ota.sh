@@ -58,7 +58,7 @@ delete_local_directory() {
 update_local_version() {
     local new_version=$1
     echo "$new_version" > "$LOCAL_VERSION_FILE"
-    echo "📢 更新完成，新版本号: $new_version"
+    echo "🎉 更新完成，新版本号: $new_version"
 }
 
 # **检查并更新文件**
@@ -111,7 +111,8 @@ check_for_updates() {
 display_version_and_results() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
-    echo "📌 当前版本: $local_version  |  📌 最新版本: $remote_version"
+    echo "🅿️ 当前版本: $local_version"
+    echo "⏫️ 最新版本: $remote_version"
 }
 
 # **执行更新**
