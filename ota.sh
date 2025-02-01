@@ -1,16 +1,15 @@
 #!/bin/bash
 
 # **配置**
-U=$(whoami)
-V=$(echo "$U" | tr '[:upper:]' '[:lower:]')
-W="$V.serv00.net"
-A1="/home/$U/domains/$W"
-A2="$A1/public_nodejs"
-LOCAL_VERSION_FILE="$A2/version.txt"  # 本地版本文件
+USERNAME=$(whoami)
+LOWER_USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
+DOMAIN_NAME="$LOWER_USERNAME.serv00.net"
+BASE_DIR="/home/$USERNAME/domains/$DOMAIN_NAME"
+PROJECT_DIR="$BASE_DIR/public_nodejs"
+LOCAL_VERSION_FILE="$PROJECT_DIR/version.txt"  # 本地版本文件
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
 EXCLUDED_DIRS=("public" "tmp")  # 需要保留的目录
-DOMAIN_DIR="$A2"  # 本地文件所在的目录
 
 # **获取本地版本号**
 get_local_version() {
@@ -34,13 +33,13 @@ get_remote_file_list() {
 # **获取本地文件列表（排除目录）**
 get_local_files() {
     local exclude_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
-    find "$DOMAIN_DIR" -type f | grep -Ev "$exclude_pattern"
+    find "$PROJECT_DIR" -type f | grep -Ev "$exclude_pattern"
 }
 
 # **下载并覆盖远程文件**
 download_file() {
     local file_name=$1
-    curl -s -o "$DOMAIN_DIR/$file_name" "${REMOTE_DIR_URL}${file_name}"
+    curl -s -o "$PROJECT_DIR/$file_name" "${REMOTE_DIR_URL}${file_name}"
     echo "✅ ${file_name} 更新完成"
 }
 
@@ -97,7 +96,7 @@ check_for_updates() {
     done
 
     # 删除本地无效目录（不在 `EXCLUDED_DIRS` 列表中的）
-    for dir in $(find "$DOMAIN_DIR" -mindepth 1 -type d); do
+    for dir in $(find "$PROJECT_DIR" -mindepth 1 -type d); do
         base_dir=$(basename "$dir")
         if ! printf "%s\n" "${EXCLUDED_DIRS[@]}" | grep -q "^$base_dir$"; then
             delete_local_directory "$dir"
@@ -111,7 +110,7 @@ check_for_updates() {
 }
 
 # **显示版本信息**
-display_version_and_results() {
+display_version_info() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
 
@@ -120,5 +119,5 @@ display_version_and_results() {
 
 # **执行更新**
 echo "更新结果"
-display_version_and_results
+display_version_info
 check_for_updates
