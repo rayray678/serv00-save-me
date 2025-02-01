@@ -1,4 +1,5 @@
 #!/bin/bash
+# 字体上色
 A() {
     echo -e "\033[32m$1\033[0m"
 }
@@ -74,7 +75,7 @@ S() {
     O "$U" "$V"
     echo "正在重启 sing-box..."
     W
-    sleep 3
+    sleep 5
     X
 }
 W() {
