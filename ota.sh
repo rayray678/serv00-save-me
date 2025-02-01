@@ -4,7 +4,6 @@
 LOCAL_VERSION_FILE="version.txt"  # 本地版本文件
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
-EXCLUDED_FILES=("README.md" "file_list.txt")  # 需要保留的文件
 EXCLUDED_DIRS=("public" "tmp")  # 需要保留的目录
 DOMAIN_DIR="."  # 本地文件所在的目录
 
@@ -24,13 +23,7 @@ get_remote_version() {
 
 # **获取远程文件列表（不下载 file_list.txt，仅解析）**
 get_remote_file_list() {
-    if [ ${#EXCLUDED_FILES[@]} -gt 0 ]; then
-        # 如果 EXCLUDED_FILES 不为空，使用 paste 命令连接文件并过滤
-        curl -s "${REMOTE_DIR_URL}file_list.txt" | grep -Ev "$(printf "%s\n" "${EXCLUDED_FILES[@]}" | paste -sd '|' -)"
-    else
-        # 如果 EXCLUDED_FILES 为空，直接返回所有文件
-        curl -s "${REMOTE_DIR_URL}file_list.txt"
-    fi
+    curl -s "${REMOTE_DIR_URL}file_list.txt"
 }
 
 # **获取本地文件列表（排除目录）**
@@ -97,10 +90,10 @@ check_for_updates() {
         download_file "$file"
     done
 
-    # 删除本地无效文件（不在远程列表，也不属于 `EXCLUDED_FILES`）
+    # 删除本地无效文件（不在远程列表）
     for file in $local_files; do
         base_file=$(basename "$file")
-        if ! echo "$remote_files" | grep -q "^$base_file$" && ! printf "%s\n" "${EXCLUDED_FILES[@]}" | grep -q "^$base_file$"; then
+        if ! echo "$remote_files" | grep -q "^$base_file$"; then
             delete_local_file "$file"
         fi
     done
