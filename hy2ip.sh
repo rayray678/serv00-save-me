@@ -1,25 +1,20 @@
 #!/bin/bash
-
 A() {
     echo -e "\033[32m$1\033[0m"
 }
-
 B() {
     echo -e "\033[31m$1\033[0m"
 }
-
 C() {
     local D=$(hostname)
     local E=$(echo "$D" | awk -F'[s.]' '{print $2}')
     local F=("cache${E}.serv00.com" "web${E}.serv00.com" "$D")
-
     for G in "${F[@]}"; do
         local H=$(curl -s --max-time 10 "https://ss.botai.us.kg/api/getip?host=$G")
         if [[ "$H" =~ "not found" ]]; then
             echo "未识别主机 ${G}！"
             continue
         fi
-
         local I=$(echo "$H" | awk -F "|" '{print $1}')
         local J=$(echo "$H" | awk -F "|" '{print $2}')
 
@@ -28,11 +23,9 @@ C() {
             return 0
         fi
     done
-
     echo ""  
     return 1  
 }
-
 K() {
     local L="$1"
     local M="$2"
@@ -51,7 +44,6 @@ K() {
         return 1
     fi
 }
-
 O() {
     local P="$1"
     local Q="$2"
@@ -70,34 +62,26 @@ O() {
         return 1
     fi
 }
-
 S() {
     local T="$HOME/serv00-play/singbox/config.json"
     local U="$HOME/serv00-play/singbox/singbox.json"
     local V=$(C)
-
     echo "有效 IP: $V"
-
     if [[ -z "$V" ]]; then
         B "没有可用 IP！"
         return 1  
     fi
-
     K "$T" "$V"
     O "$U" "$V"
-    
     echo "正在重启 sing-box..."
     W
     sleep 3
     X
 }
-
 W() {
     cd ~/serv00-play/singbox/ && bash killsing-box.sh
 }
-
 X() {
     cd ~/serv00-play/singbox/ && bash start.sh
 }
-
 S
