@@ -65,6 +65,8 @@ update_local_version() {
 
 # **停止当前的 Node.js 应用并重启**
 restart_nodejs_app() {
+    echo "正在清理 Node.js 缓存..."
+    node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
     # 启动新的 Node.js 应用
     devil www restart ${USER_NAME,,}.serv00.net
     echo "应用已重启，请1分钟后刷新网页"
