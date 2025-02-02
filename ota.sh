@@ -8,7 +8,8 @@ NODEJS_DIR="$BASE_DIR/public_nodejs"
 LOCAL_VERSION_FILE="$NODEJS_DIR/version.txt"  # 本地版本文件
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/version.txt"  # 远程版本URL
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
-EXCLUDED_DIRS=("public" "tmp")  # 需要保留的目录
+EXCLUDED_DIRS=("public" "tmp" "node_modules")  # 需要保留的目录
+EXCLUDED_FILES=("package-lock.json" "version.txt" "package.json")  # 需要保留的文件
 
 # **获取本地版本号**
 get_local_version() {
@@ -29,10 +30,11 @@ get_remote_file_list() {
     curl -s "${REMOTE_DIR_URL}file_list.txt"
 }
 
-# **获取本地文件列表（排除目录）**
+# **获取本地文件列表（排除目录和文件）**
 get_local_files() {
     local exclude_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
-    find "$NODEJS_DIR" -type f | grep -Ev "$exclude_pattern"
+    local exclude_file_pattern="^($(IFS=\|; echo "${EXCLUDED_FILES[*]}"))"
+    find "$NODEJS_DIR" -type f | grep -Ev "$exclude_pattern" | grep -Ev "$exclude_file_pattern"
 }
 
 # **下载并覆盖远程文件**
@@ -63,6 +65,10 @@ update_local_version() {
 
 # **停止当前的 Node.js 应用并重启**
 restart_nodejs_app() {
+        # 清理 Node.js 缓存
+    echo "清理 Node.js 缓存..."
+    node -e 'Object.keys(require.cache).forEach(function(key) { delete require.cache[key]; });'
+    
     # 停止当前的 Node.js 应用
     pid=$(ps aux | grep 'node' | grep -v 'grep' | awk '{print $2}')
     if [ -n "$pid" ]; then
@@ -74,7 +80,7 @@ restart_nodejs_app() {
     sleep 3
 
     # 启动新的 Node.js 应用
-    devil www restart "$DOMAIN_NAME"
+    devil www restart ${USER_NAME,,}.serv00.net
     echo "应用已重启，请1分钟后刷新网页"
 }
 
