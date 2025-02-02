@@ -69,14 +69,6 @@ restart_nodejs_app() {
     echo "清理 Node.js 缓存..."
     node -e 'Object.keys(require.cache).forEach(function(key) { delete require.cache[key]; });'
     
-    # 停止当前的 Node.js 应用
-    pid=$(ps aux | grep 'node' | grep -v 'grep' | awk '{print $2}')
-    if [ -n "$pid" ]; then
-        kill -9 "$pid"
-        echo "应用已停止"
-    else
-        echo "没有找到正在运行的应用"
-    fi
     sleep 3
 
     # 启动新的 Node.js 应用
