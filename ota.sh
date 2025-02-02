@@ -136,19 +136,14 @@ check_version_and_sync() {
             echo "❌ 没有需要更新的文件"
         fi
     else
-        echo "✅ 己是最版本，无需更新"
+        echo "🔝 己是最版本，无需更新"
     fi
 }
 
 # **清理 Node.js 缓存并重启应用**
 clean_and_restart_nodejs() {
-    # 清理 Node.js 缓存
-    echo "正在清理 Node.js 缓存..."
     node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
-
-    # 重启 Node.js 应用
-    echo "正在重启 Node.js 应用..."
-    devil www restart "${USER_NAME,,}.serv00.net"
+    devil www restart "${USER_NAME,,}.serv00.net" > /dev/null 2>&1
     echo "应用已重启，请1分钟后刷新网页"
 }
 
