@@ -67,13 +67,6 @@ restart_service() {
     devil www restart $DOMAIN_NAME
 }
 
-# **清理 Node.js 缓存**
-clear_node_cache() {
-    echo "正在清理 Node.js 缓存..."
-    node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
-    echo "Node.js 缓存已清理"
-}
-
 # **检查并更新文件**
 check_for_updates() {
     local remote_version=$(get_remote_version)
@@ -118,9 +111,6 @@ check_for_updates() {
 
     # 更新本地版本号
     update_local_version "$remote_version"
-
-    # 清理 Node.js 缓存
-    clear_node_cache
 
     # 仅在更新成功后重启服务
     restart_service
