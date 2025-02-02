@@ -53,7 +53,6 @@ delete_local_file() {
 update_local_file_list() {
     local new_file_list=$1
     echo "$new_file_list" > "$LOCAL_FILE_LIST"
-    echo "📢 本地 file_list.txt 更新完成"
 }
 
 # **版本号比较（远程版本高于本地版本）**
@@ -71,6 +70,8 @@ is_remote_version_higher() {
 
 # **同步文件**
 sync_files() {
+    local files_updated=false
+
     # 获取远程和本地的文件列表
     remote_files=$(get_remote_file_list)
     local_files=$(get_local_file_list)
@@ -81,6 +82,7 @@ sync_files() {
         # 如果该文件同时存在于本地 file_list.txt 中，才执行下载
         if echo "$local_files" | grep -q "^$file$"; then
             download_file "$file"
+            files_updated=true
         fi
     done
 
@@ -89,11 +91,19 @@ sync_files() {
         # 如果该文件不在远程 file_list 中，才删除
         if ! echo "$remote_files" | grep -q "^$file$"; then
             delete_local_file "$file"
+            files_updated=true
         fi
     done
 
     # 更新本地 file_list.txt
     update_local_file_list "$remote_files"
+
+    # 返回是否有文件更新
+    if $files_updated; then
+        return 0  # 表示文件更新成功
+    else
+        return 1  # 表示没有文件更新
+    fi
 }
 
 # **显示版本号**
@@ -115,13 +125,31 @@ check_version_and_sync() {
     # 检查远程版本是否高于本地版本
     if is_remote_version_higher "$remote_version" "$local_version"; then
         echo "🔄 发现新版本，开始同步文件..."
-        sync_files
-        # 更新本地版本文件
-        echo "$remote_version" > "$LOCAL_VERSION_FILE"
-        echo "📢 版本更新完成，新版本号: $remote_version"
+        if sync_files; then
+            # 更新本地版本文件
+            echo "$remote_version" > "$LOCAL_VERSION_FILE"
+            echo "📢 版本更新完成，新版本号: $remote_version"
+
+            # **清理 Node.js 缓存并重启应用**
+            clean_and_restart_nodejs
+        else
+            echo "❌ 没有需要更新的文件"
+        fi
     else
-        echo "🔝 己是最新版本，无需更新"
+        echo "✅ 己是最版本，无需更新"
     fi
+}
+
+# **清理 Node.js 缓存并重启应用**
+clean_and_restart_nodejs() {
+    # 清理 Node.js 缓存
+    echo "正在清理 Node.js 缓存..."
+    node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
+
+    # 重启 Node.js 应用
+    echo "正在重启 Node.js 应用..."
+    devil www restart "${USER_NAME,,}.serv00.net"
+    echo "应用已重启，请1分钟后刷新网页"
 }
 
 # **执行操作**
