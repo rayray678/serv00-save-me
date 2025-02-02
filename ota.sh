@@ -67,10 +67,10 @@ check_for_updates() {
     local local_version=$(get_local_version)
 
     if [ "$local_version" = "$remote_version" ]; then
-        echo "✅ 版本已是最新，无需更新"
+        echo "✅ 文件已是最新，无需更新"
         return 0
     fi
-    echo "🔄 发现新版本，开始更新..."
+    echo "🔄 版本号不同，开始更新..."
 
     # 获取远程文件列表（不下载 file_list.txt）
     remote_files=$(get_remote_file_list)
@@ -111,9 +111,7 @@ check_for_updates() {
 display_version_and_results() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
-    echo "📌 当前版本: $local_version"
-    echo "📌 最新版本: $remote_version"
-    echo "——————————————————————"
+    echo "📌 本地版本: $local_version  |  📌 远程版本: $remote_version"
 }
 
 # **执行更新**
