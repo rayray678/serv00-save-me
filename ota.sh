@@ -50,10 +50,16 @@ delete_local_file() {
     rm -f "$file_name"
 }
 
-# **删除本地无效目录**
-delete_local_directory() {
-    local dir_name=$1
-    rm -rf "$dir_name"
+# **删除本地无效目录（不在 `EXCLUDED_DIRS` 列表中的）**
+delete_local_directories() {
+    for dir in $(find "$NODEJS_DIR" -mindepth 1 -type d); do
+        base_dir=$(basename "$dir")
+        # 检查目录是否在 `EXCLUDED_DIRS` 列表中
+        if ! printf "%s\n" "${EXCLUDED_DIRS[@]}" | grep -q "^$base_dir$"; then
+            echo "删除目录：$dir"
+            rm -rf "$dir"  # 只删除不在排除名单中的目录
+        fi
+    done
 }
 
 # **更新本地版本文件**
@@ -63,11 +69,16 @@ update_local_version() {
     echo "📢 版本更新完成，新版本号: $new_version"
 }
 
+# **清理 Node.js 缓存**
+clear_nodejs_cache() {
+    echo "正在清理 Node.js 缓存..."
+    node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
+}
+
 # **停止当前的 Node.js 应用并重启**
 restart_nodejs_app() {
     # 清理 npm 缓存
-    echo "正在清理 Node.js 缓存..."
-    node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
+    clear_nodejs_cache
 
     # 启动新的 Node.js 应用
     devil www restart ${USER_NAME,,}.serv00.net
@@ -109,12 +120,7 @@ check_for_updates() {
     done
 
     # 删除本地无效目录（不在 `EXCLUDED_DIRS` 列表中的）
-    for dir in $(find "$NODEJS_DIR" -mindepth 1 -type d); do
-        base_dir=$(basename "$dir")
-        if ! printf "%s\n" "${EXCLUDED_DIRS[@]}" | grep -q "^$base_dir$"; then
-            delete_local_directory "$dir"
-        fi
-    done
+    delete_local_directories
 
     # 更新本地版本号
     update_local_version "$remote_version"
