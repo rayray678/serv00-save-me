@@ -65,7 +65,6 @@ if [[ -d "$B1" ]]; then
     rm -rf "$B1"
 fi
 rm -f "$A2/README.md"
-rm -f "$A2/file_list.txt"
 rm -f "$A2/main.zip"
 chmod 755 "$A2/app.js" > /dev/null 2>&1
 chmod 755 "$A2/hy2ip.sh" > /dev/null 2>&1
