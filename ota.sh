@@ -96,10 +96,21 @@ sync_files() {
     update_local_file_list "$remote_files"
 }
 
+# **显示版本号**
+display_versions() {
+    local remote_version=$(get_remote_version)
+    local local_version=$(get_local_version)
+
+    echo "📌 当前版本: $local_version  |  📌 最新版本: $remote_version"
+}
+
 # **检查版本号是否需要更新**
 check_version_and_sync() {
     local remote_version=$(get_remote_version)
     local local_version=$(get_local_version)
+
+    # 显示当前版本号
+    display_versions
 
     # 检查远程版本是否高于本地版本
     if is_remote_version_higher "$remote_version" "$local_version"; then
@@ -109,7 +120,7 @@ check_version_and_sync() {
         echo "$remote_version" > "$LOCAL_VERSION_FILE"
         echo "📢 版本更新完成，新版本号: $remote_version"
     else
-        echo "✅ 己是最新版本，无需更新"
+        echo "🔝 己是最新版本，无需更新"
     fi
 }
 
