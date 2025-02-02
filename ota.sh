@@ -32,9 +32,9 @@ get_remote_file_list() {
 
 # **获取本地文件列表（排除目录和文件）**
 get_local_files() {
-    local exclude_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
-    local exclude_file_pattern="^($(IFS=\|; echo "${EXCLUDED_FILES[*]}"))"
-    find "$NODEJS_DIR" -type f | grep -Ev "$exclude_pattern" | grep -Ev "$exclude_file_pattern"
+    local exclude_dirs_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
+    local exclude_files_pattern="^($(IFS=\|; echo "${EXCLUDED_FILES[*]}"))"
+    find "$NODEJS_DIR" -type f | grep -Ev "$exclude_dirs_pattern" | grep -Ev "$exclude_files_pattern"
 }
 
 # **下载并覆盖远程文件**
