@@ -61,10 +61,21 @@ update_local_version() {
     echo "📢 版本更新完成，新版本号: $new_version"
 }
 
-# **重启服务**
-restart_service() {
-    echo "重启服务: 使用 devil www restart $DOMAIN"
-    devil www restart $DOMAIN_NAME
+# **停止当前的 Node.js 应用并重启**
+restart_nodejs_app() {
+    # 停止当前的 Node.js 应用
+    pid=$(ps aux | grep 'node' | grep -v 'grep' | awk '{print $2}')
+    if [ -n "$pid" ]; then
+        kill -9 "$pid"
+        echo "应用已停止"
+    else
+        echo "没有找到正在运行的应用"
+    fi
+    sleep 3
+
+    # 启动新的 Node.js 应用
+    devil www restart "$DOMAIN_NAME"
+    echo "应用已重启，请1分钟后刷新网页"
 }
 
 # **检查并更新文件**
@@ -112,8 +123,8 @@ check_for_updates() {
     # 更新本地版本号
     update_local_version "$remote_version"
 
-    # 仅在更新成功后重启服务
-    restart_service
+    # 停止并重启 Node.js 应用
+    restart_nodejs_app
 }
 
 # **显示版本信息**
