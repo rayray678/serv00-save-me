@@ -32,9 +32,9 @@ get_remote_file_list() {
 
 # **获取本地文件列表（排除目录和文件）**
 get_local_files() {
-    local exclude_dirs_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
-    local exclude_files_pattern="^($(IFS=\|; echo "${EXCLUDED_FILES[*]}"))"
-    find "$NODEJS_DIR" -type f | grep -Ev "$exclude_dirs_pattern" | grep -Ev "$exclude_files_pattern"
+    local exclude_pattern="^($(IFS=\|; echo "${EXCLUDED_DIRS[*]}"))"
+    local exclude_file_pattern="^($(IFS=\|; echo "${EXCLUDED_FILES[*]}"))"
+    find "$NODEJS_DIR" -type f | grep -Ev "$exclude_pattern" | grep -Ev "$exclude_file_pattern"
 }
 
 # **下载并覆盖远程文件**
@@ -65,8 +65,10 @@ update_local_version() {
 
 # **停止当前的 Node.js 应用并重启**
 restart_nodejs_app() {
+    # 清理 npm 缓存
     echo "正在清理 Node.js 缓存..."
     node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
+
     # 启动新的 Node.js 应用
     devil www restart ${USER_NAME,,}.serv00.net
     echo "应用已重启，请1分钟后刷新网页"
