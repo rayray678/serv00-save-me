@@ -8,8 +8,8 @@ NODEJS_DIR="$BASE_DIR/public_nodejs"
 LOCAL_FILE_LIST="$NODEJS_DIR/file_list.txt"  # 本地 file_list.txt
 LOCAL_VERSION_FILE="$NODEJS_DIR/version.txt"  # 本地版本文件
 REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"  # 远程文件目录
-REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}file_list.txt"  # 远程 file_list.txt
-REMOTE_VERSION_URL="${REMOTE_DIR_URL}version.txt"  # 远程版本URL
+REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}/single/file_list.txt"  # 远程 file_list.txt
+REMOTE_VERSION_URL="${REMOTE_DIR_URL}/single/version.txt"  # 远程版本URL
 
 # **获取远程版本号**
 get_remote_version() {
@@ -38,7 +38,7 @@ get_local_file_list() {
 # **下载并覆盖远程文件**
 download_file() {
     local file_name=$1
-    curl -s -o "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}${file_name}"
+    curl -s -o "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}/single/${file_name}"
     echo "✅ ${file_name} 更新完成"
 }
 
