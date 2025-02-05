@@ -28,6 +28,7 @@ A2="$A1/public_nodejs"
 B1="$A2/public"
 A3="https://github.com/ryty1/serv00-save-me/archive/refs/heads/main.zip"
 
+# 提示用户选择保活类型
 echo "请选择保活类型："
 echo "1. 本机保活"
 echo "2. 账号服务"
@@ -41,13 +42,14 @@ if [[ "$choice" -eq 1 ]]; then
 elif [[ "$choice" -eq 2 ]]; then
     TARGET_FOLDER="server"
     DELETE_FOLDER="single"
-    DEPENDENCIES="express http socket.io axios"
+    DEPENDENCIES="express http socket.io node-cron node-telegram-bot-api axios"
     echo "开始进行 账号服务配置"
 else
     echo "无效选择，退出脚本"
     exit 1
 fi
 
+# 清理旧文件
 echo " ———————————————————————————————————————————————————————————— "
 cd && devil www del "$W" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
@@ -76,6 +78,7 @@ else
     exit 1
 fi
 
+# 下载并解压配置包
 wget "$A3" -O "$A2/main.zip" > /dev/null 2>&1
 if [[ $? -ne 0 || ! -s "$A2/main.zip" ]]; then
     X " 下载失败：文件不存在或为空" 1
@@ -92,17 +95,21 @@ fi
 rm -f "$A2/README.md"
 rm -f "$A2/main.zip"
 
+# 将选择的文件夹（single 或 server）中的文件前置到根目录，并删除另一个文件夹
 if [[ -d "$A2/$TARGET_FOLDER" ]]; then
+    # 复制选择的文件夹内容到根目录
     cp -r "$A2/$TARGET_FOLDER/." "$A2/"
     rm -rf "$A2/$TARGET_FOLDER"
 else
     exit 1
 fi
 
+# 删除未选择的文件夹
 if [[ -d "$A2/$DELETE_FOLDER" ]]; then
     rm -rf "$A2/$DELETE_FOLDER"
 fi
 
+# 设置本机保活相关文件的执行权限
 if [[ "$choice" -eq 1 ]]; then
     chmod 755 "$A2/app.js" > /dev/null 2>&1
     chmod 755 "$A2/hy2ip.sh" > /dev/null 2>&1
@@ -122,6 +129,7 @@ else
 
     echo ""
     echo " 【 恭 喜 】： 账号服务  部署已完成  "
+    echo "  *********************************************************** "
     echo "  账号服务 只要部暑1个，多了无用   "
     echo "  账号服务 无需保活，不建议搭节点  "
     echo " ———————————————————————————————————————————————————————————— "
