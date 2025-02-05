@@ -1,1 +1,121 @@
-1211
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram 设置</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            text-align: left;
+        }
+
+        label {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Telegram 设置</h1>
+        <form id="telegramSettingsForm">
+            <label for="telegramToken">TG Bot_Token:</label>
+            <input type="text" id="telegramToken" name="telegramToken" required placeholder="请输入 Token">
+            
+            <label for="telegramChatId">TG Chat_ID:</label>
+            <input type="text" id="telegramChatId" name="telegramChatId" required placeholder="请输入 Chat ID">
+            
+            <button type="submit">保存设置</button>
+        </form>
+    </div>
+
+    <script>
+        // 页面加载时获取 Telegram 配置
+        fetch("/getTelegramSettings")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("telegramToken").value = data.telegramToken || "";
+                document.getElementById("telegramChatId").value = data.telegramChatId || "";
+            })
+            .catch(error => console.error("获取 Telegram 设置失败:", error));
+
+        // 监听表单提交事件
+        document.getElementById("telegramSettingsForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const token = document.getElementById("telegramToken").value;
+            const chatId = document.getElementById("telegramChatId").value;
+
+            fetch("/setTelegramSettings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ telegramToken: token, telegramChatId: chatId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // 提示用户保存成功
+            })
+            .catch(error => console.error("保存 Telegram 设置失败:", error));
+        });
+    </script>
+
+</body>
+</html>
