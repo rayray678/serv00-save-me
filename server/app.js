@@ -154,10 +154,10 @@ async function sendCheckResultsToTG() {
 
         // 生成格式化的账号检测信息
         Object.entries(data).forEach(([user, status], index) => {
-            const maskedUser = `||${escapeMarkdownV2(user)}||`; // Telegram 文字遮罩
+            const maskedUser = `${escapeMarkdownV2(user)}`; 
             const paddedIndex = String(index + 1).padEnd(maxIndexLength, " "); // 序号对齐
             const paddedUser = maskedUser.padEnd(maxUserLength + 4, " "); // 账号对齐冒号
-            results.push(`${paddedIndex}. ${paddedUser}: ${escapeMarkdownV2(status)}`);
+            results.push(`${paddedIndex}.||${paddedUser}||: ${escapeMarkdownV2(status)}`);
         });
 
         // 获取当前北京时间
