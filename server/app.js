@@ -157,7 +157,7 @@ async function sendCheckResultsToTG() {
             const maskedUser = `${escapeMarkdownV2(user)}`; 
             const paddedIndex = String(index + 1).padEnd(maxIndexLength, " "); // 序号对齐
             const paddedUser = maskedUser.padEnd(maxUserLength + 4, " "); // 账号对齐冒号
-            results.push(`${paddedIndex}.||${paddedUser}||: ${escapeMarkdownV2(status)}`);
+            results.push(`${paddedIndex}.${paddedUser}: ${escapeMarkdownV2(status)}`);
         });
 
         // 获取当前北京时间
