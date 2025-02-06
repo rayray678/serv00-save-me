@@ -124,6 +124,9 @@ app.get("/getTelegramSettings", (req, res) => {
 });
 
 // 发送账号检测结果到 Telegram
+const TelegramBot = require('node-telegram-bot-api');
+const axios = require('axios');
+
 async function sendCheckResultsToTG() {
     try {
         const settings = getTelegramSettings();
@@ -147,7 +150,7 @@ async function sendCheckResultsToTG() {
         const currentTime = new Date().toLocaleString(); // 获取当前时间
 
         Object.entries(data).forEach(([user, status], index) => {
-            const maskedUser = "*".repeat(user.length);  // 用雪花遮罩账号
+            const maskedUser = `||${user}||`;  // 使用 Telegram 的雪花遮罩格式
             const userNameLength = maskedUser.length;
             const padding = ' '.repeat(30 - userNameLength); // 确保冒号对齐
             message += `${index + 1}. ${maskedUser}:${padding} ${status}\n`;
