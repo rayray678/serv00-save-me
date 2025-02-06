@@ -165,7 +165,7 @@ async function sendCheckResultsToTG() {
         const beijingTime = now.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
 
         // 组合消息，使用 `pre` 确保对齐
-        let message = `📋 账号检测结果：\n\`\`\`\n${results.join("\n")}\n\`\`\`\n📅 检测时间：${escapeMarkdownV2(beijingTime)}`;
+        let message = `📢 账号检测结果：\n\`\`\`\n${results.join("\n")}\n\`\`\`\n⏰ 北京时间：${escapeMarkdownV2(beijingTime)}`;
 
         await bot.sendMessage(telegramChatId, message, { parse_mode: "MarkdownV2" });
     } catch (error) {
@@ -179,7 +179,7 @@ function escapeMarkdownV2(text) {
 }
 
 // 定时任务：每天早上 8:00 运行账号检测
-cron.schedule("*/2 * * * *", () => {
+cron.schedule("0 8 * * *", () => {
     console.log("⏰ 运行每日账号检测任务...");
     sendCheckResultsToTG();
 });
