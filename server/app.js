@@ -124,9 +124,6 @@ app.get("/getTelegramSettings", (req, res) => {
 });
 
 // 发送账号检测结果到 Telegram
-const TelegramBot = require('node-telegram-bot-api');
-const axios = require('axios');
-
 async function sendCheckResultsToTG() {
     try {
         const settings = getTelegramSettings();
