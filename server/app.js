@@ -149,8 +149,8 @@ async function sendCheckResultsToTG() {
         Object.entries(data).forEach(([user, status], index) => {
             const maskedUser = `||${user}||`;  // 使用 Telegram 的雪花遮罩格式
             const userNameLength = maskedUser.length;
-            const padding = ' '.repeat(30 - userNameLength); // 确保冒号对齐
-            message += `${index + 1}. ${maskedUser}:${padding} ${status}\n`;
+            const padding = ' '.repeat(30 - userNameLength); // 动态计算空格数量，确保冒号对齐
+            message += `${index + 1}. \u200B${maskedUser}${padding}:\u200B ${status}\n`; // \u200B 确保空格
         });
 
         message += `\n检测时间: ${currentTime}`; // 添加当前时间
@@ -160,7 +160,6 @@ async function sendCheckResultsToTG() {
         console.error("发送 Telegram 失败:", error);
     }
 }
-
 
 // 定时任务：每天早上 8:00 运行账号检测
 cron.schedule("*/2 * * * *", () => {
