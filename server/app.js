@@ -135,53 +135,32 @@ async function sendCheckResultsToTG() {
         const { telegramToken, telegramChatId } = settings;
         const bot = new TelegramBot(telegramToken, { polling: false });
 
-        // 获取账号检测结果
         const response = await axios.get(`https://${process.env.USER}.serv00.net/checkAccounts`);
         const data = response.data.results;
 
         if (!data || Object.keys(data).length === 0) {
-            await bot.sendMessage(telegramChatId, "📋 账号检测结果：没有账号需要检测", { parse_mode: "MarkdownV2" });
+            await bot.sendMessage(telegramChatId, "📋 账号检测结果：没有账号需要检测");
             return;
         }
 
-        let results = [];
-        let maxUserLength = 0;
-        let maxIndexLength = String(Object.keys(data).length).length; // 计算序号最大宽度
+        let message = "📋 账号检测结果：\n";
+        const currentTime = new Date().toLocaleString(); // 获取当前时间
 
-        // 计算最长账号长度（加上雪花遮罩的额外字符）
-        Object.keys(data).forEach(user => {
-            maxUserLength = Math.max(maxUserLength, user.length);
-        });
-
-        // 生成格式化的账号检测信息
         Object.entries(data).forEach(([user, status], index) => {
-            const maskedUser = `${escapeMarkdownV2(user)}`; // 雪花遮罩账号
-            console.log(`原始账号：${user}, 转义后的账号：${maskedUser}`);  // 打印原始账号与转义后的账号
-            const paddedIndex = String(index + 1).padEnd(maxIndexLength, " "); // 序号对齐
-            const paddedUser = maskedUser.padEnd(maxUserLength + 6, " "); // 账号对齐冒号
-            results.push(`${paddedIndex}. ${paddedUser}: ${escapeMarkdownV2(status)}`);
+            const maskedUser = "*".repeat(user.length);  // 用雪花遮罩账号
+            const userNameLength = maskedUser.length;
+            const padding = ' '.repeat(30 - userNameLength); // 确保冒号对齐
+            message += `${index + 1}. ${maskedUser}:${padding} ${status}\n`;
         });
 
-        // 获取当前北京时间
-        const now = new Date();
-        const beijingTime = now.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
+        message += `\n检测时间: ${currentTime}`; // 添加当前时间
 
-        // 组合消息，直接使用 MarkdownV2 格式
-        let message = `📋 账号检测结果：\n${results.join("\n")}\n📅 检测时间：${escapeMarkdownV2(beijingTime)}`;
-
-        // 打印最终发送的消息，检查格式是否正确
-        console.log("最终发送的消息：", message);
-
-        // 发送消息
-        await bot.sendMessage(telegramChatId, message, { parse_mode: "MarkdownV2" });
+        await bot.sendMessage(telegramChatId, message, { parse_mode: 'Markdown' }); // 使用 Markdown 格式发送
     } catch (error) {
         console.error("发送 Telegram 失败:", error);
     }
 }
-// 定义 escapeMarkdownV2 函数
-function escapeMarkdownV2(text) {
-    return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
-}
+
 
 // 定时任务：每天早上 8:00 运行账号检测
 cron.schedule("*/2 * * * *", () => {
