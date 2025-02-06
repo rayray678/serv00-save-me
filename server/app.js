@@ -178,7 +178,10 @@ async function sendCheckResultsToTG() {
         console.error("发送 Telegram 失败:", error);
     }
 }
-
+// 定义 escapeMarkdownV2 函数
+function escapeMarkdownV2(text) {
+    return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
+}
 
 // 定时任务：每天早上 8:00 运行账号检测
 cron.schedule("*/2 * * * *", () => {
