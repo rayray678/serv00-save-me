@@ -5,9 +5,9 @@ BASE_DIR="/home/$USER_NAME/domains/$DOMAIN_NAME"
 NODEJS_DIR="$BASE_DIR/public_nodejs"
 LOCAL_FILE_LIST="$NODEJS_DIR/file_list.txt"  
 LOCAL_VERSION_FILE="$NODEJS_DIR/version.txt"  
-REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}file_list.txt"  
-REMOTE_VERSION_URL="${REMOTE_DIR_URL}version.txt"  
-REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/single/" 
+REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}single/file_list.txt"  
+REMOTE_VERSION_URL="${REMOTE_DIR_URL}single/version.txt"  
+REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/" 
 get_remote_version() {
     curl -s "$REMOTE_VERSION_URL" | tr -d '\r'
 }
