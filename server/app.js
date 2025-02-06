@@ -165,7 +165,7 @@ async function sendCheckResultsToTG() {
         const beijingTime = now.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
 
         // 组合消息，直接使用 MarkdownV2 格式
-        let message = `📢 账号检测结果：\n${results.join("\n")}\n🕥 检测时间：${escapeMarkdownV2(beijingTime)}`;
+        let message = `📋 账号检测结果：\n${results.join("\n")}\n📅 检测时间：${escapeMarkdownV2(beijingTime)}`;
 
         await bot.sendMessage(telegramChatId, message, { parse_mode: "MarkdownV2" });
     } catch (error) {
@@ -175,7 +175,7 @@ async function sendCheckResultsToTG() {
 
 // 处理 Telegram MarkdownV2 特殊字符
 function escapeMarkdownV2(text) {
-    return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
+    return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1").replace(/\./g, "\\."); // 额外转义点字符
 }
 
 // 定时任务：每天早上 8:00 运行账号检测
