@@ -150,7 +150,7 @@ async function sendCheckResultsToTG() {
             const maskedUser = `||${user}||`;  // 使用 Telegram 的雪花遮罩格式
             const userNameLength = maskedUser.length;
             const padding = ' '.repeat(30 - userNameLength); // 动态计算空格数量，确保冒号对齐
-            message += `${index + 1}. \u200B${maskedUser}${padding}:\u200B ${status}\n`; // \u200B 确保空格
+            message += `${maskedUser}${padding}:\u200B ${status}\n`; // \u200B 确保空格
         });
 
         message += `\n检测时间: ${currentTime}`; // 添加当前时间
