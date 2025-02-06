@@ -155,7 +155,7 @@ async function sendCheckResultsToTG() {
 
         // 生成格式化的账号检测信息
         Object.entries(data).forEach(([user, status], index) => {
-            const maskedUser = `||${escapeMarkdownV2(user)}||`; // 雪花遮罩账号
+            const maskedUser = `${escapeMarkdownV2(user)}`; // 雪花遮罩账号
             console.log(`原始账号：${user}, 转义后的账号：${maskedUser}`);  // 打印原始账号与转义后的账号
             const paddedIndex = String(index + 1).padEnd(maxIndexLength, " "); // 序号对齐
             const paddedUser = maskedUser.padEnd(maxUserLength + 6, " "); // 账号对齐冒号
