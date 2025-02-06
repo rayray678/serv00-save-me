@@ -33,6 +33,8 @@
       5、ota更新
 
   ##  ● 截图预览：
+  
+![Image Description](https://raw.githubusercontent.com/ryty1/alist-log/refs/heads/main/github_images/2.jpg?raw=true) 
 
 ![Image Description](https://raw.githubusercontent.com/ryty1/alist-log/refs/heads/main/github_images/4.jpg?raw=true) 
 
