@@ -139,25 +139,43 @@ async function sendCheckResultsToTG() {
         const data = response.data.results;
 
         if (!data || Object.keys(data).length === 0) {
-            await bot.sendMessage(telegramChatId, "📋 账号检测结果：没有账号需要检测");
+            await bot.sendMessage(telegramChatId, "📋 账号检测结果：没有账号需要检测", { parse_mode: "MarkdownV2" });
             return;
         }
 
-        let message = "📋 账号检测结果：\n";
-        const currentTime = new Date().toLocaleString(); // 获取当前时间
+        let results = [];
+        let maxUserLength = 0;
+        let maxIndexLength = String(Object.keys(data).length).length; // 计算序号最大宽度
 
-        Object.entries(data).forEach(([user, status], index) => {
-            const maskedUser = `||${user}||`;  // 使用 Telegram 的雪花遮罩格式
-            const userNameLength = maskedUser.length;
-            message += `${maskedUser}:${status}\n`; // \u200B 确保空格
+        // 计算最长账号长度
+        Object.keys(data).forEach(user => {
+            maxUserLength = Math.max(maxUserLength, user.length);
         });
 
-        message += `\n检测时间: ${currentTime}`; // 添加当前时间
+        // 生成格式化的账号检测信息
+        Object.entries(data).forEach(([user, status], index) => {
+            const maskedUser = `||${escapeMarkdownV2(user)}||`; // Telegram 文字遮罩
+            const paddedIndex = String(index + 1).padEnd(maxIndexLength, " "); // 序号对齐
+            const paddedUser = maskedUser.padEnd(maxUserLength + 4, " "); // 账号对齐冒号
+            results.push(`${paddedIndex}. ${paddedUser}: ${escapeMarkdownV2(status)}`);
+        });
 
-        await bot.sendMessage(telegramChatId, message, { parse_mode: 'Markdown' }); // 使用 Markdown 格式发送
+        // 获取当前北京时间
+        const now = new Date();
+        const beijingTime = now.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
+
+        // 组合消息，使用 `pre` 确保对齐
+        let message = `📋 账号检测结果：\n\`\`\`\n${results.join("\n")}\n\`\`\`\n📅 检测时间：${escapeMarkdownV2(beijingTime)}`;
+
+        await bot.sendMessage(telegramChatId, message, { parse_mode: "MarkdownV2" });
     } catch (error) {
         console.error("发送 Telegram 失败:", error);
     }
+}
+
+// 处理 Telegram MarkdownV2 特殊字符
+function escapeMarkdownV2(text) {
+    return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
 }
 
 // 定时任务：每天早上 8:00 运行账号检测
