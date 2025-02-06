@@ -147,16 +147,16 @@ async function sendCheckResultsToTG() {
         let maxUserLength = 0;
         let maxIndexLength = String(Object.keys(data).length).length; // 计算序号最大宽度
 
-        // 计算最长账号长度
+        // 计算最长账号长度（加上雪花遮罩的额外字符）
         Object.keys(data).forEach(user => {
             maxUserLength = Math.max(maxUserLength, user.length);
         });
 
         // 生成格式化的账号检测信息
         Object.entries(data).forEach(([user, status], index) => {
-            const maskedUser = `||${escapeMarkdownV2(user)}||`; // Telegram 文字遮罩
+            const maskedUser = `||${escapeMarkdownV2(user)}||`; // 雪花遮罩账号
             const paddedIndex = String(index + 1).padEnd(maxIndexLength, " "); // 序号对齐
-            const paddedUser = maskedUser.padEnd(maxUserLength + 4, " "); // 账号对齐冒号
+            const paddedUser = maskedUser.padEnd(maxUserLength + 6, " "); // 账号对齐冒号
             results.push(`${paddedIndex}. ${paddedUser}: ${escapeMarkdownV2(status)}`);
         });
 
@@ -164,8 +164,8 @@ async function sendCheckResultsToTG() {
         const now = new Date();
         const beijingTime = now.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
 
-        // 组合消息，使用 `pre` 确保对齐
-        let message = `📢 账号检测结果：\n\`\`\`\n${results.join("\n")}\n\`\`\`\n🕐 北京时间：${escapeMarkdownV2(beijingTime)}`;
+        // 组合消息，直接使用 MarkdownV2 格式
+        let message = `📢 账号检测结果：\n${results.join("\n")}\n🕥 检测时间：${escapeMarkdownV2(beijingTime)}`;
 
         await bot.sendMessage(telegramChatId, message, { parse_mode: "MarkdownV2" });
     } catch (error) {
