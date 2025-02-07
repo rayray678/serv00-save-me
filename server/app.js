@@ -180,9 +180,6 @@ async function sendCheckResultsToTG() {
         console.error("发送 Telegram 失败:", error);
     }
 }
-function escapeMarkdownV2(text) {
-    return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
-}
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
