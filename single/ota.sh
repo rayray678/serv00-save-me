@@ -8,135 +8,144 @@ LOCAL_FILE_LIST="$NODEJS_DIR/file_list.txt"
 LOCAL_VERSION_FILE="$NODEJS_DIR/version.txt"  
 
 # ✅ 远程文件 URL（修正变量定义顺序）
-REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/"
-REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}single/file_list.txt"  
-REMOTE_VERSION_URL="${REMOTE_DIR_URL}single/version.txt"  
+REMOTE_DIR_URL="https://raw.githubusercontent.com/ryty1/serv00-save-me/main/single/"
+REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}file_list.txt"  
+REMOTE_VERSION_URL="${REMOTE_DIR_URL}version.txt"
 
-# ✅ 获取远程版本号（防止 curl 失败）
+# **获取远程版本号**
 get_remote_version() {
-    local version
-    version=$(curl -s "$REMOTE_VERSION_URL" | tr -d '\r')
-    if [[ -z "$version" ]]; then
-        version=$(wget -qO- "$REMOTE_VERSION_URL" | tr -d '\r')
-    fi
-    echo "${version:-0.0.0}"  # 如果仍然为空，则返回 0.0.0
+    curl -s "$REMOTE_VERSION_URL" | tr -d '\r'
 }
 
-# ✅ 获取本地版本号（防止文件不存在）
+# **获取本地版本号**
 get_local_version() {
-    [ -f "$LOCAL_VERSION_FILE" ] && cat "$LOCAL_VERSION_FILE" | tr -d '\r' || echo "0.0.0"
+    if [ ! -f "$LOCAL_VERSION_FILE" ]; then
+        echo "0.0.0"  # 如果没有本地版本文件，则返回默认版本号
+    else
+        cat "$LOCAL_VERSION_FILE" | tr -d '\r'
+    fi
 }
 
-# ✅ 获取远程文件列表
+# **获取远程 file_list**
 get_remote_file_list() {
-    curl -s "$REMOTE_FILE_LIST_URL" || wget -qO- "$REMOTE_FILE_LIST_URL"
+    curl -s "$REMOTE_FILE_LIST_URL"
 }
 
-# ✅ 获取本地文件列表（防止文件不存在）
+# **获取本地 file_list**
 get_local_file_list() {
-    [ -f "$LOCAL_FILE_LIST" ] && cat "$LOCAL_FILE_LIST" || echo ""
+    cat "$LOCAL_FILE_LIST"
 }
 
-# ✅ 下载文件
+# **下载并覆盖远程文件**
 download_file() {
     local file_name=$1
-    curl -s -o "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}single/${file_name}" || wget -qO "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}single/${file_name}"
+    curl -s -o "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}${file_name}"
     echo "✅ ${file_name} 更新完成"
 }
 
-# ✅ 删除本地文件
+# **删除本地无效文件**
 delete_local_file() {
     local file_name=$1
     rm -f "$NODEJS_DIR/$file_name"
     echo "❌ ${file_name} 已删除"
 }
 
-# ✅ 更新本地文件列表
+# **更新本地 file_list.txt**
 update_local_file_list() {
-    echo "$1" > "$LOCAL_FILE_LIST"
+    local new_file_list=$1
+    echo "$new_file_list" > "$LOCAL_FILE_LIST"
 }
 
-# ✅ 版本号比较（修正逻辑）
+# **版本号比较（远程版本高于本地版本）**
 is_remote_version_higher() {
     local remote_version=$1
     local local_version=$2
 
-    # 先检查远程版本是否与本地版本相同
-    if [[ "$remote_version" == "$local_version" ]]; then
-        return 1  # 版本相同，返回假（不更新）
-    fi
-
-    # 使用 sort -V 进行版本比较
-    if printf '%s\n%s' "$local_version" "$remote_version" | sort -V | tail -n1 | grep -q "$remote_version"; then
-        return 0  # 远程版本高
+    # 比较版本号：返回 0 表示远程版本高于本地版本，返回 1 表示远程版本不高
+    if [[ "$remote_version" > "$local_version" ]]; then
+        return 0  # 远程版本高于本地版本
     else
-        return 1  # 本地版本高或相等
+        return 1  # 远程版本不高于本地版本
     fi
 }
 
-# ✅ 同步文件
+# **同步文件**
 sync_files() {
     local files_updated=false
-    local remote_files local_files
 
+    # 获取远程和本地的文件列表
     remote_files=$(get_remote_file_list)
     local_files=$(get_local_file_list)
 
+    # 只对存在于远程和本地 file_list 中的文件进行操作
+    # 下载远程文件（覆盖本地文件）
     for file in $remote_files; do
-        if ! echo "$local_files" | grep -q "^$file$"; then
+        # 如果该文件同时存在于本地 file_list.txt 中，才执行下载
+        if echo "$local_files" | grep -q "^$file$"; then
             download_file "$file"
             files_updated=true
         fi
     done
 
+    # 删除本地无效文件（不在远程 file_list 中，且在本地 file_list 中）
     for file in $local_files; do
+        # 如果该文件不在远程 file_list 中，才删除
         if ! echo "$remote_files" | grep -q "^$file$"; then
             delete_local_file "$file"
             files_updated=true
         fi
     done
 
+    # 更新本地 file_list.txt
     update_local_file_list "$remote_files"
-    [ "$files_updated" = true ]
+
+    # 返回是否有文件更新
+    if $files_updated; then
+        return 0  # 表示文件更新成功
+    else
+        return 1  # 表示没有文件更新
+    fi
 }
 
-# ✅ 显示版本信息
+# **显示版本号**
 display_versions() {
-    echo "📌 当前版本: $(get_local_version)  |  📌 最新版本: $(get_remote_version)"
+    local remote_version=$(get_remote_version)
+    local local_version=$(get_local_version)
+
+    echo "📌 当前版本: $local_version  |  📌 最新版本: $remote_version"
 }
 
-# ✅ 检查并同步版本
+# **检查版本号是否需要更新**
 check_version_and_sync() {
-    local remote_version local_version
-    remote_version=$(get_remote_version)
-    local_version=$(get_local_version)
+    local remote_version=$(get_remote_version)
+    local local_version=$(get_local_version)
 
+    # 显示当前版本号
     display_versions
 
+    # 检查远程版本是否高于本地版本
     if is_remote_version_higher "$remote_version" "$local_version"; then
         echo "🔄 发现新版本，开始同步文件..."
         if sync_files; then
+            # 更新本地版本文件
             echo "$remote_version" > "$LOCAL_VERSION_FILE"
             echo "📢 版本更新完成，新版本号: $remote_version"
+
+            # **清理 Node.js 缓存并重启应用**
             clean_and_restart_nodejs
         else
             echo "❌ 没有需要更新的文件"
         fi
     else
-        echo "🔝 已是最新版本，无需更新"
+        echo "🔝 己是最版本，无需更新"
     fi
 }
 
-# ✅ 重启 Node.js 应用
+# **清理 Node.js 缓存并重启应用**
 clean_and_restart_nodejs() {
     node -e "Object.keys(require.cache).forEach(function(key) { delete require.cache[key] });"
-    
-    if command -v devil >/dev/null 2>&1; then
-        devil www restart "${USER_NAME,,}.serv00.net" > /dev/null 2>&1
-        echo "🔄 应用已重启，请1分钟后刷新网页"
-    else
-        echo "⚠️ 找不到 'devil' 命令，无法重启应用"
-    fi
+    devil www restart "${USER_NAME,,}.serv00.net" > /dev/null 2>&1
+    echo "应用已重启，请1分钟后刷新网页"
 }
 
 # ✅ 执行检查更新
