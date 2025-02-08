@@ -66,10 +66,8 @@ sync_files() {
     local_files=$(get_local_file_list)
 
     for file in $remote_files; do
-        if echo "$local_files" | grep -q "^$file$"; then
-            download_file "$file"
-            files_updated=true
-        fi
+        download_file "$file"
+        files_updated=true
     done
 
     for file in $local_files; do
