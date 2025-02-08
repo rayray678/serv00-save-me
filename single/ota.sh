@@ -40,7 +40,7 @@ get_local_file_list() {
 # ✅ 下载文件
 download_file() {
     local file_name=$1
-    curl -s -o "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}${file_name}" || wget -qO "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}${file_name}"
+    curl -s -o "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}single/${file_name}" || wget -qO "$NODEJS_DIR/$file_name" "${REMOTE_DIR_URL}single/${file_name}"
     echo "✅ ${file_name} 更新完成"
 }
 
