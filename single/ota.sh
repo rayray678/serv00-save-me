@@ -56,9 +56,22 @@ update_local_file_list() {
     echo "$1" > "$LOCAL_FILE_LIST"
 }
 
-# ✅ 版本号比较（正确处理 `10.0.0` vs `2.0.0`）
+# ✅ 版本号比较（修正逻辑）
 is_remote_version_higher() {
-    printf '%s\n%s' "$2" "$1" | sort -V | tail -n1 | grep -q "$1"
+    local remote_version=$1
+    local local_version=$2
+
+    # 先检查远程版本是否与本地版本相同
+    if [[ "$remote_version" == "$local_version" ]]; then
+        return 1  # 版本相同，返回假（不更新）
+    fi
+
+    # 使用 sort -V 进行版本比较
+    if printf '%s\n%s' "$local_version" "$remote_version" | sort -V | tail -n1 | grep -q "$remote_version"; then
+        return 0  # 远程版本高
+    else
+        return 1  # 本地版本高或相等
+    fi
 }
 
 # ✅ 同步文件
