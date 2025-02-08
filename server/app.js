@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const { exec } = require("child_process");
 const socketIo = require("socket.io");
 const axios = require("axios");
 const fs = require("fs");
@@ -12,6 +13,7 @@ const io = socketIo(server);
 const PORT = 3000;
 const ACCOUNTS_FILE = path.join(__dirname, "accounts.json");
 const SETTINGS_FILE = path.join(__dirname, "settings.json");
+const otaScriptPath = path.join(__dirname, 'ota.sh');
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json()); 
 const MAIN_SERVER_USER = process.env.USER || process.env.USERNAME || "default_user"; 
@@ -77,20 +79,17 @@ io.on("connection", (socket) => {
         socket.emit("accountsList", await getAccounts(true));
     });
 });
-let cronJob = null; // 用于存储定时任务
+let cronJob = null;
 
-// 读取通知设置
 function getNotificationSettings() {
     if (!fs.existsSync(SETTINGS_FILE)) return {};
     return JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
 }
 
-// 保存通知设置
 function saveNotificationSettings(settings) {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
 }
 
-// 解析时间配置并返回 cron 表达式
 function getCronExpression(scheduleType, timeValue) {
     if (scheduleType === "interval") {
         const minutes = parseInt(timeValue, 10);
@@ -110,9 +109,8 @@ function getCronExpression(scheduleType, timeValue) {
     return null;
 }
 
-// 重新设置定时任务
 function resetCronJob() {
-    if (cronJob) cronJob.stop(); // 先停止现有任务
+    if (cronJob) cronJob.stop();
     const settings = getNotificationSettings();
     if (!settings || !settings.scheduleType || !settings.timeValue) return;
 
@@ -140,7 +138,7 @@ app.get("/getTelegramSettings", (req, res) => {
     const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
     res.json(settings);
 });
-// 处理 Telegram 发送消息
+
 async function sendCheckResultsToTG() {
     try {
         const settings = getNotificationSettings();
@@ -161,14 +159,12 @@ async function sendCheckResultsToTG() {
         let results = [];
         let maxUserLength = 0;
         
-        // 计算最大用户名长度
         Object.keys(data).forEach(user => {
             maxUserLength = Math.max(maxUserLength, user.length);
         });
 
-        // 构建格式化的账号检测结果，确保冒号对齐
         Object.keys(data).forEach((user, index) => {
-            const paddedUser = user.padEnd(maxUserLength, " ");  // 填充用户名，确保所有用户名长度一致
+            const paddedUser = user.padEnd(maxUserLength, " "); 
             results.push(`${index + 1}. ${paddedUser}: ${data[user] || "未知状态"}`);
         });
 
@@ -238,12 +234,10 @@ app.get("/checkAccounts", async (req, res) => {
     }
 });
 
-// 获取通知设置
 app.get("/getNotificationSettings", (req, res) => {
     res.json(getNotificationSettings());
 });
 
-// 设置通知和 Telegram 配置
 app.post("/setNotificationSettings", (req, res) => {
     const { telegramToken, telegramChatId, scheduleType, timeValue } = req.body;
     
@@ -251,26 +245,42 @@ app.post("/setNotificationSettings", (req, res) => {
         return res.status(400).json({ message: "所有字段都是必填项" });
     }
 
-    // 解析时间并验证
     if (!getCronExpression(scheduleType, timeValue)) {
         return res.status(400).json({ message: "时间格式不正确，请检查输入" });
     }
 
-    // 保存配置
     const settings = { telegramToken, telegramChatId, scheduleType, timeValue };
     saveNotificationSettings(settings);
 
-    // 重新设置定时任务
     resetCronJob();
 
     res.json({ message: "✅ 设置已保存并生效" });
 });
 
-// 启动时检查并初始化定时任务
 resetCronJob();
 app.get("/notificationSettings", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "notification_settings.html"));
 });
+
+app.get('/ota/update', (req, res) => {
+    exec(otaScriptPath, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`❌ 执行脚本错误: ${error.message}`);
+            return res.status(500).json({ success: false, message: error.message });
+        }
+        if (stderr) {
+            console.error(`❌ 脚本错误输出: ${stderr}`);
+            return res.status(500).json({ success: false, message: stderr });
+        }
+        
+        res.json({ success: true, output: stdout });
+    });
+});
+
+app.get('/ota', (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "ota.html"));
+});
+
 server.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
 });
