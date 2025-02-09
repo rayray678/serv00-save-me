@@ -194,40 +194,51 @@ app.get("/info", (req, res) => {
     if (!user) return res.status(400).send("用户未指定");
     res.redirect(`https://${user}.serv00.net/info`);
 });
+// 账号检测页面
 app.get("/checkAccountsPage", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "check_accounts.html"));
 });
+
+// 账号检测接口
 app.get("/checkAccounts", async (req, res) => {
     try {
-        const accounts = await getAccounts(false); // 获取所有账号
+        const accounts = await getAccounts(); // 获取所有账号
         const users = Object.keys(accounts);
 
         if (users.length === 0) {
             return res.json({ status: "success", results: {} });
         }
+
         let results = {};
         const promises = users.map(async (username) => {
             try {
                 const apiUrl = `https://s00test.64t76dee9sk5.workers.dev/?username=${username}`;
                 const response = await axios.get(apiUrl);
                 const data = response.data;
+                let status = "未知状态";
+
                 if (data.message) {
                     const parts = data.message.split("：");
-                    results[username] = parts.length > 1 ? parts.pop() : data.message;
-                } else {
-                    results[username] = "未知状态";
+                    status = parts.length > 1 ? parts.pop() : data.message;
                 }
+
+                results[username] = {
+                    status: status,
+                    season: accounts[username]?.season || "--" // 确保 season 存在
+                };
+
             } catch (error) {
                 console.error(`账号 ${username} 检测失败:`, error.message);
-                results[username] = "检测失败";
+                results[username] = {
+                    status: "检测失败",
+                    season: accounts[username]?.season || "--"
+                };
             }
         });
+
         await Promise.all(promises);
-        const orderedResults = {};
-        users.forEach(user => {
-            orderedResults[user] = results[user] || "检测失败";
-        });
-        res.json({ status: "success", results: orderedResults });
+        res.json({ status: "success", results });
+
     } catch (error) {
         console.error("批量账号检测错误:", error);
         res.status(500).json({ status: "error", message: "检测失败，请稍后再试" });
