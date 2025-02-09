@@ -1,4 +1,5 @@
 const express = require("express");
+const session = require("express-session");
 const http = require("http");
 const { exec } = require("child_process");
 const socketIo = require("socket.io");
@@ -7,89 +8,226 @@ const fs = require("fs");
 const path = require("path");
 const cron = require("node-cron");
 const TelegramBot = require("node-telegram-bot-api");
+const bodyParser = require("body-parser");
+const crypto = require("crypto");
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+
 const PORT = 3000;
 const ACCOUNTS_FILE = path.join(__dirname, "accounts.json");
 const SETTINGS_FILE = path.join(__dirname, "settings.json");
+const PASSWORD_FILE = path.join(__dirname, "password.json");
+const SESSION_FILE = path.join(__dirname, "session_secret.json");
 const otaScriptPath = path.join(__dirname, 'ota.sh');
-app.use(express.static(path.join(__dirname, "public")));
+
 app.use(express.json()); 
+app.use(express.static(path.join(__dirname, "public")));
+// 生成或读取 session 密钥
+function getSessionSecret() {
+    if (fs.existsSync(SESSION_FILE)) {
+        return JSON.parse(fs.readFileSync(SESSION_FILE, "utf-8")).secret;
+    } else {
+        const secret = crypto.randomBytes(32).toString("hex");
+        fs.writeFileSync(SESSION_FILE, JSON.stringify({ secret }), "utf-8");
+        return secret;
+    }
+}
+
+// 设置 Express 会话
+app.use(session({
+    secret: getSessionSecret(),
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+}));
+
+// 解析 POST 请求
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// **检查是否设置密码**
+function checkPassword(req, res, next) {
+    if (!fs.existsSync(PASSWORD_FILE)) {
+        return res.redirect("/setPassword");
+    }
+    next();
+}
+
+// **检查是否已登录**
+function isAuthenticated(req, res, next) {
+    if (req.session.authenticated) {
+        return next();
+    }
+    res.redirect("/login");
+}
+
+// **设置密码页面（无需验证）**
+app.get("/setPassword", (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "set_password.html"));
+});
+
+// **处理密码设置**
+app.post("/setPassword", (req, res) => {
+    const { password } = req.body;
+    if (!password) {
+        return res.status(400).send("密码不能为空");
+    }
+    fs.writeFileSync(PASSWORD_FILE, JSON.stringify({ password }), "utf-8");
+    res.redirect("/login");
+});
+
+// **登录页面（无需验证）**
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "login.html"));
+});
+
+// **处理登录**
+app.post("/login", (req, res) => {
+    const { password } = req.body;
+    if (!fs.existsSync(PASSWORD_FILE)) {
+        return res.status(400).send("密码文件不存在，请先设置密码");
+    }
+
+    const savedPassword = JSON.parse(fs.readFileSync(PASSWORD_FILE, "utf-8")).password;
+    if (password === savedPassword) {
+        req.session.authenticated = true;
+        res.redirect("/");
+    } else {
+        res.status(401).send("密码错误");
+    }
+});
+
+// **处理登出**
+app.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/login");
+    });
+});
+
+// **受保护的 HTML 页面**
+const protectedRoutes = ["/", "/ota", "/accounts", "/nodes"];
+protectedRoutes.forEach(route => {
+    app.get(route, checkPassword, isAuthenticated, (req, res) => {
+        res.sendFile(path.join(__dirname, "protected", route === "/" ? "index.html" : `${route.slice(1)}.html`));
+    });
+});
+
 const MAIN_SERVER_USER = process.env.USER || process.env.USERNAME || "default_user"; 
+// 获取账号数据
 async function getAccounts(excludeMainUser = true) {
     if (!fs.existsSync(ACCOUNTS_FILE)) return {};
     let accounts = JSON.parse(fs.readFileSync(ACCOUNTS_FILE, "utf-8"));
     if (excludeMainUser) {
-        delete accounts[MAIN_SERVER_USER];
+        delete accounts[MAIN_SERVER_USER];  // 如果存在主用户，排除它
     }
     return accounts;
 }
-function filterNodes(nodes) {
-    return nodes.filter(node => node.startsWith("vmess://") || node.startsWith("hysteria2://"));
-}
-async function getNodesSummary(socket) {
-    const accounts = await getAccounts(true);
-    const users = Object.keys(accounts); 
-    let successfulNodes = [];
-    let failedAccounts = [];
-    for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-        const nodeUrl = `https://${user}.serv00.net/node`;
-        try {
-            const nodeResponse = await axios.get(nodeUrl, { timeout: 5000 });
-            const nodeData = nodeResponse.data;
-            const nodeLinks = filterNodes([
-                ...(nodeData.match(/vmess:\/\/[^\s<>"]+/g) || []),
-                ...(nodeData.match(/hysteria2:\/\/[^\s<>"]+/g) || [])
-            ]);
-            if (nodeLinks.length > 0) {
-                successfulNodes.push(...nodeLinks);
-            } else {
-                console.log(`Account ${user} connected but has no valid nodes.`);
-                failedAccounts.push(user);
-            }
-        } catch (error) {
-            console.log(`Failed to get node for ${user}: ${error.message}`);
-            failedAccounts.push(user);
-        }
-    }
-    socket.emit("nodesSummary", { successfulNodes, failedAccounts });
-}
+
+// 监听客户端连接
 io.on("connection", (socket) => {
     console.log("Client connected");
     socket.on("startNodesSummary", () => {
         getNodesSummary(socket);
     });
+
+    // 加载账号列表
+    socket.on("loadAccounts", async () => {
+        const accounts = await getAccounts(true);
+        socket.emit("accountsList", accounts);
+    });
+
+    // 保存新账号
     socket.on("saveAccount", async (accountData) => {
         const accounts = await getAccounts(false);
-        accounts[accountData.user] = accountData;
+        accounts[accountData.user] = { 
+            user: accountData.user, 
+            season: accountData.season || ""  // 默认赛季为空
+        };
         fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2));
-        socket.emit("accountSaved", { message: `账号 ${accountData.user} 已保存` });
         socket.emit("accountsList", await getAccounts(true));
     });
+
+    // 删除账号
     socket.on("deleteAccount", async (user) => {
         const accounts = await getAccounts(false);
         delete accounts[user];
         fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2));
-        socket.emit("accountDeleted", { message: `账号 ${user} 已删除` });
         socket.emit("accountsList", await getAccounts(true));
     });
-    socket.on("loadAccounts", async () => {
+
+    // 更新账号的赛季
+    socket.on("updateSeason", async (data) => {
+        const accounts = await getAccounts(false);
+        if (accounts[data.user]) {
+            accounts[data.user].season = data.season;  // 更新赛季
+            fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts, null, 2));
+        }
         socket.emit("accountsList", await getAccounts(true));
     });
 });
-let cronJob = null;
+function filterNodes(nodes) {
+    return nodes.filter(node => node.startsWith("vmess://") || node.startsWith("hysteria2://"));
+}
+async function getNodesSummary(socket) {
+    const accounts = await getAccounts(true);
+    if (!accounts || Object.keys(accounts).length === 0) {
+        console.log("⚠️ 未找到账号数据！");
+        socket.emit("nodesSummary", { successfulNodes: [], failedAccounts: [] });
+        return;
+    }
 
+    const users = Object.keys(accounts);  // 取出账号 key
+    let successfulNodes = [];
+    let failedAccounts = [];
+
+    for (let i = 0; i < users.length; i++) {
+        const userKey = users[i];  // 例如 "aodaliy"
+        const user = accounts[userKey]?.user || userKey; // 兼容旧格式 & 新格式
+
+        const nodeUrl = `https://${user}.serv00.net/node`;
+        try {
+            console.log(`请求节点数据: ${nodeUrl}`);
+            const nodeResponse = await axios.get(nodeUrl, { timeout: 5000 });
+            const nodeData = nodeResponse.data;
+
+            const nodeLinks = filterNodes([
+                ...(nodeData.match(/vmess:\/\/[^\s<>"]+/g) || []),
+                ...(nodeData.match(/hysteria2:\/\/[^\s<>"]+/g) || [])
+            ]);
+
+            if (nodeLinks.length > 0) {
+                successfulNodes.push(...nodeLinks);
+            } else {
+                console.log(`账号 ${user} 连接成功但无有效节点`);
+                failedAccounts.push(user);
+            }
+        } catch (error) {
+            console.log(`账号 ${user} 获取节点失败: ${error.message}`);
+            failedAccounts.push(user);
+        }
+    }
+
+    console.log("成功的节点:", successfulNodes);
+    console.log("失败的账号:", failedAccounts);
+
+    socket.emit("nodesSummary", { successfulNodes, failedAccounts });
+}
+
+let cronJob = null; // 用于存储定时任务
+
+// 读取通知设置
 function getNotificationSettings() {
     if (!fs.existsSync(SETTINGS_FILE)) return {};
     return JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
 }
 
+// 保存通知设置
 function saveNotificationSettings(settings) {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
 }
 
+// 解析时间配置并返回 cron 表达式
 function getCronExpression(scheduleType, timeValue) {
     if (scheduleType === "interval") {
         const minutes = parseInt(timeValue, 10);
@@ -109,8 +247,9 @@ function getCronExpression(scheduleType, timeValue) {
     return null;
 }
 
+// 重新设置定时任务
 function resetCronJob() {
-    if (cronJob) cronJob.stop();
+    if (cronJob) cronJob.stop(); // 先停止现有任务
     const settings = getNotificationSettings();
     if (!settings || !settings.scheduleType || !settings.timeValue) return;
 
@@ -138,7 +277,7 @@ app.get("/getTelegramSettings", (req, res) => {
     const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
     res.json(settings);
 });
-
+// 处理 Telegram 发送消息
 async function sendCheckResultsToTG() {
     try {
         const settings = getNotificationSettings();
@@ -158,14 +297,23 @@ async function sendCheckResultsToTG() {
 
         let results = [];
         let maxUserLength = 0;
-        
-        Object.keys(data).forEach(user => {
+        let maxSeasonLength = 0;
+
+        // **保持账号配置文件的顺序**
+        const users = Object.keys(data);  // 账号顺序应与配置文件一致
+
+        // 计算最大用户名长度和赛季长度
+        users.forEach(user => {
             maxUserLength = Math.max(maxUserLength, user.length);
+            maxSeasonLength = Math.max(maxSeasonLength, (data[user]?.season || "").length);
         });
 
-        Object.keys(data).forEach((user, index) => {
-            const paddedUser = user.padEnd(maxUserLength, " "); 
-            results.push(`${index + 1}. ${paddedUser}: ${data[user] || "未知状态"}`);
+        // 构建格式化的账号检测结果，确保冒号和短横线对齐
+        users.forEach((user, index) => {
+            const paddedUser = user.padEnd(maxUserLength, " ");
+            const season = (data[user]?.season || "--").padEnd(maxSeasonLength + 1, " ");
+            const status = data[user]?.status || "未知状态";
+            results.push(`${index + 1}. ${paddedUser} : ${season}- ${status}`);
         });
 
         const beijingTime = new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
@@ -177,34 +325,32 @@ async function sendCheckResultsToTG() {
     }
 }
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+app.get("/", isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "index.html"));
 });
-app.get("/getMainUser", (req, res) => {
+app.get("/getMainUser", isAuthenticated, (req, res) => {
     res.json({ mainUser: MAIN_SERVER_USER });
 });
-app.get("/accounts", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "accounts.html"));
+app.get("/accounts", isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "accounts.html"));
 });
-app.get("/nodes", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "nodes.html"));
+app.get("/nodes", isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "nodes.html"));
 });
 app.get("/info", (req, res) => {
     const user = req.query.user;
     if (!user) return res.status(400).send("用户未指定");
     res.redirect(`https://${user}.serv00.net/info`);
 });
-
-// 账号检测页面
-app.get("/checkAccountsPage", (req, res) => {
+// 发送静态HTML文件
+app.get("/checkAccountsPage", isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, "public", "check_accounts.html"));
 });
 
-// 账号检测接口
 app.get("/checkAccounts", async (req, res) => {
     try {
-        const accounts = await getAccounts(); // 获取所有账号
-        const users = Object.keys(accounts); // 账号列表
+        const accounts = await getAccounts(); // 获取所有账号（按配置文件顺序）
+        const users = Object.keys(accounts); // 保持账号配置的顺序
 
         if (users.length === 0) {
             return res.json({ status: "success", results: {} });
@@ -213,38 +359,38 @@ app.get("/checkAccounts", async (req, res) => {
         let results = {};
         const promises = users.map(async (username) => {
             try {
-                // 通过 API 获取账号状态
                 const apiUrl = `https://s00test.64t76dee9sk5.workers.dev/?username=${username}`;
                 const response = await axios.get(apiUrl);
                 const data = response.data;
 
-                // 获取状态
                 let status = "未知状态";
                 if (data.message) {
                     const parts = data.message.split("：");
                     status = parts.length > 1 ? parts.pop() : data.message;
                 }
 
-                // 合并赛季与状态信息
                 results[username] = {
                     status: status,
-                    season: accounts[username]?.season || "--" // 赛季信息
+                    season: accounts[username]?.season || "--"
                 };
-
             } catch (error) {
                 console.error(`账号 ${username} 检测失败:`, error.message);
                 results[username] = {
                     status: "检测失败",
-                    season: accounts[username]?.season || "--" // 默认赛季
+                    season: accounts[username]?.season || "--"
                 };
             }
         });
 
-        // 等待所有请求完成
         await Promise.all(promises);
 
-        // 返回结果
-        res.json({ status: "success", results });
+        // **保持账号顺序与配置文件一致**
+        let orderedResults = {};
+        users.forEach(user => {
+            orderedResults[user] = results[user];
+        });
+
+        res.json({ status: "success", results: orderedResults });
 
     } catch (error) {
         console.error("批量账号检测错误:", error);
@@ -252,10 +398,12 @@ app.get("/checkAccounts", async (req, res) => {
     }
 });
 
+// 获取通知设置
 app.get("/getNotificationSettings", (req, res) => {
     res.json(getNotificationSettings());
 });
 
+// 设置通知和 Telegram 配置
 app.post("/setNotificationSettings", (req, res) => {
     const { telegramToken, telegramChatId, scheduleType, timeValue } = req.body;
     
@@ -263,24 +411,30 @@ app.post("/setNotificationSettings", (req, res) => {
         return res.status(400).json({ message: "所有字段都是必填项" });
     }
 
+    // 解析时间并验证
     if (!getCronExpression(scheduleType, timeValue)) {
         return res.status(400).json({ message: "时间格式不正确，请检查输入" });
     }
 
+    // 保存配置
     const settings = { telegramToken, telegramChatId, scheduleType, timeValue };
     saveNotificationSettings(settings);
 
+    // 重新设置定时任务
     resetCronJob();
 
     res.json({ message: "✅ 设置已保存并生效" });
 });
 
+// 启动时检查并初始化定时任务
 resetCronJob();
-app.get("/notificationSettings", (req, res) => {
+
+app.get("/notificationSettings", isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, "public", "notification_settings.html"));
 });
 
-app.get('/ota/update', (req, res) => {
+// **执行 OTA 更新**
+app.get('/ota/update', isAuthenticated, (req, res) => {
     exec(otaScriptPath, (error, stdout, stderr) => {
         if (error) {
             console.error(`❌ 执行脚本错误: ${error.message}`);
@@ -291,12 +445,13 @@ app.get('/ota/update', (req, res) => {
             return res.status(500).json({ success: false, message: stderr });
         }
         
+        // 返回脚本执行的结果
         res.json({ success: true, output: stdout });
     });
 });
-
-app.get('/ota', (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "ota.html"));
+// **前端页面 `/ota`**
+app.get('/ota', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, "protected", "ota.html"));
 });
 
 server.listen(PORT, () => {
