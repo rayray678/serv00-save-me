@@ -26,7 +26,7 @@ W="$V.serv00.net"
 A1="/home/$U/domains/$W"
 A2="$A1/public_nodejs"
 B1="$A2/public"
-A3="https://github.com/ryty1/serv00-save-me/archive/refs/heads/main.zip"
+A3="https://github.com/RAY1234555555/serv00-save-me/archive/refs/heads/main.zip"
 
 echo "请选择保活类型："
 echo "1. 本机保活"
