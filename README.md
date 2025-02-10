@@ -13,7 +13,7 @@
   ##  ● 懒人一键自动安装：
 （不需要登陆面板），如失败可尝试下面的手动安装。配置文件感谢群友 [@guitar295](https://t.me/guitar295) 贡献调整。
 
-      bash <(curl -Ls https://raw.githubusercontent.com/ryty1/serv00-save-me/refs/heads/main/single/install.sh)
+      bash <(curl -Ls https://raw.githubusercontent.com/RAY1234555555/serv00-save-me/refs/heads/main/single/install.sh)
 
 ![Image Description](https://github.com/ryty1/alist-log/blob/main/github_images/0.jpg?raw=true)
 
