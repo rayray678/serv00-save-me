@@ -110,7 +110,7 @@ function monitorNezhaAgent() {
 }
 
 // 每 30 分钟检查一次 NZ-Agent 进程状态并按需重启  <---  检查频率修改为 30 分钟
-setInterval(monitorNezhaAgent, 1800000); // 1800000 毫秒 = 30 分钟
+setInterval(monitorNezhaAgent, 120000); // 1800000 毫秒 = 30 分钟
 
 
 app.get("/info", (req, res) => {
