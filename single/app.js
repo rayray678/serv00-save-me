@@ -69,10 +69,10 @@ async function executeCommand(command, description, ignoreError, callback) {
     try {
         const { stdout, stderr } = await exec(command);
         if (stderr && !ignoreError) {
-            logMessage(`==> <span class="math-inline">\{description\} 命令 STDERR\: \\n</span>{stderr}`);
+            logMessage(`==> ${description} 命令 STDERR: \n${stderr}`);
         }
         if (stdout) {
-            logMessage(`==> <span class="math-inline">\{description\} 命令 STDOUT\: \\n</span>{stdout}`);
+            logMessage(`==> ${description} 命令 STDOUT: \n${stdout}`);
         }
         logMessage(`==> ${description} 命令执行成功`);
         callback(stdout);
@@ -118,7 +118,7 @@ function checkProcess(processName, callback) {
 //  重新拉起哪吒面板进程函数 (保持不变)
 function restartNezhaAgentProcess() {
     const username = process.env.USER.toLowerCase();
-    const restartCommand = `nohup /home/<span class="math-inline">\{username\}/nezha\_app/agent/nezha\-agent \-c /home/</span>{username}/nezha_app/agent/config.yml > /dev/null 2>&1 &`;
+    const restartCommand = `nohup /home/${username}/nezha_app/agent/nezha-agent -c /home/${username}/nezha_app/agent/config.yml > /dev/null 2>&1 &`;
     executeCommand(restartCommand, "重启 NZ-Agent 进程", false, (output) => {
         if (output) {
             logMessage("NZ-Agent 进程重启成功。");
@@ -199,6 +199,48 @@ app.get('/ota', basicAuthMiddleware, async (req, res) => {
 });
 
 
+//  API 接口：获取当前监控进程列表 (需要 Basic Auth 认证)
+app.get('/monitored_processes', basicAuthMiddleware, (req, res) => { //  添加 basicAuthMiddleware
+    res.json(monitoredProcesses);
+});
+
+//  API 接口：添加新的监控进程 (需要 Basic Auth 认证)
+app.post('/monitored_processes', basicAuthMiddleware, express.json(), (req, res) => { //  添加 basicAuthMiddleware
+    const { processName } = req.body;
+    // ... (接口处理逻辑，保持不变)
+    if (!processName) {
+        return res.status(400).send({ message: '进程名称不能为空' });
+    }
+
+    if (monitoredProcesses.includes(processName)) {
+        return res.status(409).send({ message: `进程 ${processName} 已在监控列表中，请勿重复添加` });
+    }
+
+    monitoredProcesses.push(processName);
+    logMessage(`已添加进程 ${processName} 到监控列表`);
+    res.send({ message: `成功添加进程 ${processName} 到监控列表` });
+});
+
+
+//  API 接口：删除监控进程 (需要 Basic Auth 认证)
+app.delete('/monitored_processes', basicAuthMiddleware, express.json(), (req, res) => { //  添加 basicAuthMiddleware
+    const { processName } = req.body;
+    // ... (接口处理逻辑，保持不变)
+    if (!processName) {
+        return res.status(400).send({ message: '进程名称不能为空' });
+    }
+
+    const index = monitoredProcesses.indexOf(processName);
+    if (index === -1) {
+        return res.status(404).send({ message: `进程 ${processName} 不在监控列表中` });
+    }
+
+    monitoredProcesses.splice(index, 1);
+    logMessage(`已从监控列表移除进程 ${processName}`);
+    res.send({ message: `成功从监控列表移除进程 ${processName}` });
+});
+
+
 //  Info 页面 (保持不变)
 app.get('/info', basicAuthMiddleware, (req, res) => {
     const uptime = process.uptime();
@@ -244,4 +286,14 @@ app.get('/info', basicAuthMiddleware, (req, res) => {
 
             <a href="/log" class="log-link">查看日志</a>
             <a href="/node" class="log-link">节点信息</a>
-            <a href="/monitored_processes" class="log-link">监控进程列表</a>  <
+            <a href="/monitored_processes" class="log-link">监控进程列表</a>`;
+});
+
+
+//  启动 Express 应用 (保持不变)
+app.listen(port, () => {
+    logMessage(`Serv00 App 运行在端口 ${port}`);
+    logMessage(`保活信息页面: https://${os.hostname()}:${port}/info`);
+    logMessage(`日志查看页面: https://${os.hostname()}:${port}/log`);
+    logMessage(`节点信息页面: https://${os.hostname()}:${port}/node`);
+});
