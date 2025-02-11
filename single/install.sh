@@ -90,4 +90,4 @@ if [[ "$choice" -eq 1 ]]; then
         TELEGRAM_CHAT_ID="$TELEGRAM_CHAT_ID_INPUT"   # 将用户输入赋值给 TELEGRAM_CHAT_ID 变量
 
         echo ""
-        echo "Telegram 通知功能已选择启用，Bot Token 和 Chat ID 已记录
+        echo "Telegram 通知功能已选择启用，Bot Token 和 Chat ID 已记录"
