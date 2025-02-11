@@ -3,13 +3,13 @@
 # 定义一个带动画效果的函数，用于显示脚本执行状态
 X() {
     local Y=$1
-    local Z=<span class="math-inline">2
-local M\=</span>(date +%s)
+    local Z=$2
+    local M=$(date +%s)
     local N=2
     local O=("+")
     while true; do
-        local P=$(( <span class="math-inline">\(date \+%s\) \- M \)\)
-printf "\\r\[%s\] %s" "</span>{O[$((P % 1))]}" "$Y"
+        local P=$(( $(date +%s) - M ))
+        printf "\r[%s] %s" "${O[$((P % 1))]}" "$Y"
         if [[ $P -ge 1 ]]; then
             break
         fi
@@ -28,13 +28,14 @@ test_telegram_config() {
     local BOT_TOKEN=$1
     local CHAT_ID=$2
 
-    if [[ -z "$BOT_TOKEN" || -z "<span class="math-inline">CHAT\_ID" \]\]; then
-echo "Bot Token 或 Chat ID 为空，无法进行 Telegram 测试。"
-return 1 \# 返回 1 表示测试失败
-fi
-echo "正在测试 Telegram Bot 配置\.\.\."
-TEST\_MESSAGE\="Telegram 通知测试：恭喜！您的 Telegram Bot 配置已成功连接！\\n\\n您将会在监控的进程异常或恢复时收到通知。" \#  修改测试消息内容，更通用
-API\_URL\="https\://api\.telegram\.org/bot</span>{BOT_TOKEN}/sendMessage"
+    if [[ -z "$BOT_TOKEN" || -z "$CHAT_ID" ]]; then
+        echo "Bot Token 或 Chat ID 为空，无法进行 Telegram 测试。"
+        return 1 # 返回 1 表示测试失败
+    fi
+
+    echo "正在测试 Telegram Bot 配置..."
+    TEST_MESSAGE="Telegram 通知测试：恭喜！您的 Telegram Bot 配置已成功连接！\n\n您将会在监控的进程异常或恢复时收到通知。" #  修改测试消息内容，更通用
+    API_URL="https://api.telegram.org/bot${BOT_TOKEN}/sendMessage"
 
     # 使用 curl 发送测试消息到 Telegram Bot API
     TEST_RESULT=$(curl -s -X POST "$API_URL" -d "chat_id=$CHAT_ID" -d "text=$TEST_MESSAGE")
@@ -44,12 +45,14 @@ API\_URL\="https\://api\.telegram\.org/bot</span>{BOT_TOKEN}/sendMessage"
         return 0 # 返回 0 表示测试成功
     else
         echo "[\033[0;31mNO\033[0m] Telegram Bot 配置测试失败！请检查您的 Bot Token 和 Chat ID 是否正确。"
-        echo "详细错误信息: <span class="math-inline">TEST\_RESULT" \#  显示详细错误信息，方便用户排查问题
-return 1 \# 返回 1 表示测试失败
-fi
-\}
-\# 获取当前用户名并转换为小写，用于域名
-U\=</span>(whoami)
+        echo "详细错误信息: $TEST_RESULT" #  显示详细错误信息，方便用户排查问题
+        return 1 # 返回 1 表示测试失败
+    fi
+}
+
+
+# 获取当前用户名并转换为小写，用于域名
+U=$(whoami)
 V=$(echo "$U" | tr '[:upper:]' '[:lower:]')
 W="$V.serv00.net"
 A1="/home/$U/domains/$W"
@@ -183,20 +186,20 @@ fi
 
 
 # 下载配置文件
-wget "$A3" -O "<span class="math-inline">A2/main\.zip" 2\> "</span>{A2}/wget_error.log" #  移除 > /dev/null 2>&1，添加错误日志
-if [[ $? -ne 0 || ! -s "<span class="math-inline">A2/main\.zip" \]\]; then
-X " 下载配置文件失败：文件不存在或为空" 1
-cat "</span>{A2}/wget_error.log"  #  新增：打印 wget 错误日志
+wget "$A3" -O "$A2/main.zip" 2> "${A2}/wget_error.log" #  移除 > /dev/null 2>&1，添加错误日志
+if [[ $? -ne 0 || ! -s "$A2/main.zip" ]]; then
+    X " 下载配置文件失败：文件不存在或为空" 1
+    cat "${A2}/wget_error.log"  #  新增：打印 wget 错误日志
     exit 1
 else
     X " 下载 配置文件 " 0
 fi
 
 # 解压配置文件
-unzip "$A2/main.zip" -d "<span class="math-inline">A2" 2\> "</span>{A2}/unzip_error.log" # 移除 -q，添加错误日志
-if [[ <span class="math-inline">? \-eq 0 \]\]; then
-X " 解压 配置文件 " 0
-cat "</span>{A2}/unzip_error.log" # 新增：解压成功也打印 unzip_error.log
+unzip "$A2/main.zip" -d "$A2" 2> "${A2}/unzip_error.log" # 移除 -q，添加错误日志
+if [[ $? -eq 0 ]]; then
+    X " 解压 配置文件 " 0
+    cat "${A2}/unzip_error.log" # 新增：解压成功也打印 unzip_error.log
 else
     X " 解压配置文件失败 " 1
     cat "${A2}/unzip_error.log" # 新增：解压失败时打印错误日志
