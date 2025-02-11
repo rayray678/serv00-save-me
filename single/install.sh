@@ -23,16 +23,6 @@ X() {
     fi
 }
 
-# 定义日志记录函数 (增强健壮性，并添加 date 命令检查)
-logMessage() {
-    if ! type date >/dev/null 2>&1; then # 检查 date 命令是否存在
-        echo "Error: date command not found! logMessage function may not work correctly."
-        return 1 #  如果 date 命令不存在，函数返回错误
-    fi
-    local message="$1"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $message" >> "${A2}/install.log"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $message"
-}
 
 # 定义 Telegram Bot 配置测试函数
 test_telegram_config() {
@@ -195,6 +185,7 @@ elif [[ "$choice" -eq 2 ]]; then # 账号服务安装依赖
     fi
 fi
 
+
 # 下载配置文件
 wget "$A3" -O "$A2/main.zip" 2> "${A2}/wget_error.log" #  移除 > /dev/null 2>&1，添加错误日志
 if [[ $? -ne 0 || ! -s "$A2/main.zip" ]]; then
@@ -223,27 +214,27 @@ fi
 rm -f "$A2/README.md"
 rm -f "$A2/main.zip"
 
-#  调试代码：检查 logMessage 函数是否已定义 (添加到复制配置文件之前)
-if type logMessage >/dev/null 2>&1; then
-    echo "Debug: logMessage function is defined."
-else
-    echo "Debug: logMessage function is NOT defined! This is unexpected."
-fi
+#  解压后目录结构和 TARGET_FOLDER 变量调试信息
+echo "—>  解压后 $A2 目录结构 (tree 命令):"
+tree "$A2"
+echo "—>  解压后 $A2 目录结构 (ls -R 命令):"
+ls -R "$A2"
+echo "—>  TARGET_FOLDER 变量的值: $TARGET_FOLDER"
+
+
 # 复制对应类型的配置
-logMessage "检查 TARGET_FOLDER 变量的值: $TARGET_FOLDER" #  新增：打印 TARGET_FOLDER 的值
-logMessage "检查 完整的 TARGET_FOLDER 目录路径: $A2/$TARGET_FOLDER" # 新增：打印完整的目录路径
 if [[ -d "$A2/$TARGET_FOLDER" ]]; then
-    cp -rv "$A2/$TARGET_FOLDER"/app.js "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/hy2ip.sh "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/install.sh "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/ota.sh "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/.env "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/log.html "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/node.html "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/proxy.conf "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/readme.txt "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/start.sh "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
-    cp -rv "$A2/$TARGET_FOLDER"/info.html "$A2/" 2>> "${A2}/cp_error.log" #  添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/app.js "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/hy2ip.sh "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/install.sh "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/ota.sh "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/.env "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/log.html "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/node.html "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/proxy.conf "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/readme.txt "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/start.sh "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
+    cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/info.html "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
     rm -rf "$A2/$TARGET_FOLDER"
 else
     exit 1
