@@ -7,7 +7,7 @@ NODEJS_DIR="$BASE_DIR/public_nodejs"
 LOCAL_FILE_LIST="$NODEJS_DIR/file_list.txt"  
 LOCAL_VERSION_FILE="$NODEJS_DIR/version.txt"  
 
-REMOTE_DIR_URL="https://raw.githubusercontent.com/RAY1234555555/serv00-save-me/main/server/"
+REMOTE_DIR_URL="https://raw.githubusercontent.com/rayray678/serv00-save-me/main/server/"
 TIMESTAMP="?t=$(date +%s)" 
 REMOTE_FILE_LIST_URL="${REMOTE_DIR_URL}file_list.txt${TIMESTAMP}"
 REMOTE_VERSION_URL="${REMOTE_DIR_URL}version.txt${TIMESTAMP}"
