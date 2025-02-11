@@ -23,7 +23,7 @@ X() {
     fi
 }
 
-# 定义 Telegram Bot 配置测试函数 (从最新版本脚本中 *保留*)
+# 定义 Telegram Bot 配置测试函数 (改进版本，需要 jq 工具)
 test_telegram_config() {
     local BOT_TOKEN=$1
     local CHAT_ID=$2
@@ -37,16 +37,35 @@ test_telegram_config() {
     TEST_MESSAGE="Telegram 通知测试：恭喜！您的 Telegram Bot 配置已成功连接！\n\n您将会在监控的进程异常或恢复时收到通知。" #  修改测试消息内容，更通用
     API_URL="https://api.telegram.org/bot${BOT_TOKEN}/sendMessage"
 
-    # 使用 curl 发送测试消息到 Telegram Bot API (输出重定向到 /dev/null)
-    TEST_RESULT=$(curl -s -X POST "$API_URL" -d "chat_id=$CHAT_ID" -d "text=$TEST_MESSAGE" > /dev/null 2>&1)
+    # 使用 curl 发送测试消息到 Telegram Bot API，并获取 HTTP 状态码和响应内容
+    TEST_RESULT=$(curl -s -X POST "$API_URL" -d "chat_id=$CHAT_ID" -d "text=$TEST_MESSAGE")
+    HTTP_CODE=$(echo "$TEST_RESULT" |  grep -oP 'HTTP Code: \K\d+') # 使用 grep 提取 HTTP 状态码
 
-    if echo "$TEST_RESULT" | grep -q '"ok":true'; then
-        echo "[\033[0;32mOK\033[0m] Telegram Bot 配置测试成功！已发送测试消息到您的 Telegram 机器人。"
-        return 0 # 返回 0 表示测试成功
+    # 使用 jq 解析 JSON 响应，并检查 "ok" 字段和 HTTP 状态码 (需要安装 jq 工具)
+    if command -v jq >/dev/null 2>&1 ; then
+        #  如果安装了 jq 工具，则使用 jq 进行更精确的 JSON 解析和判断
+        OK_VALUE=$(echo "$TEST_RESULT" | jq '.ok')
+
+        if [[ "$HTTP_CODE" == "200" ]] && [[ "$OK_VALUE" == "true" ]]; then
+            echo "[\033[0;32mOK\033[0m] Telegram Bot 配置测试成功！已发送测试消息到您的 Telegram 机器人。"
+            return 0 # 返回 0 表示测试成功
+        else
+            echo "[\033[0;31mNO\033[0m] Telegram Bot 配置测试失败！请检查您的 Bot Token 和 Chat ID 是否正确。"
+            echo "HTTP 状态码: $HTTP_CODE" # 显示 HTTP 状态码
+            echo "详细错误信息 (JSON 'ok' 字段): $OK_VALUE" # 显示 JSON 'ok' 字段值
+            echo "完整 API 响应内容: $TEST_RESULT" #  显示完整 API 响应内容，方便用户排查问题
+            return 1 # 返回 1 表示测试失败
+        fi
     else
-        echo "[\033[0;31mNO\033[0m] Telegram Bot 配置测试失败！请检查您的 Bot Token 和 Chat ID 是否正确。"
-        echo "详细错误信息: $TEST_RESULT" #  显示详细错误信息，方便用户排查问题
-        return 1 # 返回 1 表示测试失败
+        #  如果没有安装 jq 工具，则 *退回到之前的 grep 判断方式* (兼容性考虑)
+        if echo "$TEST_RESULT" | grep -q '"ok":true'; then
+            echo "[\033[0;32mOK\033[0m] Telegram Bot 配置测试成功！已发送测试消息到您的 Telegram 机器人。(未安装 jq，使用简易判断)" #  提示使用了简易判断
+            return 0 # 返回 0 表示测试成功
+        else
+            echo "[\033[0;31mNO\033[0m] Telegram Bot 配置测试失败！请检查您的 Bot Token 和 Chat ID 是否正确。(未安装 jq，使用简易判断)" #  提示使用了简易判断
+            echo "详细错误信息: $TEST_RESULT" #  显示详细错误信息，方便用户排查问题
+            return 1 # 返回 1 表示测试失败
+        fi
     fi
 }
 
@@ -165,18 +184,18 @@ if [[ -d "$B1" ]]; then
     mv "$B1"/* "$A2/"
     rm -rf "$B1"
 fi
-rm -f "$A2/README.md"
-rm -f "$A2/main.zip"
+rm -f "$A2/README.md" > /dev/null 2>&1 # 添加输出重定向
+rm -f "$A2/main.zip" > /dev/null 2>&1 # 添加输出重定向
 
 if [[ -d "$A2/$TARGET_FOLDER" ]]; then
     cp -r "$A2/$TARGET_FOLDER/." "$A2/"
-    rm -rf "$A2/$TARGET_FOLDER"
+    rm -rf "$A2/$TARGET_FOLDER" > /dev/null 2>&1 # 添加输出重定向
 else
     exit 1
 fi
 
 if [[ -d "$A2/$DELETE_FOLDER" ]]; then
-    rm -rf "$A2/$DELETE_FOLDER"
+    rm -rf "$A2/$DELETE_FOLDER" > /dev/null 2>&1 # 添加输出重定向
 fi
 
 if [[ "$choice" -eq 1 ]]; then
