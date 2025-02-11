@@ -69,7 +69,7 @@ W="$V.serv00.net"
 A1="/home/$U/domains/$W"
 A2="$A1/public_nodejs"
 B1="$A2/public"
-A3="https://github.com/RAY1234555555/serv00-save-me/archive/refs/heads/main.zip"
+A3="https://github.com/rayray678/serv00-save-me/archive/refs/heads/main.zip"
 
 # 提示用户选择保活类型
 echo "请选择保活类型："
