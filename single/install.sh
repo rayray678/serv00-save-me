@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 定义一个带动画效果的函数，用于显示脚本执行状态
+# 定义一个带动画效果的函数，用于显示脚本执行状态 (输出重定向到 /dev/null)
 X() {
     local Y=$1
     local Z=$2
@@ -9,13 +9,13 @@ X() {
     local O=("+")
     while true; do
         local P=$(( $(date +%s) - M ))
-        printf "\r[%s] %s" "${O[$((P % 1))]}" "$Y"
+        printf "\r[%s] %s" "${O[$((P % 1))]}" "$Y" > /dev/null 2>&1  #  输出重定向
         if [[ $P -ge 1 ]]; then
             break
         fi
         sleep 0.08
     done
-    printf "\r                                  \r"
+    printf "\r                                  \r" > /dev/null 2>&1 # 输出重定向
     if [[ $Z -eq 0 ]]; then
         printf "[\033[0;32mOK\033[0m] %s\n" "$Y"
     else
@@ -24,7 +24,7 @@ X() {
 }
 
 
-# 定义 Telegram Bot 配置测试函数
+# 定义 Telegram Bot 配置测试函数 (输出重定向到 /dev/null)
 test_telegram_config() {
     local BOT_TOKEN=$1
     local CHAT_ID=$2
@@ -38,8 +38,8 @@ test_telegram_config() {
     TEST_MESSAGE="Telegram 通知测试：恭喜！您的 Telegram Bot 配置已成功连接！\n\n您将会在监控的进程异常或恢复时收到通知。" #  修改测试消息内容，更通用
     API_URL="https://api.telegram.org/bot${BOT_TOKEN}/sendMessage"
 
-    # 使用 curl 发送测试消息到 Telegram Bot API
-    TEST_RESULT=$(curl -s -X POST "$API_URL" -d "chat_id=$CHAT_ID" -d "text=$TEST_MESSAGE")
+    # 使用 curl 发送测试消息到 Telegram Bot API (输出重定向到 /dev/null)
+    TEST_RESULT=$(curl -s -X POST "$API_URL" -d "chat_id=$CHAT_ID" -d "text=$TEST_MESSAGE" > /dev/null 2>&1)
 
     if echo "$TEST_RESULT" | grep -q '"ok":true'; then
         echo "[\033[0;32mOK\033[0m] Telegram Bot 配置测试成功！已发送测试消息到您的 Telegram 机器人。"
@@ -66,6 +66,8 @@ echo "请选择保活类型："
 echo "1. 本机保活 (包含 Telegram 通知功能)"
 echo "2. 账号服务 (不包含 Telegram 通知功能)"
 read -p "请输入选择(1 或 2): " choice
+echo "Debug: choice = '$choice'"  #  调试代码：打印 choice 变量的值
+
 
 # 根据用户选择设置不同的变量和依赖
 if [[ "$choice" -eq 1 ]]; then
@@ -73,47 +75,6 @@ if [[ "$choice" -eq 1 ]]; then
     DELETE_FOLDER="server"
     DEPENDENCIES_SINGLE="dotenv basic-auth express node-telegram-bot-api" # 本机保活依赖，包含 Telegram 通知
     echo "开始进行 本机保活配置 (包含 Telegram 通知功能)"
-
-    #  新增：询问是否启用 Telegram 通知
-    echo ""
-    echo "您是否需要启用 Telegram 通知功能？"
-    echo "y. 启用 Telegram 通知 (推荐，进程异常时及时通知)"
-    echo "n. 不启用 Telegram 通知 (稍后手动配置)"
-    read -p "请输入选择 (y 或 n): " telegram_choice
-
-    TELEGRAM_BOT_TOKEN="" # 初始化 Telegram Bot Token 变量
-    TELEGRAM_CHAT_ID=""  # 初始化 Telegram Chat ID 变量
-
-    if [[ "$telegram_choice" == "y" ]]; then
-        echo ""
-        read -p "请输入您的 Telegram Bot Token: " TELEGRAM_BOT_TOKEN_INPUT
-        TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN_INPUT" # 将用户输入赋值给 TELEGRAM_BOT_TOKEN 变量
-
-        echo ""
-        read -p "请输入您的 Telegram Chat ID: " TELEGRAM_CHAT_ID_INPUT
-        TELEGRAM_CHAT_ID="$TELEGRAM_CHAT_ID_INPUT"   # 将用户输入赋值给 TELEGRAM_CHAT_ID 变量
-
-        echo ""
-        echo "Telegram 通知功能已选择启用，Bot Token 和 Chat ID 已记录。" #  已修正：添加了闭合双引号
-
-        #  调用 test_telegram_config 函数进行测试，并获取返回值
-        if test_telegram_config "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID"; then
-            TELEGRAM_CONFIG_TEST_RESULT=0 #  测试成功
-        else
-            TELEGRAM_CONFIG_TEST_RESULT=1 #  测试失败
-        fi
-
-    elif [[ "$telegram_choice" == "n" ]]; then
-        echo ""
-        echo "Telegram 通知功能已选择不启用，您可以在之后手动配置。"
-        TELEGRAM_CONFIG_TEST_RESULT=0 #  不启用通知，也视为配置测试通过，不影响后续安装
-    else
-        echo ""
-        echo "无效选择，Telegram 通知功能将默认不启用。"
-        TELEGRAM_CONFIG_TEST_RESULT=0 #  无效选择，也视为配置测试通过，不影响后续安装
-    fi
-
-
 elif [[ "$choice" -eq 2 ]]; then
     TARGET_FOLDER="server"
     DELETE_FOLDER="single"
@@ -126,7 +87,7 @@ fi
 
 echo " ———————————————————————————————————————————————————————————— "
 
-# 删除默认域名
+# 删除默认域名 (输出重定向到 /dev/null)
 cd && devil www del "$W" > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     X " 删除 默认域名 " 0
@@ -134,12 +95,12 @@ else
     X " 默认域名 删除失败 或 不存在" 1
 fi
 
-# 删除域名目录
+# 删除域名目录 (输出重定向到 /dev/null)
 if [[ -d "$A1" ]]; then
     rm -rf "$A1"
 fi
 
-# 创建 NodeJS 类型域名
+# 创建 NodeJS 类型域名 (输出重定向到 /dev/null)
 if devil www add "$W" nodejs /usr/local/bin/node22 > /dev/null 2>&1; then
     X " 创建 类型域名 " 0
 else
@@ -147,12 +108,12 @@ else
     exit 1
 fi
 
-# 删除 public 目录
+# 删除 public 目录 (输出重定向到 /dev/null)
 if [[ -d "$B1" ]]; then
     rm -rf "$B1"
 fi
 
-# 初始化 npm 并安装依赖 (根据用户的选择安装不同的依赖)
+# 初始化 npm 并安装依赖 (根据用户的选择安装不同的依赖) (输出重定向到 /dev/null)
 cd "$A2" && npm init -y > /dev/null 2>&1
 if [[ "$choice" -eq 1 ]]; then  #  本机保活安装依赖
     DEPENDENCIES_SINGLE="dotenv basic-auth express node-telegram-bot-api" # 本机保活依赖
@@ -186,7 +147,7 @@ elif [[ "$choice" -eq 2 ]]; then # 账号服务安装依赖
 fi
 
 
-# 下载配置文件
+# 下载配置文件 (输出重定向到 /dev/null，wget 错误日志保留)
 wget "$A3" -O "$A2/main.zip" 2> "${A2}/wget_error.log" #  移除 > /dev/null 2>&1，添加错误日志
 if [[ $? -ne 0 || ! -s "$A2/main.zip" ]]; then
     X " 下载配置文件失败：文件不存在或为空" 1
@@ -196,7 +157,7 @@ else
     X " 下载 配置文件 " 0
 fi
 
-# 解压配置文件
+# 解压配置文件 (输出重定向到 /dev/null，unzip 错误日志保留)
 unzip "$A2/main.zip" -d "$A2" 2> "${A2}/unzip_error.log" # 移除 -q，添加错误日志
 if [[ $? -eq 0 ]]; then
     X " 解压 配置文件 " 0
@@ -208,13 +169,13 @@ else
 fi
 B1="$A2/serv00-save-me-main"
 if [[ -d "$B1" ]]; then
-    mv "$B1"/* "$A2/"
-    rm -rf "$B1"
+    mv "$B1"/* "$A2/" > /dev/null 2>&1 # 输出重定向
+    rm -rf "$B1" > /dev/null 2>&1 # 输出重定向
 fi
-rm -f "$A2/README.md"
-rm -f "$A2/main.zip"
+rm -f "$A2/README.md" > /dev/null 2>&1 # 输出重定向
+rm -f "$A2/main.zip" > /dev/null 2>&1 # 输出重定向
 
-#  解压后目录结构和 TARGET_FOLDER 变量调试信息
+#  解压后目录结构和 TARGET_FOLDER 变量调试信息 (保留输出)
 echo "—>  解压后 $A2 目录结构 (tree 命令):"
 tree "$A2"
 echo "—>  解压后 $A2 目录结构 (ls -R 命令):"
@@ -222,7 +183,7 @@ ls -R "$A2"
 echo "—>  TARGET_FOLDER 变量的值: $TARGET_FOLDER"
 
 
-# 复制对应类型的配置
+# 复制对应类型的配置 (输出重定向到 /dev/null, cp 错误日志保留)
 if [[ -d "$A2/$TARGET_FOLDER" ]]; then
     cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/app.js "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
     cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/hy2ip.sh "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
@@ -235,17 +196,17 @@ if [[ -d "$A2/$TARGET_FOLDER" ]]; then
     cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/readme.txt "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
     cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/start.sh "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
     cp -rv "$A2/serv00-save-me-main/$TARGET_FOLDER"/info.html "$A2/" 2>> "${A2}/cp_error.log" #  修改源路径，添加 -rv 和错误日志
-    rm -rf "$A2/$TARGET_FOLDER"
+    rm -rf "$A2/$TARGET_FOLDER" > /dev/null 2>&1 # 输出重定向
 else
     exit 1
 fi
 
-# 删除多余目录
+# 删除多余目录 (输出重定向到 /dev/null)
 if [[ -d "$A2/$DELETE_FOLDER" ]]; then
-    rm -rf "$A2/$DELETE_FOLDER"
+    rm -rf "$A2/$DELETE_FOLDER" > /dev/null 2>&1 # 输出重定向
 fi
 
-# 设置执行权限
+# 设置执行权限 (输出重定向到 /dev/null)
 if [[ "$choice" -eq 1 ]]; then # 本机保活设置权限
     chmod 755 "$A2/app.js" > /dev/null 2>&1
     chmod 755 "$A2/hy2ip.sh" > /dev/null 2>&1
