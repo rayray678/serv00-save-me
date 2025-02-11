@@ -34,7 +34,7 @@ test_telegram_config() {
     fi
 
     echo "正在测试 Telegram Bot 配置..."
-    TEST_MESSAGE="Telegram 通知测试：恭喜！您的 Telegram Bot 配置已成功连接！"
+    TEST_MESSAGE="Telegram 通知测试：恭喜！您的 Telegram Bot 配置已成功连接！\n\n您将会在监控的进程异常或恢复时收到通知。" #  修改测试消息内容，更通用
     API_URL="https://api.telegram.org/bot${BOT_TOKEN}/sendMessage"
 
     # 使用 curl 发送测试消息到 Telegram Bot API
@@ -42,23 +42,12 @@ test_telegram_config() {
 
     if echo "$TEST_RESULT" | grep -q '"ok":true'; then
         echo "[\033[0;32mOK\033[0m] Telegram Bot 配置测试成功！已发送测试消息到您的 Telegram 机器人。"
-        # 可选：发送测试消息到 Telegram 机器人，告知用户已开启通知
-        send_test_telegram_message "$BOT_TOKEN" "$CHAT_ID"
         return 0 # 返回 0 表示测试成功
     else
         echo "[\033[0;31mNO\033[0m] Telegram Bot 配置测试失败！请检查您的 Bot Token 和 Chat ID 是否正确。"
         echo "详细错误信息: $TEST_RESULT" #  显示详细错误信息，方便用户排查问题
         return 1 # 返回 1 表示测试失败
     fi
-}
-
-#  新增函数：发送测试 Telegram 消息 (用于在测试成功后发送确认消息给用户)
-send_test_telegram_message() {
-    local BOT_TOKEN=$1
-    local CHAT_ID=$2
-    local TEST_MESSAGE_TO_USER="🎉 Telegram 通知已成功启用！您将会在 NZ-Agent 进程异常或恢复时收到通知。"
-    API_URL="https://api.telegram.org/bot${BOT_TOKEN}/sendMessage"
-    curl -s -X POST "$API_URL" -d "chat_id=$CHAT_ID" -d "text=$TEST_MESSAGE_TO_USER" > /dev/null 2>&1 #  忽略输出
 }
 
 
@@ -69,7 +58,7 @@ W="$V.serv00.net"
 A1="/home/$U/domains/$W"
 A2="$A1/public_nodejs"
 B1="$A2/public"
-A3="https://github.com/rayray678/serv00-save-me/archive/refs/heads/main.zip"
+A3="https://github.com/RAY1234555555/serv00-save-me/archive/refs/heads/main.zip"
 
 # 提示用户选择保活类型
 echo "请选择保活类型："
@@ -81,7 +70,7 @@ read -p "请输入选择(1 或 2): " choice
 if [[ "$choice" -eq 1 ]]; then
     TARGET_FOLDER="single"
     DELETE_FOLDER="server"
-    DEPENDENCIES="dotenv basic-auth express node-telegram-bot-api" #  为本机保活添加了 node-telegram-bot-api 依赖
+    DEPENDENCIES_SINGLE="dotenv basic-auth express node-telegram-bot-api" # 本机保活依赖，包含 Telegram 通知
     echo "开始进行 本机保活配置 (包含 Telegram 通知功能)"
 
     #  新增：询问是否启用 Telegram 通知
@@ -127,7 +116,7 @@ if [[ "$choice" -eq 1 ]]; then
 elif [[ "$choice" -eq 2 ]]; then
     TARGET_FOLDER="server"
     DELETE_FOLDER="single"
-    DEPENDENCIES="body-parser express-session dotenv express socket.io node-cron axios" # 账号服务不包含 Telegram 通知依赖
+    DEPENDENCIES_ACCOUNT_SERVICE="body-parser express-session dotenv express socket.io node-cron axios" # 账号服务依赖，不包含 Telegram 通知
     echo "开始进行 账号服务配置 (不包含 Telegram 通知功能)"
 else
     echo "无效选择，退出脚本"
@@ -162,16 +151,30 @@ if [[ -d "$B1" ]]; then
     rm -rf "$B1"
 fi
 
-# 初始化 npm 并安装依赖 (根据选择安装不同依赖)
+# 初始化 npm 并安装依赖 (根据用户的选择安装不同的依赖)
 cd "$A2" && npm init -y > /dev/null 2>&1
 if [[ "$choice" -eq 1 ]]; then  #  本机保活安装依赖
-    if npm install $DEPENDENCIES > /dev/null 2>&1; then
+    DEPENDENCIES_SINGLE="dotenv basic-auth express node-telegram-bot-api" # 本机保活依赖
+    if npm install $DEPENDENCIES_SINGLE > /dev/null 2>&1; then
         X " 安装 环境依赖 (包含 Telegram 通知)" 0 #  修改提示信息，更明确包含 Telegram 通知
     else
         X " 环境依赖 安装失败 " 1
         exit 1
     fi
-else # 账号服务安装依赖
+
+    if [[ "$choice" -eq 1 ]]; then  #  仅针对 本机保活 类型执行此代码段
+        echo "—>  正在清理并重新安装 node_modules (本机保活类型)..."
+        rm -rf "$A2/node_modules" # 强制删除 node_modules 文件夹
+        if npm install $DEPENDENCIES_SINGLE > /dev/null 2>&1; then # 使用 DEPENDENCIES_SINGLE 变量重新安装
+            X " 清理并重新安装 node_modules (本机保活类型) - 成功" 0
+        else
+            X " 清理并重新安装 node_modules (本机保活类型) - 失败" 1
+            exit 1
+        fi
+    fi
+
+
+elif [[ "$choice" -eq 2 ]]; then # 账号服务安装依赖
     DEPENDENCIES_ACCOUNT_SERVICE="body-parser express-session dotenv express socket.io node-cron axios" # 账号服务依赖
     if npm install $DEPENDENCIES_ACCOUNT_SERVICE > /dev/null 2>&1; then
         X " 安装 账号服务环境依赖 " 0
@@ -180,6 +183,7 @@ else # 账号服务安装依赖
         exit 1
     fi
 fi
+
 
 # 下载配置文件
 wget "$A3" -O "$A2/main.zip" > /dev/null 2>&1
